@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.15
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Animal Crossing Text Editor", "Animal Crossing Text Editor\Animal Crossing Text Editor.csproj", "{A32ACC07-A3EE-46E6-95A7-B8F8D2DA1FDC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A32ACC07-A3EE-46E6-95A7-B8F8D2DA1FDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A32ACC07-A3EE-46E6-95A7-B8F8D2DA1FDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A32ACC07-A3EE-46E6-95A7-B8F8D2DA1FDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A32ACC07-A3EE-46E6-95A7-B8F8D2DA1FDC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D7D64597-7D86-4FCC-833B-43ED90168E51}
+	EndGlobalSection
+EndGlobal
