@@ -1,0 +1,17 @@
+﻿<Window x:Class="Animal_Crossing_Text_Editor.GotoWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Animal_Crossing_Text_Editor"
+        mc:Ignorable="d"
+        Title="Goto" Height="100" Width="280" ResizeMode="NoResize">
+    <Grid>
+        <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10" Orientation="Horizontal">
+            <Label x:Name="label" Content="Hex Index:" VerticalContentAlignment="Center"/>
+            <TextBox x:Name="GotoTextBox" TextWrapping="Wrap" Text="00000000" Width="80" Height="20" VerticalContentAlignment="Center" Margin="10, 0, 0, 0"/>
+            <Button x:Name="button" Content="Goto" Width="75" Height="20" Margin="10, 0, 0, 0" Click="button_Click"/>
+        </StackPanel>
+
+    </Grid>
+</Window>
