@@ -44,7 +44,7 @@ namespace Animal_Crossing_Text_Editor
             { 0x1B, "Û" },
             { 0x1C, "Ü" },
             { 0x1D, "ß" },
-            { 0x1E, "Þ" },
+            { 0x1E, "\u00DE" }, // Latin Capital Thorn
             { 0x1F, "à" },
             { 0x20, " " },
             { 0x21, "!" },
@@ -141,8 +141,8 @@ namespace Animal_Crossing_Text_Editor
             { 0x7C, "é" },
             { 0x7D, "ê" },
             { 0x7E, "ë" },
-            { 0x7F, "□" },
-            { 0x80, "�" },
+            { 0x7F, "□" }, // Control Character
+            { 0x80, "�" }, // Not used?
             { 0x81, "ì" },
             { 0x82, "í" },
             { 0x83, "î" },
@@ -163,7 +163,7 @@ namespace Animal_Crossing_Text_Editor
             { 0x92, "ü" },
             { 0x93, "ý" },
             { 0x94, "ÿ" },
-            { 0x95, "þ" },
+            { 0x95, "\u00FE" }, // Latin lowercase thorn
             { 0x96, "Ý" },
             { 0x97, "¦" },
             { 0x98, "§" },
@@ -224,52 +224,7 @@ namespace Animal_Crossing_Text_Editor
             { 0xCF, "🐞" },
             { 0xD0, ";" },
             { 0xD1, "#" },
-            //0xD2
-            //0xD3
             { 0xD4, "⚷" },
-            //0xD5
-            //0xD6
-            //0xD7
-            //0xD8
-            //0xD9
-            //0xDA
-            //0xDB
-            //0xDC
-            //0xDD
-            //0xDE
-            //0xDF
-            //0xE0
-            //0xE1
-            //0xE2
-            //0xE3
-            //0xE4
-            //0xE5
-            //0xE6
-            //0xE7
-            //0xE8
-            //0xE9
-            //0xEA
-            //0xEB
-            //0xEC
-            //0xED
-            //0xEE
-            //0xEF
-            //0xF0
-            //0xF1
-            //0xF2
-            //0xF3
-            //0xF4
-            //0xF5
-            //0xF6
-            //0xF7
-            //0xF8
-            //0xF9
-            //0xFA
-            //0xFB
-            //0xFC
-            //0xFD
-            //0xFE
-            //0xFF
         };
 
         public static Dictionary<byte, string> Doubutsu_no_Mori_Plus_Character_Map = new Dictionary<byte, string>
@@ -317,11 +272,11 @@ namespace Animal_Crossing_Text_Editor
             { 0x28, "(" },
             { 0x29, ")" },
             { 0x2A, "~" },
-            { 0x2B, "+" },
+            { 0x2B, "♥" },
             { 0x2C, "," },
             { 0x2D, "-" },
             { 0x2E, "." },
-            { 0x2F, "/" },
+            { 0x2F, "♪" },
             { 0x30, "0" },
             { 0x31, "1" },
             { 0x32, "2" },
@@ -333,9 +288,9 @@ namespace Animal_Crossing_Text_Editor
             { 0x38, "8" },
             { 0x39, "9" },
             { 0x3A, ":" },
-            { 0x3B, ";" },
+            { 0x3B, "🌢" }, // Unicode
             { 0x3C, "<" },
-            { 0x3D, "=" },
+            { 0x3D, "+" },
             { 0x3E, ">" },
             { 0x3F, "?" },
             { 0x40, "@" },
@@ -366,7 +321,7 @@ namespace Animal_Crossing_Text_Editor
             { 0x59, "Y" },
             { 0x5A, "Z" },
             { 0x5B, "も" },
-            { 0x5C, "\\" },
+            { 0x5C, "💢" }, // Unicode
             { 0x5D, "や" },
             { 0x5E, "ゆ" },
             { 0x5F, "_" },
@@ -401,7 +356,7 @@ namespace Animal_Crossing_Text_Editor
             { 0x7C, "り" },
             { 0x7D, "る" },
             { 0x7E, "れ" },
-            { 0x7F, "�" }, // Cont Character
+            { 0x7F, "�" }, // Control Character
             { 0x80, "□" }, // Tag Character
             { 0x81, "。" },
             { 0x82, "｢" },
@@ -599,7 +554,7 @@ namespace Animal_Crossing_Text_Editor
             { 0x16, "<Set 2 Choices [{0}] [{1}]>" }, // Extra 4 bytes
             { 0x17, "<Set 3 Choices [{0}] [{1}] [{2}]>" }, // Extra 6 bytes
             { 0x18, "<Set 4 Choices [{0}] [{1}] [{2}] [{3}]>" }, // Extra 8 bytes
-            { 0x19, "<End of Choices>" }, // Unsure about this one (could also be display 1 character) (auto skips to next text box)
+            { 0x19, "<End of Choices>" }, 
             { 0x1A, "<Player Name>" },
             { 0x1B, "<NPC Name>" },
             { 0x1C, "<Catchphrase>" },
@@ -614,7 +569,7 @@ namespace Animal_Crossing_Text_Editor
             { 0x25, "<String 1>" },
             { 0x26, "<String 2>" },
             { 0x27, "<String 3>" },
-            { 0x28, "<String 4>" }, // Might be current memory card
+            { 0x28, "<String 4>" },
             { 0x29, "<String 5>" },
             { 0x2A, "<String 6>" },
             { 0x2B, "<String 7>" },
@@ -684,10 +639,10 @@ namespace Animal_Crossing_Text_Editor
             // 0x6F (Same as above)
             // 0x70 (Same as above)
             { 0x71, "<Island Name>" },
-            //{ 0x72, "<Indent Line>" }, // Adds an indentation (tab) (mMsg_Main_Cursol_SetCursolJust_ControlCursol)
-            //{ 0x73, "<End Line Indentation>" }, // I don't know what this does, it acts the same as above (mMsg_Main_Cursol_ClrCursolJust_ControlCursol)
-            //{ 0x74, "<Transferred Item>" }, // (mMsg_Main_Cursol_CutArticle_ControlCursol)
-            //{ 0x75, "" }, // (mMsg_Cursol_CapitalLetter_ControlCursol)
+            //{ 0x72, "<Enable Justification>" }, // Enable String Justification (mMsg_Main_Cursol_SetCursolJust_ControlCursol)
+            //{ 0x73, "<Disable Justification>" }, // Disable String Justification (mMsg_Main_Cursol_ClrCursolJust_ControlCursol)
+            //{ 0x74, "<Enable Article Cut>" }, // (mMsg_Main_Cursol_CutArticle_ControlCursol)
+            //{ 0x75, "<Enable Capital Letter>" }, // (mMsg_Cursol_CapitalLetter_ControlCursol)
             { 0x76, "<AM/PM>" },
             { 0x77, "<Choice #5 MessageId [{0}]>" },
             { 0x78, "<Choice #6 MessageId [{0}]>" },
@@ -918,7 +873,7 @@ namespace Animal_Crossing_Text_Editor
                 { 0x0003, "<Bad Luck>" },
                 { 0x0004, "<Bell Luck>" },
                 { 0x0005, "<Item Luck>" },
-                { 0x0006, "<Player Emotion [UNKNOWN]>" },
+                { 0x0006, "<Player Emotion [Surprised]>" }, // Might not be right
                 { 0x0008, "<Player Emotion [UNKNOWN 2]>" },
                 { 0x0009, "<Clear Player Emotion>" },
             }
@@ -931,15 +886,35 @@ namespace Animal_Crossing_Text_Editor
             },
             { 0x0A, new Dictionary<ushort, string>
             {
-                { 0x0006, "<Sound Cut Off>" }, // Investigate these
-                { 0x0007, "<Sound Cut On>" }
+                { 0x0000, "<Normal Voice>" },
+                { 0x0001, "<Angry Voice>" },
+                { 0x0002, "<Sad Voice>" },
+                { 0x0003, "<Happy Voice>" },
+                { 0x0004, "<Sleepy Voice>" },
+                { 0x0006, "<Sound Cut Off>" }, // When sound cut is off, it turns to bebebese
+                { 0x0007, "<Sound Cut On>" },
+                { 0x0008, "<Bell Transaction Sound Effect>" },
+                { 0x0009, "<Happy Sound Effect>" }, // These two are from completing villager requests?
+                { 0x000A, "<Very Happy Sound Effect>" },
+                { 0x000B, "<Variable Sound Effect 0>" },
+                { 0x000C, "<Variable Sound Effect 1>" },
+                { 0x000D, "<Annoyed Sound Effect>" }, // Resetti
+                { 0x000E, "<Thunder Sound Effect>" }, // Resetti
+                { 0x0011, "<Variable Sound Effect 2>" }, // Idk about this one
+            }
+            },
+            { 0x0C, new Dictionary<ushort, string>
+            {
+                { 0x0000, "<Set Selected Dialog [{0}]>" },
+                { 0x0003, "<Select Random Dialog from [{0}] [{1}] [{2}]>" },
+                { 0x0006, "<Select Random Dialog from [{0}] [{1}]>" },
             }
             },
             { 0xFF, new Dictionary<ushort, string>
             {
                 { 0x0000, "<Line Color Index [{0}]>" }, // Might not be only "next character"
                 { 0x0001, "<Line Size [{0}]>" }, // Ends at the next Line Size or end of line?
-                { 0x0002, "<Next Character replaced with [{0} ]>" } // Only if the player's Kanji Level is greater than or equal to the previously set one
+                { 0x0002, "<Ruby for Kana [{0}]>" } // Only if the player's Kanji Level is greater than or equal to the previously set one
                 // TODO: Figure out what the extra bytes at the end of the Next Character replaced with command does
             }
             }
@@ -948,13 +923,59 @@ namespace Animal_Crossing_Text_Editor
         public static Dictionary<byte, string> Character_Map = Animal_Crossing_Character_Map; // Current Character Map
         public static Dictionary<byte, int> Cont_Id_Appearance = new Dictionary<byte, int>();
 
+        public static string GetRawText(byte[] Data)
+        {
+            string Text = "";
+            for (int i = 0; i < Data.Length; i++)
+            {
+                Text += Doubutsu_no_Mori_Plus_Character_Map[Data[i]];
+            }
+            return Text;
+        }
+
+        private static bool Temp = false;
+        private static string GetRuby(byte[] Data, int DataStart, int TagSize, ref int Count)
+        {
+            // TODO: Figure out how the Kanji bank is decided
+            //Console.WriteLine(Data[RubyStart].ToString("X2"));
+            byte KanaCount = Data[DataStart + 5];
+            int RubyStart = 6;
+            int RubyCount = TagSize - 6;
+            int KanaStart = RubyStart + RubyCount - 1;
+            string BaseString = Tag_Map[0xFF][0x0002];
+            string Ruby = "";
+            for (int i = DataStart + RubyStart; i < DataStart + RubyStart + RubyCount; i++)
+            {
+                Ruby += Doubutsu_no_Mori_Plus_Character_Map[Data[i]];
+            }
+
+            var FormattedString = string.Format(BaseString, Ruby);
+
+            for (int i = 0; i < KanaCount; i++)
+            {
+                FormattedString += DnMe_Plus_Kanji_Bank_1[Data[DataStart + KanaStart + i]]; // Remove "Kanji_Bank_1" static delcaration
+            }
+
+            if (!Temp)
+            {
+                Console.WriteLine(Data[DataStart + 5].ToString("X2"));
+                Temp = true;
+                Console.WriteLine(string.Format("Kana Count: {0} | Ruby Start: {1} | Ruby Count: {2} | Kana Start: {3} | String: {4}",
+                    KanaCount, RubyStart, RubyCount, KanaStart, FormattedString));
+            }
+
+            Count += KanaCount;
+
+            return FormattedString;
+        }
+
         public static string Decode(byte[] Data)
         {
             string Text = "";
             for (int i = 0; i < Data.Length; i++)
             {
                 byte Current_Byte = Data[i];
-                if (Current_Byte == 0x7F) // "Cont" Character
+                if (Current_Byte == 0x7F) // "Control" Character
                 {
                     if (i + 1 < Data.Length)
                     {
@@ -980,14 +1001,20 @@ namespace Animal_Crossing_Text_Editor
                                     ushort Emotion = (ushort)((Data[i + 2] << 8) | Data[i + 3]);
                                     if (Player_Emotions.ContainsKey(Emotion))
                                     {
-                                        Text += string.Format(ContId_Map[Cont_Param], Player_Emotions[Emotion], Modifier.ToString("X2")); // TODO: Modifier list (and encoding)
+                                        Text += string.Format(ContId_Map[Cont_Param], Modifier.ToString("X2"), Player_Emotions[Emotion]); // TODO: Modifier list (and encoding)
                                     }
                                     else
                                     {
                                         Text += string.Format(ContId_Map[Cont_Param], "Unknown Emotion 0x" + Emotion.ToString("X4"), Modifier.ToString("X2"));
                                     }
+                                    i += 3;
                                     break;
                                 case 0x09:
+                                    if (i + 3 >= Data.Length)
+                                    {
+                                        Debug.WriteLine("Unable to determine expression, as the byte array was not long enough to contain expression data!");
+                                        break;
+                                    }
                                     int Expression = (Data[i + 1] << 16) | (Data[i + 2] << 8) | Data[i + 3];
                                     if (Expression_List.ContainsKey(Expression))
                                         Text += string.Format(ContId_Map[0x09], Expression_List[Expression]);
@@ -1103,7 +1130,7 @@ namespace Animal_Crossing_Text_Editor
                                             Text += string.Format(Description, (ushort)((Data[i + 5] << 8) | Data[i + 6]));
                                             break;
                                         case 0x0005:
-                                            Text += string.Format(Description, (Data[i + 5] > 0x09 ? Data[i + 5] - 0x0A : Data[i + 5]));
+                                            Text += string.Format(Description, (Data[i + 5] > 0x09 ? Data[i + 5] - 0x0A : Data[i + 5])); // Fontbank may be in the first portion of this
                                             break;
                                         default:
                                             Text += Description;
@@ -1167,6 +1194,24 @@ namespace Animal_Crossing_Text_Editor
                                             break;
                                     }
                                     break;
+                                case 0x0C:
+                                    switch (Index)
+                                    {
+                                        case 0x0000:
+                                            Text += string.Format(Description, Data[i + 5].ToString("X2") + Data[i + 6].ToString("X2"));
+                                            break;
+                                        case 0x0003:
+                                            Text += string.Format(Description, Data[i + 5].ToString("X2") + Data[i + 6].ToString("X2"), Data[i + 7].ToString("X2") + Data[i + 8].ToString("X2"),
+                                                Data[i + 9].ToString("X2") + Data[i + 10].ToString("X2"));
+                                            break;
+                                        case 0x0006:
+                                            Text += string.Format(Description, Data[i + 5].ToString("X2") + Data[i + 6].ToString("X2"), Data[i + 7].ToString("X2") + Data[i + 8].ToString("X2"));
+                                            break;
+                                        default:
+                                            Text += Description;
+                                            break;
+                                    }
+                                    break;
                                 case 0xFF:
                                     switch (Index)
                                     {
@@ -1179,7 +1224,9 @@ namespace Animal_Crossing_Text_Editor
                                         case 0x0002:
                                             if (i + Size < Data.Length)
                                             {
-                                                Text += string.Format(Description, (Data[i + 5] == 0 ? DnMe_Plus_Kanji_Bank_0[Data[i + Size]] : DnMe_Plus_Kanji_Bank_1[Data[i + Size]])); // This is still not right. Need to figure it out.
+                                                //Text += string.Format(Description, (Data[i + 5] == 0 ? DnMe_Plus_Kanji_Bank_0[Data[i + Size]] : DnMe_Plus_Kanji_Bank_1[Data[i + Size]])); // This is still not right. Need to figure it out.
+                                                Text += GetRuby(Data, i, Size, ref i); // This isn't right either..
+                                                //i++; // Skip the next text entry (as it's used for the Kanji character)
                                             }
                                             else
                                             {
@@ -1268,7 +1315,39 @@ namespace Animal_Crossing_Text_Editor
                                         }
                                         break;
                                     case 0x08: // Player Expressions
-
+                                        if (x == 1)
+                                        {
+                                            var Player_Expression = Player_Emotions.FirstOrDefault(o => o.Value.ToLower().Equals(Matches[x]));
+                                            if (!string.IsNullOrEmpty(Player_Expression.Value))
+                                            {
+                                                Data.Add((byte)(Player_Expression.Key >> 8));
+                                                Data.Add((byte)Player_Expression.Key);
+                                            }
+                                            else if (ushort.TryParse(Matches[x], NumberStyles.AllowHexSpecifier, null, out ushort Player_Expression_Value))
+                                            {
+                                                Data.Add((byte)(Player_Expression_Value >> 8));
+                                                Data.Add((byte)Player_Expression_Value);
+                                            }
+                                            else
+                                            {
+                                                Data.Add(0);
+                                                Data.Add(0);
+                                                MessageBox.Show("Argument Error: <Player Emotion [] []> unable to find a match or parse hex for type: " + Matches[x]);
+                                            }
+                                        }
+                                        else if (x == 0)
+                                        {
+                                            if (byte.TryParse(Matches[x], NumberStyles.AllowHexSpecifier, null, out byte Player_Emotion_Modifier))
+                                            {
+                                                Data.Add(Player_Emotion_Modifier);
+                                            }
+                                            else
+                                            {
+                                                Data.Add(0);
+                                                MessageBox.Show("Argument Error: <Player Emotion [] []> unable to parse hex for modifier type: " + Matches[x]);
+                                            }
+                                        }
+                                        break;
                                     case 0x09: // Expressions
                                         var Expression = Expression_List.FirstOrDefault(o => o.Value.ToLower().Equals(Matches[x]));
                                         if (!string.IsNullOrEmpty(Expression.Value))

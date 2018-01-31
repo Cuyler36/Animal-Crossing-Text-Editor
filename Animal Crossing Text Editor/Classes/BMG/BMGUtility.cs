@@ -33,6 +33,8 @@ namespace Animal_Crossing_Text_Editor
     {
         public uint Text_Offset;
         public string Text;
+        public uint Length;
+        public byte[] Data;
     };
 
     public struct BMG_Section_DAT
@@ -222,7 +224,7 @@ namespace Animal_Crossing_Text_Editor
                     /*Console.WriteLine("Offset: 0x" + bmg.INF_Section.Items[i].Text_Offset.ToString("X") +
                         string.Format(" | Reading String {0} / {1} from: 0x", i + 1, bmg.INF_Section.MessageCount)
                         + (String_Start_Offset + bmg.INF_Section.Items[i].Text_Offset).ToString("X"));*/
-
+                    
                     long Ending_Offset = 0;
                     if (i == bmg.INF_Section.MessageCount - 1)
                     {
@@ -239,8 +241,9 @@ namespace Animal_Crossing_Text_Editor
                             Reader.BaseStream.Position.ToString("X")));
                     //Console.WriteLine(string.Format("Current Offset: {0} | Next Offset: {1}", bmg.INF_Section.Items[i].Text_Offset, bmg.INF_Section.Items[i + 1].Text_Offset));
                     //Console.ReadKey();*/
-
-                    bmg.INF_Section.Items[i].Text = TextUtility.Decode(Reader.ReadBytes((int)(Ending_Offset - Reader.BaseStream.Position)));
+                    bmg.INF_Section.Items[i].Data = Reader.ReadBytes((int)(Ending_Offset - Reader.BaseStream.Position));
+                    bmg.INF_Section.Items[i].Text = TextUtility.Decode(bmg.INF_Section.Items[i].Data);
+                    bmg.INF_Section.Items[i].Length = (uint)Ending_Offset - (uint)Reader.BaseStream.Position;
                 }
 
                 return bmg;
