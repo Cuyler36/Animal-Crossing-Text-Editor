@@ -531,7 +531,7 @@ namespace Animal_Crossing_Text_Editor
         {
             { 0x00, "<End Conversation>" }, // "Last" Code
             { 0x01, "<Goto Jump Entry>" }, // "Continue" Code
-            { 0x02, "<New Page>" }, 
+            { 0x02, "<New Page>" },
             { 0x03, "<Pause [{0}]>" }, // "SetTime" Code
             { 0x04, "<Press A>" }, // Might be "bring up next arrow"
             { 0x05, "<Color Line [{0}]>" }, // "Color" Code
@@ -554,7 +554,7 @@ namespace Animal_Crossing_Text_Editor
             { 0x16, "<Set 2 Choices [{0}] [{1}]>" }, // Extra 4 bytes
             { 0x17, "<Set 3 Choices [{0}] [{1}] [{2}]>" }, // Extra 6 bytes
             { 0x18, "<Set 4 Choices [{0}] [{1}] [{2}] [{3}]>" }, // Extra 8 bytes
-            { 0x19, "<End of Choices>" }, 
+            { 0x19, "<Force Dialog Switch>" },
             { 0x1A, "<Player Name>" },
             { 0x1B, "<NPC Name>" },
             { 0x1C, "<Catchphrase>" },
@@ -583,16 +583,16 @@ namespace Animal_Crossing_Text_Editor
             { 0x33, "<Item 2>" },
             { 0x34, "<Item 3>" },
             { 0x35, "<Item 4>" },
-            { 0x36, "<Item 5>" },
-            { 0x37, "<Item 6>" },
-            { 0x38, "<String 10>" },
-            { 0x39, "<String 11>" },
-            { 0x3A, "<String 12>" },
-            { 0x3B, "<String 13>" },
-            { 0x3C, "<String 14>" },
-            { 0x3D, "<String 15>" },
-            { 0x3E, "<String 16>" },
-            { 0x3F, "<String 17>" },
+            { 0x36, "<String 10>" },
+            { 0x37, "<String 11>" },
+            { 0x38, "<String 12>" },
+            { 0x39, "<String 13>" },
+            { 0x3A, "<String 14>" },
+            { 0x3B, "<String 15>" },
+            { 0x3C, "<String 16>" },
+            { 0x3D, "<String 17>" },
+            { 0x3E, "<String 18>" },
+            { 0x3F, "<String 19>" },
             { 0x40, "<Show Gyroid Message>" },
             { 0x41, "<Neutral Luck>" },
             { 0x42, "<Relationship Luck>" },
@@ -750,41 +750,74 @@ namespace Animal_Crossing_Text_Editor
             { 0x07, "None" } // Doesn't produce a sound effect and anything greater than 07 is clamped to 07
         };
 
+        public static string[] LineTypes = new string[3] { "Top", "Center", "Bottom" };
+
         /*
          * Doubutsu no Mori e+ Tag Map
+         * 
+         * Call Stack:
+         *      mMsg_Main_Cursol
+         *          => mMsg_Main_Cursol_ControlCursol
+         *              => mMsg_Main_Cursol_Proc_TagCursol
+         *                  => Tag Subroutine
          */
 
         public static Dictionary<byte, Dictionary<ushort, string>> Tag_Map = new Dictionary<byte, Dictionary<ushort, string>>
         {
-            { 0x01, new Dictionary<ushort, string>
+            { 0x00, new Dictionary<ushort, string> // Internal Name = "Gaiji" (No subroutines, it's a dummy group)
             {
+                { 0x0000, "<Gaiji Dummy Process>" }
+            }
+            },
+            { 0x01, new Dictionary<ushort, string> // Internal Name = "Base"
+            {
+                { 0x0000, "<Start Conversation>" }, // Not used (just a dummy method)
                 { 0x0001, "<End Conversation>" },
                 { 0x0002, "<Switch to Selected Dialog>" },
                 { 0x0003, "<New Page>" },
                 { 0x0004, "<Pause [{0}]>" },
                 { 0x0005, "<Required Kanji Level [{0}]>" },
+                { 0x0006, "<Set Player Kanji Level [{0}]>" },
+                { 0x0007, "<Increment Player Kanji Level>" },
+                { 0x0008, "<Decrement Player Kanji Level>" },
+                { 0x0009, "<Line Offset [{0}]>" },
+                { 0x000A, "<Character Margin [{0}]>" },
                 { 0x000B, "<End Conversation after [{0}]>" }
-                //{ 0x001B, "<End Conversation after [{0}]>" }
             }
             },
-            { 0x02, new Dictionary<ushort, string>
+            { 0x02, new Dictionary<ushort, string> // Internal Name = "Choice"
             {
                 { 0x0000, "<Set 2 Choices [{0}] [{1}]>" },
                 { 0x0001, "<Set 3 Choices [{0}] [{1}] [{2}]>" },
                 { 0x0002, "<Set 4 Choices [{0}] [{1}] [{2}] [{3}]>" },
+                { 0x0003, "<Set 5 Choices [{0}] [{1}] [{2}] [{3}] [{4}]>" },
+                { 0x0004, "<Set 6 Choices [{0}] [{1}] [{2}] [{3}] [{4}], [{5}]>" },
                 { 0x0005, "<Choice #1 MessageId [{0}]>" },
                 { 0x0006, "<Choice #2 MessageId [{0}]>" },
                 { 0x0007, "<Choice #3 MessageId [{0}]>" },
-                { 0x0008, "<Choice #4 MessageId [{0}]>" }
+                { 0x0008, "<Choice #4 MessageId [{0}]>" },
+                { 0x0009, "<Choice #5 MessageId [{0}]>" },
+                { 0x000A, "<Choice #6 MessageId [{0}]>" }
             }
             },
-            { 0x04, new Dictionary<ushort, string>
+            { 0x03, new Dictionary<ushort, string> // Internal Name = "NpcEm" (NPC Emotion)
+            {
+                { 0x0000, "<NPC Emotion [Fun]>" }, // uses the 0x0C cont id (with arguments: r5 = 4, r6 = 2, and r7 = 1 (r7 appears to be the "demoOrder" index) (mMsgTag_NpcEm_Fun)
+                { 0x0001, "<NPC Emotion [Angry]>" }, // r5 = 4, r6 = 2, r7 = 2
+                { 0x0002, "<NPC Emotion [Sad]>" }, // r5 = 4, r6 = 2, r7 = 3
+                { 0x0003, "<NPC Emotion [Sleepy]>" }, // r5 = 4, r6 = 2, r7 = 4
+                { 0x0004, "<NPC Emotion [Normal]>" }, // r5 = 4, r6 = 2, r7 = 5
+                { 0x0005, "<NPC Emotion [Gloomy]>" }, // r5 = 4, r6 = 2, r7 = 7 (where is r7 = 6)??
+                { 0x0006, "<NPC Emotion [Continue] [{0}]>" }, // r5 = 4, r6 = 8, r7 = <byte>@{0}
+            }
+            },
+            { 0x04, new Dictionary<ushort, string> // Internal Name = "Str" (String)
             {
                 { 0x0000, "<Player Name>" },
                 { 0x0001, "<NPC Name>" },
-                { 0x0002, "<Catchphrase>" },
-                { 0x0003, "<Last Choice Selected>" },
-                { 0x0004, "<Gyroid Message>" },
+                { 0x0002, "<Catchphrase>" }, // Referred to as a "tail" in code
+                { 0x0003, "<Last Choice Selected>" }, // Determination
+                { 0x0004, "<Gyroid Message>" }, // Mail
                 { 0x0005, "<Town Name>" },
                 { 0x0006, "<Island Name>" },
                 { 0x0007, "<Year>" },
@@ -795,6 +828,9 @@ namespace Animal_Crossing_Text_Editor
                 { 0x000C, "<Minute>" },
                 { 0x000D, "<Second>" },
                 { 0x000E, "<Random Number>" },
+                { 0x000F, "<AM/PM>" },
+                { 0x0010, "<Capital>" }, // mMsgTag_Str_Capital (Check what this does)
+                { 0x0011, "<Article Cut>" }, // mMsgTag_Str_ArticleCut (Check what this does)
                 { 0x0012, "<String 0>" },
                 { 0x0013, "<String 1>" },
                 { 0x0014, "<String 2>" },
@@ -805,34 +841,58 @@ namespace Animal_Crossing_Text_Editor
                 { 0x0019, "<String 7>" },
                 { 0x001A, "<String 8>" },
                 { 0x001B, "<String 9>" },
-                { 0x001C, "<Unknown Mail Variable 1>" },
-                { 0x001D, "<Unknown Mail Variable 2>" },
-                { 0x001E, "<Unknown Mail Variable 3>" },
-                { 0x001F, "<Unknown Mail Variable 4>" },
-                { 0x0020, "<Year>" },
-                { 0x0021, "<Month>" },
-                { 0x0022, "<Day>" },
-                { 0x0023, "<Year (2)>" },
-                { 0x0024, "<Day (2)>" },
-                { 0x0025, "<Unknown Mail Variable 5>" },
-                { 0x0026, "<String 10>" },
-                { 0x0027, "<String 11>" },
-                { 0x0028, "<String 12>" },
-                { 0x0029, "<String 13>" },
-                { 0x002A, "<String 14>" },
+                { 0x001C, "<String 10>" },
+                { 0x001D, "<String 11>" },
+                { 0x001E, "<String 12>" },
+                { 0x001F, "<String 13>" },
+                { 0x0020, "<String 14>" },
+                { 0x0021, "<String 15>" },
+                { 0x0022, "<String 16>" },
+                { 0x0023, "<String 17>" },
+                { 0x0024, "<String 18>" },
+                { 0x0025, "<String 19>" },
+                { 0x0026, "<Item String 0>" },
+                { 0x0027, "<Item String 1>" },
+                { 0x0028, "<Item String 2>" },
+                { 0x0029, "<Item String 3>" },
+                { 0x002A, "<Item String 4>" },
+                { 0x002B, "<NPC Nickname>" },
+                { 0x002C, "<NPC Town Name>" }, // Check this (mMsgTag_Str_NpcNameTribe)
+                { 0x002D, "<Opln>" }, // Check this (mMsgTag_Str_Opln) (Original Player Name??)
+                { 0x002E, "<Own Island Name>" }, // Other player island name? (Check this)
+                { 0x002F, "<Cloth Type>" }, // Check this (mMsgTag_Str_PlClothType) (Probably "Player Cloth Type", so maybe: shirt, umbrella, carpet, wallpaper?
+                { 0x0030, "<NPC Past Nickname>" },
+                { 0x0031, "<NPC Past Town Name>" },
+                { 0x0032, "<Original Catchphrase>" }, // (Original Catchphrase?) (mMsgTag_Str_TruthTail Check this
+                { 0x0033, "<Town Name in Kana>" }
             }
             },
-            { 0x05, new Dictionary<ushort, string>
+            { 0x05, new Dictionary<ushort, string> // Internal Name = "Com" (Probably means Command)
             {
                 { 0x0000, "<Press A>" },
+                { 0x0001, "<Press A (No Sound)>" }, // Confirmed in mMsgTag_Com_ButtonNoSE (No Sound Effect)
                 { 0x0002, "<B Button Selects Last Choice>" },
+                { 0x0003, "<B Button Cannot Select Last Choice>" },
                 { 0x0004, "<Instantly Skippable Text>" },
                 { 0x0005, "<Unskippable Text>" },
                 { 0x0006, "<Open Choice Selection Menu>" },
-                { 0x0007, "<End of Choices>" }
+                { 0x0007, "<Force Dialog Switch>" }, // "ForceNextSet (mMstTag_Com_ForceNextSet) <= Research
+                { 0x0008, "<Line Alignment Top>" }, // Aka SetLineType
+                { 0x0009, "<Line Alignment Center>" },
+                { 0x000A, "<Line Alignment Bottom>" },
+                { 0x000B, "<Give Open>" }, // Unused
+                { 0x000C, "<Give Closed>" }, // Unused really (there are a few in DnMe+ that use it). Might be "GiveClothes"
+                { 0x000D, "<Set Cursor Justification>" },
+                { 0x000E, "<Clear Cursor Justification>" },
+                { 0x000F, "<Set NPC Quest 3_01>" }, // Research these (They're the 0x0C cont ids) [mMsgTag_Com_DemoNpc0_3_1] (this probably sets the quest)
+                { 0x0010, "<Set NPC Quest 3_FF>" }, // This probably clears the quest (quest id being 3 and the clear being 0xFF)
+                { 0x0011, "<Set NPC Quest 4_01>" },
+                { 0x0012, "<Set NPC Quest 4_FF>" },
+                { 0x0013, "<Start Key Check>" },
+                { 0x0014, "<Stop Key Check>" }
             }
             },
-            { 0x06, new Dictionary<ushort, string>
+            { 0x06, new Dictionary<ushort, string> // Internal Name = Manpu (Emotion)
             {
                 { 0x0000, "<Clear Expression>" },
                 { 0x0001, "<Expression [Glare]>" },
@@ -859,13 +919,34 @@ namespace Animal_Crossing_Text_Editor
                 { 0x0016, "<Expression [Scowl]>" },
                 { 0x0017, "<Expression [Frown]>" },
                 { 0x0018, "<Clear Expression (K.K.)>" },
-                { 0x0023, "<Expression [Angry] (Resetti)" },
+                { 0x0019, "<Clear Expression (Sitting)>" },
+                { 0x001A, "<Expression [Laugh] (Sitting)>" },
+                { 0x001B, "<Expression [Shocked] (Sitting)>" },
+                { 0x001C, "<Expression [Idea] (Sitting)>" },
+                { 0x001D, "<Expression [Surprised] (Sitting)>" },
+                { 0x001E, "<Expression [Angry] (Sitting)>" },
+                { 0x001F, "<Expression [Smile] (Sitting)>" },
+                { 0x0020, "<Expression [Frown] (Sitting)>" },
+                { 0x0021, "<Expression [Wondering] (Sitting)>" },
+                { 0x0022, "<Expression [Salute]>" },
+                { 0x0023, "<Expression [Angry] (Resetti)>" },
                 { 0x0024, "<Clear Expression (Resetti)>" },
-                { 0x002A, "<Expression [Furious] (Resetti)>" },
-                { 0x002B, "<Expression [Surprised] (K.K.)>" }
+                { 0x0025, "<Expression [Sad] (Resetti)>" },
+                { 0x0026, "<Expression [Smile] (Resetti)>" },
+                { 0x0027, "<Expression [Jaw Drop] (Resetti)>" },
+                { 0x0028, "<Expression [Annoyed] (Resetti)>" },
+                { 0x0029, "<Expression [Furious] (Resetti)>" },
+                { 0x002A, "<Expression [Surprised] (K.K.)>" },
+                { 0x002B, "<Expression [Fortune]>" }, // Katrina
+                { 0x002C, "<Expression [None]>" }
             }
             },
-            { 0x08, new Dictionary<ushort, string>
+            { 0x07, new Dictionary<ushort, string> // Internal Name = "Tm" (Trademark)? (Probably not)
+            {
+                { 0x0000, "<Unknown TM Tag 0x{0}>" }, // Figure out what each one does, then document them
+            }
+            },
+            { 0x08, new Dictionary<ushort, string> // Internal Name = "PlSt" (Player Status)?
             {
                 { 0x0000, "<Neutral Luck>" },
                 { 0x0001, "<Relationship Luck>" },
@@ -873,26 +954,38 @@ namespace Animal_Crossing_Text_Editor
                 { 0x0003, "<Bad Luck>" },
                 { 0x0004, "<Bell Luck>" },
                 { 0x0005, "<Item Luck>" },
-                { 0x0006, "<Player Emotion [Surprised]>" }, // Might not be right
-                { 0x0008, "<Player Emotion [UNKNOWN 2]>" },
-                { 0x0009, "<Clear Player Emotion>" },
+                { 0x0006, "<Player Emotion [Surprised]>" }, // (mMsgTag_PlSt_DemoPl_0_2) r5 = 0, r6 = 0, r7 = 2
+                { 0x0007, "<Player Emotion [Purple Mist]>" }, // r5 = 0, r6 = 0, r7 = 0xFD
+                { 0x0008, "<Player Emotion [Scared]>" }, // r5 = 0, r6 = 0, r7 = 0xFE
+                { 0x0009, "<Clear Player Emotion>" }, // r5 = 0, r6 = 0, r7 = 0xFF
             }
             },
-            { 0x09, new Dictionary<ushort, string>
+            { 0x09, new Dictionary<ushort, string> // Internal Name = "Spec" (Special)
             {
-                { 0x0000, "<Secondary Nookling>" },
-                { 0x0001, "<Main Nookling>" }
+                { 0x0000, "<Voice Disabled>" }, // TODO: Verify this, then change "Main Nookling & Secondary Nookling" for AC
+                { 0x0001, "<Voice Enabled>" },
+                { 0x0002, "<DemoNPC0_1_4>" }, // Calls 0x0C cont id r5 = 4, r6 = 1, r7 = 4
+                { 0x0003, "<DemoNPC0_7_1>" }, // r5 = 4, r6 = 7, r7 = 1
+                { 0x0004, "<DemoNPC0_9_0>" }, // r5 = 4, r6 = 9, r7 = 0
+                { 0x0005, "<DemoNPC0_9_1>" }, // r5 = 4, r6 = 9, r7 = 1
+                { 0x0006, "<DemoNPC0_9_2>" }, // r5 = 4, r6 = 9, r7 = 2
+                { 0x0007, "<DemoNPC0_9_3>" }, // r5 = 4, r6 = 9, r7 = 3
+                { 0x0008, "<DemoNPC0_9_4>" }, // r5 = 4, r6 = 9, r7 = 4
+                { 0x0009, "<DemoNPC0_9_5>" }, // r5 = 4, r6 = 9, r7 = 5
+                { 0x000A, "<DemoNPC0_9_6>" }, // r5 = 4, r6 = 9, r7 = 6
+                { 0x000B, "<DemoNPC0_9_7>" }, // r5 = 4, r6 = 9, r7 = 7
             }
             },
-            { 0x0A, new Dictionary<ushort, string>
+            { 0x0A, new Dictionary<ushort, string> // Internal Name = "Sound"
             {
                 { 0x0000, "<Normal Voice>" },
                 { 0x0001, "<Angry Voice>" },
                 { 0x0002, "<Sad Voice>" },
                 { 0x0003, "<Happy Voice>" },
                 { 0x0004, "<Sleepy Voice>" },
-                { 0x0006, "<Sound Cut Off>" }, // When sound cut is off, it turns to bebebese
-                { 0x0007, "<Sound Cut On>" },
+                { 0x0005, "<Gloomy Voice>" },
+                { 0x0006, "<Sound Cut Off>" }, // When sound cut is off, it turns to bebebese (MindOn)
+                { 0x0007, "<Sound Cut On>" }, // (MindOff)
                 { 0x0008, "<Bell Transaction Sound Effect>" },
                 { 0x0009, "<Happy Sound Effect>" }, // These two are from completing villager requests?
                 { 0x000A, "<Very Happy Sound Effect>" },
@@ -900,24 +993,122 @@ namespace Animal_Crossing_Text_Editor
                 { 0x000C, "<Variable Sound Effect 1>" },
                 { 0x000D, "<Annoyed Sound Effect>" }, // Resetti
                 { 0x000E, "<Thunder Sound Effect>" }, // Resetti
-                { 0x0011, "<Variable Sound Effect 2>" }, // Idk about this one
+                { 0x000F, "<Sound Effect #7>" }, // Research these
+                { 0x0010, "<Sound Effect #8>" },
+                { 0x0011, "<Variable Sound Effect 2>" }, // This may be wrong. Internally it's mMsgTag_Sound_NoSePage (No Sound Effect Page?) (Does this mean it's not queued?)
+                { 0x0012, "<Stop BGM Music [{0}] [{1}]>" },
+                { 0x0013, "<Start BGM Music [{0}] [{1}]>" }
             }
             },
-            { 0x0C, new Dictionary<ushort, string>
+            {
+            0x0B, new Dictionary<ushort, string> // Internal Name = "Quest"
+            {
+                { 0x0000, "<NPC Quest_2 [{0}]>" }, // r5 = 9, r6 = 2, r7 = <byte>@{0}
+                { 0x0001, "<NPC Quest_3 [{0}]>" }, // r5 = 9, r6 = 3, r7 = <byte>@{0}
+                { 0x0002, "<NPC Quest_9 [{0}]>" }, // r5 = 9, r6 = 9, r7 = <byte>@{0}
+                { 0x0003, "<NPC Friendship Increase [{0}]>" }, // r5 = 9, r6 = 5, <byte>@{0}
+                { 0x0004, "<NPC Friendship Decrease [{0}]>" }, // r5 = 9, r6 = 5, <byte>@{0} + 0x64 (decrease is calculated by the % over 100)
+                { 0x0005, "<NPC Quest_0_2>" }, // r5 = 9, r6 = 0, r7 = 2
+                { 0x0006, "<Give Map>" }, // [0] r3 = 5, r4 = 0, r5 = 0x251D (Map Sprite) | [1] r3 = 5, r4 = 1, r5 = 7 | [2] r3 = 5, r4 = 2, r5 = 1
+                { 0x0007, "<NPC Quest_0_1>" }, // r5 = 9, r6 = 0, r7 = 1
+                { 0x0008, "<NPC Quest_0_2b>" }, // r5 = 9, r6 = 0, r7 = 2
+                { 0x0009, "<NPC Quest_0_3>" }, // r5 = 9, r6 = 0, r7 = 3
+                { 0x000A, "<NPC Quest_0_4>" }, // r5 = 9, r6 = 0, r7 = 4
+                { 0x000B, "<NPC Quest_0_5>" }, // r5 = 9, r6 = 0, r7 = 5
+                { 0x000C, "<NPC Quest_0_6>" }, // r5 = 9, r6 = 0, r7 = 6
+                { 0x000D, "<NPC Quest_0_7>" }, // r5 = 9, r6 = 0, r7 = 7
+                { 0x000E, "<NPC Quest_0_8>" }, // r5 = 9, r6 = 0, r7 = 8
+                { 0x000F, "<NPC Quest_0_9>" }, // r5 = 9, r6 = 0, r7 = 9
+                { 0x0010, "<NPC Quest_0_10>" }, // r5 = 9, r6 = 0, r7 = 0xA
+                { 0x0011, "<NPC Quest_0_11>" }, // r5 = 9, r6 = 0, r7 = 0xB
+                { 0x0012, "<NPC Quest_0_12>" }, // r5 = 9, r6 = 0, r7 = 0xC
+                { 0x0013, "<NPC Quest_1_1>" }, // r5 = 9, r6 = 1, r7 = 1
+                { 0x0014, "<NPC Quest_1_2>" }, // r5 = 9, r6 = 1, r7 = 2
+                { 0x0015, "<NPC Quest_4_1>" }, // r5 = 9, r6 = 4, r7 = 1
+                { 0x0016, "<NPC Quest_6_1>" }, // r5 = 9, r6 = 6, r7 = 1
+                { 0x0017, "<NPC Quest_7_1>" }, // r5 = 9, r6 = 7, r7 = 1
+                { 0x0018, "<NPC Quest_8_1>" }, // r5 = 9, r6 = 8, r7 = 1
+                { 0x0019, "<NPC Quest_8_2>" }, // r5 = 9, r6 = 8, r7 = 2
+                { 0x001A, "<NPC Quest_Nnkc [{0}]>"} // <byte>@{0}
+            }
+            },
+            { 0x0C, new Dictionary<ushort, string> // Internal Name = "Jump"
             {
                 { 0x0000, "<Set Selected Dialog [{0}]>" },
+                { 0x0001, "<Select Random Jump Entry Between [{0}] and [{1}]>" },
+                { 0x0002, "<Select Random Dialog from [{0}] [{1}]>" },
                 { 0x0003, "<Select Random Dialog from [{0}] [{1}] [{2}]>" },
-                { 0x0006, "<Select Random Dialog from [{0}] [{1}]>" },
+                { 0x0004, "<Select Random Dialog from [{0}] [{1}] [{2}] [{3}]>" },
+                { 0x0005, "<NPC Friendship Jump [{0}] [{1}] [{2}]" }, // <byte>friendship <ushort>lessThan <ushort>greaterOrEqual
+                { 0x0006, "<Select Random Dialog from [{0}] [{1}]>" }, // Check if player is the first player? (Or working?) Idk. Investigate?
+                { 0x0007, "<Player Gender Jump [{0}] [{1}]" }, // <ushort>MaleMessageId, <ushort>FemaleMessageId
+                // TODO: Rest of the unique jumps (figure them out)
             }
             },
-            { 0xFF, new Dictionary<ushort, string>
+            { 0x0D, new Dictionary<ushort, string> // Internal Name = "Talk3" (NPC Talk Routines? Maybe for listening in on them?)
+            {
+                { 0x0000, "<Talk3_3pbj [{0}]>" }, // <ushort>MessageId @{0}
+                { 0x0001, "<Talk3_Quest_7_2>" },
+                { 0x0002, "<Talk3_DemoNPC0_5_2>" },
+                { 0x0003, "<Talk3_DemoNPC0_5_1>" },
+                { 0x0004, "<Talk3_DemoNPC2_5_2>" },
+                { 0x0005, "<Talk3_DemoNPC2_5_1>" },
+                { 0x0006, "<Talk3_DemoQ_9_5>" },
+                { 0x0007, "<Talk3_DemoNPC0_5_3>" },
+                { 0x0008, "<Talk3_DemoNPC0_6_2>" },
+                { 0x0009, "<Talk3_DemoNPC0_6_1>" }
+            }
+            },
+            { 0x0E, new Dictionary<ushort, string> // Internal Name = "Body"
+            {
+                { 0x0000, "<Body_DemoNPC0_5_1>" },
+                { 0x0001, "<Body_DemoNPC0_5_2>" },
+                { 0x0002, "<Body_DemoNPC0_5_3>" },
+                { 0x0003, "<Body_DemoNPC0_6_1>" },
+                { 0x0004, "<Body_DemoNPC0_6_2>" },
+                { 0x0005, "<Body_DemoNPC0_6_3>" }
+            }
+            },
+            { 0x0F, new Dictionary<ushort, string> // Internal Name = "NpcEmSub"
+            {
+                { 0x0000, "<NPC Emotion Sub [Fun]>" },
+                { 0x0001, "<NPC Emotion Sub [Angry]>" },
+                { 0x0002, "<NPC Emotion Sub [Sad]>" },
+                { 0x0003, "<NPC Emotion Sub [Sleepy]>" },
+                { 0x0004, "<NPC Emotion Sub [Normal]>" },
+                { 0x0005, "<NPC Emotion Sub [Gloomy]>" },
+                { 0x0006, "<NPC Emotion Sub [Continue] [{0}]>" } // <byte>@{0}
+            }
+            },
+            { 0x10, new Dictionary<ushort, string> // Internal Name = "ManpuSub" (Emotion Subroutine)
+            {
+
+            }
+            },
+            { 0x11, new Dictionary<ushort, string> // Internal Name = "TmSub"
+            {
+
+            }
+            },
+            { 0x12, new Dictionary<ushort, string> // Internal Name = "BodySub"
+            {
+
+            }
+            },
+            { 0xFF, new Dictionary<ushort, string> // Internal Name = "Sys" (System)
             {
                 { 0x0000, "<Line Color Index [{0}]>" }, // Might not be only "next character"
                 { 0x0001, "<Line Size [{0}]>" }, // Ends at the next Line Size or end of line?
-                { 0x0002, "<Ruby for Kana [{0}]>" } // Only if the player's Kanji Level is greater than or equal to the previously set one
-                // TODO: Figure out what the extra bytes at the end of the Next Character replaced with command does
+                { 0x0002, "<Ruby for Kana [{0}]>" }, // Only if the player's Kanji Level is greater than or equal to the previously set one
+                { 0x0003, "<Set Font {Unused}]>" } // mMsgTag_Sys_Font (a dummy method, calls mMsgTag_dummy_proc)
             }
             }
+        };
+
+        // Quest_Nnkc subroutines
+        static string[] NnckSubroutines = new string[]
+        {
+            "aQMgr_actor_add_relation"
         };
 
         public static Dictionary<byte, string> Character_Map = Animal_Crossing_Character_Map; // Current Character Map
@@ -933,11 +1124,20 @@ namespace Animal_Crossing_Text_Editor
             return Text;
         }
 
-        private static bool Temp = false;
+        /*
+         * DnMe+ Kanji Bank Documentation
+         * 
+         * The kanji bank is decided by the kanji level required tag before it. (THIS APPEARS TO BE WRONG)
+         * It works like this:
+         * 
+         * int KanjiBank = 1;
+         * if (Level >= 0x0A)
+         *      KanjiBank = 2;
+         */
+
+        private static string[] KanjiBank = DnMe_Plus_Kanji_Bank_0;
         private static string GetRuby(byte[] Data, int DataStart, int TagSize, ref int Count)
         {
-            // TODO: Figure out how the Kanji bank is decided
-            //Console.WriteLine(Data[RubyStart].ToString("X2"));
             byte KanaCount = Data[DataStart + 5];
             int RubyStart = 6;
             int RubyCount = TagSize - 6;
@@ -951,18 +1151,20 @@ namespace Animal_Crossing_Text_Editor
 
             var FormattedString = string.Format(BaseString, Ruby);
 
+            //Debug.WriteLine("Kanji Bank: " + KanjiBank);
+
             for (int i = 0; i < KanaCount; i++)
             {
-                FormattedString += DnMe_Plus_Kanji_Bank_1[Data[DataStart + KanaStart + i]]; // Remove "Kanji_Bank_1" static delcaration
+                FormattedString += KanjiBank[Data[DataStart + KanaStart + i]];
             }
 
-            if (!Temp)
+            /*if (!Temp)
             {
                 Console.WriteLine(Data[DataStart + 5].ToString("X2"));
                 Temp = true;
                 Console.WriteLine(string.Format("Kana Count: {0} | Ruby Start: {1} | Ruby Count: {2} | Kana Start: {3} | String: {4}",
                     KanaCount, RubyStart, RubyCount, KanaStart, FormattedString));
-            }
+            }*/
 
             Count += KanaCount;
 
@@ -1068,7 +1270,7 @@ namespace Animal_Crossing_Text_Editor
                                     break;
                                 case 0x51:
                                 case 0x52:
-                                case 0x53:
+                                case 0x53: // Change to use the line type enums
                                 case 0x54:
                                 case 0x58:
                                 case 0x5A:
@@ -1117,20 +1319,40 @@ namespace Animal_Crossing_Text_Editor
                         byte Group = Data[i + 2];
                         ushort Index = (ushort)((Data[i + 3] << 8) | Data[i + 4]);
 
+                        // Temporary
+                        if (Group == 0x07)
+                            Index = 0;
+
                         if (Tag_Map.ContainsKey(Group) && Tag_Map[Group].ContainsKey(Index))
                         {
                             string Description = Tag_Map[Group][Index];
                             switch (Group)
                             {
+                                case 0x00:
+                                    switch (Index)
+                                    {
+                                        default:
+                                            Text += Description;
+                                            break;
+                                    }
+                                    break;
                                 case 0x01:
                                     switch (Index)
                                     {
                                         case 0x0004:
+                                        case 0x0006:
+                                        case 0x0009:
+                                        case 0x000A:
                                         case 0x000B:
                                             Text += string.Format(Description, (ushort)((Data[i + 5] << 8) | Data[i + 6]));
                                             break;
                                         case 0x0005:
-                                            Text += string.Format(Description, (Data[i + 5] > 0x09 ? Data[i + 5] - 0x0A : Data[i + 5])); // Fontbank may be in the first portion of this
+                                            Text += string.Format(Description, (Data[i + 5] > 0x09 ? Data[i + 5] - 0x0A : Data[i + 5]));
+                                            if (Data[i + 5] > 0x09)
+                                                KanjiBank = DnMe_Plus_Kanji_Bank_0;
+                                            else
+                                                KanjiBank = DnMe_Plus_Kanji_Bank_1;
+
                                             break;
                                         default:
                                             Text += Description;
@@ -1151,14 +1373,37 @@ namespace Animal_Crossing_Text_Editor
                                             Text += string.Format(Description, ((ushort)((Data[i + 5] << 8) | Data[i + 6])).ToString("X4"), ((ushort)((Data[i + 7] << 8) | Data[i + 8])).ToString("X4"),
                                                 ((ushort)((Data[i + 9] << 8) | Data[i + 10])).ToString("X4"), ((ushort)((Data[i + 11] << 8) | Data[i + 12])).ToString("X4"));
                                             break;
+                                        case 0x0003:
+                                            Text += string.Format(Description, ((ushort)((Data[i + 5] << 8) | Data[i + 6])).ToString("X4"), ((ushort)((Data[i + 7] << 8) | Data[i + 8])).ToString("X4"),
+                                                ((ushort)((Data[i + 9] << 8) | Data[i + 10])).ToString("X4"), ((ushort)((Data[i + 11] << 8) | Data[i + 12])).ToString("X4"),
+                                                ((ushort)((Data[i + 13] << 8) | Data[i + 14])).ToString("X4"));
+                                            break;
+                                        case 0x0004:
+                                            Text += string.Format(Description, ((ushort)((Data[i + 5] << 8) | Data[i + 6])).ToString("X4"), ((ushort)((Data[i + 7] << 8) | Data[i + 8])).ToString("X4"),
+                                                ((ushort)((Data[i + 9] << 8) | Data[i + 10])).ToString("X4"), ((ushort)((Data[i + 11] << 8) | Data[i + 12])).ToString("X4"),
+                                                ((ushort)((Data[i + 13] << 8) | Data[i + 14])).ToString("X4"), ((ushort)((Data[i + 15] << 8) | Data[i + 16])).ToString("X4"));
+                                            break;
                                         case 0x0005:
                                         case 0x0006:
                                         case 0x0007:
                                         case 0x0008:
+                                        case 0x0009:
+                                        case 0x000A:
                                             Text += string.Format(Description, ((ushort)((Data[i + 5] << 8) | Data[i + 6])).ToString("X4"));
                                             break;
                                         default:
                                             Text += Description;
+                                            break;
+                                    }
+                                    break;
+                                case 0x03:
+                                    switch (Index)
+                                    {
+                                        default:
+                                            Text += Description;
+                                            break;
+                                        case 0x0006:
+                                            Text += string.Format(Description, Data[i + 5].ToString("X2"));
                                             break;
                                     }
                                     break;
@@ -1171,6 +1416,31 @@ namespace Animal_Crossing_Text_Editor
                                     }
                                     break;
                                 case 0x05:
+                                    switch (Index)
+                                    {
+                                        default:
+                                            Text += Description;
+                                            break;
+                                    }
+                                    break;
+                                case 0x06:
+                                    switch (Index)
+                                    {
+                                        default:
+                                            Text += Description;
+                                            break;
+                                    }
+                                    break;
+                                case 0x07:
+                                    /*switch (Index)
+                                    {
+                                        default:
+                                            Text += Description;
+                                            break;
+                                    }*/
+                                    Text += string.Format(Description, ((Data[i + 3] << 8) | Data[i + 4]).ToString("X4"));
+                                    break;
+                                case 0x08:
                                     switch (Index)
                                     {
                                         default:
@@ -1192,6 +1462,28 @@ namespace Animal_Crossing_Text_Editor
                                         default:
                                             Text += Description;
                                             break;
+                                        case 0x0012:
+                                        case 0x0013:
+                                            Text += string.Format(Description, Music_List[Data[i + 5]], Music_Transitions[Data[i + 6]]);
+                                            break;
+                                    }
+                                    break;
+                                case 0x0B:
+                                    switch (Index)
+                                    {
+                                        case 0x0000:
+                                        case 0x0001:
+                                        case 0x0002:
+                                        case 0x001A:
+                                            Text += string.Format(Description, Data[i + 5].ToString("X2"));
+                                            break;
+                                        case 0x0003:
+                                        case 0x0004:
+                                            Text += string.Format(Description, Data[i + 5].ToString());
+                                            break;
+                                        default:
+                                            Text += Description;
+                                            break;
                                     }
                                     break;
                                 case 0x0C:
@@ -1204,8 +1496,26 @@ namespace Animal_Crossing_Text_Editor
                                             Text += string.Format(Description, Data[i + 5].ToString("X2") + Data[i + 6].ToString("X2"), Data[i + 7].ToString("X2") + Data[i + 8].ToString("X2"),
                                                 Data[i + 9].ToString("X2") + Data[i + 10].ToString("X2"));
                                             break;
+                                        case 0x0004:
+                                            Text += string.Format(Description, Data[i + 5].ToString("X2") + Data[i + 6].ToString("X2"), Data[i + 7].ToString("X2") + Data[i + 8].ToString("X2"),
+                                                Data[i + 9].ToString("X2") + Data[i + 10].ToString("X2"), Data[i + 11].ToString("X2") + Data[i + 12].ToString("X2"));
+                                            break;
+                                        case 0x0001:
+                                        case 0x0002:
                                         case 0x0006:
+                                        case 0x0007:
                                             Text += string.Format(Description, Data[i + 5].ToString("X2") + Data[i + 6].ToString("X2"), Data[i + 7].ToString("X2") + Data[i + 8].ToString("X2"));
+                                            break;
+                                        default:
+                                            Text += Description;
+                                            break;
+                                    }
+                                    break;
+                                case 0x0F:
+                                    switch (Index)
+                                    {
+                                        case 0x0006:
+                                            Text += string.Format(Description, Data[i + 5].ToString("X2"));
                                             break;
                                         default:
                                             Text += Description;

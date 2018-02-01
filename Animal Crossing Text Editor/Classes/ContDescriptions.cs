@@ -30,7 +30,7 @@ namespace Animal_Crossing_Text_Editor
             { "<Set 2 Choices [] []>", "Sets two choices for the next choice selection. Choices come from select.bin and the Choice Ids are in hex." },
             { "<Set 3 Choices [] [] []>", "Sets three choices for the next choice selection. Choices come from select.bin and the Choice Ids are in hex." },
             { "<Set 4 Choices [] [] [] []>", "Sets four choices for the next choice selection. Choices come from select.bin and the Choice Ids are in hex." },
-            // 19 when confirmed
+            { "<Force Switch Dialog>", "Forces the dialog to switch to the next dialog set." },
             { "<Player Name>", "Displays the currently selected player's name" },
             { "<NPC Name>", "Displays the name of the NPC who is being talked to" },
             { "<Catchphrase>", "Displays the catchphrase of the NPC who is being talked to, if they have one" },
