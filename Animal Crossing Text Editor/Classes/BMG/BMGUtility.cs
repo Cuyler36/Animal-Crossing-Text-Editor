@@ -241,9 +241,10 @@ namespace Animal_Crossing_Text_Editor
                             Reader.BaseStream.Position.ToString("X")));
                     //Console.WriteLine(string.Format("Current Offset: {0} | Next Offset: {1}", bmg.INF_Section.Items[i].Text_Offset, bmg.INF_Section.Items[i + 1].Text_Offset));
                     //Console.ReadKey();*/
+                    long Starting_Offset = Reader.BaseStream.Position;
                     bmg.INF_Section.Items[i].Data = Reader.ReadBytes((int)(Ending_Offset - Reader.BaseStream.Position));
                     bmg.INF_Section.Items[i].Text = TextUtility.Decode(bmg.INF_Section.Items[i].Data);
-                    bmg.INF_Section.Items[i].Length = (uint)Ending_Offset - (uint)Reader.BaseStream.Position;
+                    bmg.INF_Section.Items[i].Length = (uint)(Ending_Offset - Starting_Offset);
                 }
 
                 return bmg;

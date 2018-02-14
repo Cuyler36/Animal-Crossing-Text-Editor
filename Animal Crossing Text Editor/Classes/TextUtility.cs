@@ -776,7 +776,7 @@ namespace Animal_Crossing_Text_Editor
                 { 0x0002, "<Switch to Selected Dialog>" },
                 { 0x0003, "<New Page>" },
                 { 0x0004, "<Pause [{0}]>" },
-                { 0x0005, "<Required Kanji Level [{0}]>" },
+                { 0x0005, "<Kanji Level [{0}] Bank [{1}]>" },
                 { 0x0006, "<Set Player Kanji Level [{0}]>" },
                 { 0x0007, "<Increment Player Kanji Level>" },
                 { 0x0008, "<Decrement Player Kanji Level>" },
@@ -943,7 +943,16 @@ namespace Animal_Crossing_Text_Editor
             },
             { 0x07, new Dictionary<ushort, string> // Internal Name = "Tm" (Trademark)? (Probably not)
             {
-                { 0x0000, "<Unknown TM Tag 0x{0}>" }, // Figure out what each one does, then document them
+                { 0x0000, "<Unknown TM Tag 0x0000>" }, // Figure out what each one does, then document them
+                { 0x0001, "<Unknown TM Tag 0x0001>" },
+                { 0x0002, "<Unknown TM Tag 0x0002>" },
+                { 0x0003, "<Unknown TM Tag 0x0003>" },
+                { 0x0004, "<Unknown TM Tag 0x0004>" },
+                { 0x0005, "<Unknown TM Tag 0x0005>" },
+                { 0x0006, "<Unknown TM Tag 0x0006>" },
+                { 0x0007, "<Unknown TM Tag 0x0007>" },
+                { 0x0008, "<Unknown TM Tag 0x0008>" },
+                { 0x0009, "<Unknown TM Tag 0x0009>" },
             }
             },
             { 0x08, new Dictionary<ushort, string> // Internal Name = "PlSt" (Player Status)?
@@ -1099,8 +1108,8 @@ namespace Animal_Crossing_Text_Editor
             {
                 { 0x0000, "<Line Color Index [{0}]>" }, // Might not be only "next character"
                 { 0x0001, "<Line Size [{0}]>" }, // Ends at the next Line Size or end of line?
-                { 0x0002, "<Ruby for Kana [{0}]>" }, // Only if the player's Kanji Level is greater than or equal to the previously set one
-                { 0x0003, "<Set Font {Unused}]>" } // mMsgTag_Sys_Font (a dummy method, calls mMsgTag_dummy_proc)
+                { 0x0002, "<Ruby for [{0}] Kana [{1}]>" }, // Only if the player's Kanji Level is greater than or equal to the previously set one
+                { 0x0003, "<Set Font {Unused}>" } // mMsgTag_Sys_Font (a dummy method, calls mMsgTag_dummy_proc)
             }
             }
         };
@@ -1141,7 +1150,7 @@ namespace Animal_Crossing_Text_Editor
             byte KanaCount = Data[DataStart + 5];
             int RubyStart = 6;
             int RubyCount = TagSize - 6;
-            int KanaStart = RubyStart + RubyCount - 1;
+            int KanaStart = RubyStart + RubyCount; // - 1
             string BaseString = Tag_Map[0xFF][0x0002];
             string Ruby = "";
             for (int i = DataStart + RubyStart; i < DataStart + RubyStart + RubyCount; i++)
@@ -1149,7 +1158,7 @@ namespace Animal_Crossing_Text_Editor
                 Ruby += Doubutsu_no_Mori_Plus_Character_Map[Data[i]];
             }
 
-            var FormattedString = string.Format(BaseString, Ruby);
+            var FormattedString = string.Format(BaseString, KanaCount, Ruby);
 
             //Debug.WriteLine("Kanji Bank: " + KanjiBank);
 
@@ -1347,7 +1356,7 @@ namespace Animal_Crossing_Text_Editor
                                             Text += string.Format(Description, (ushort)((Data[i + 5] << 8) | Data[i + 6]));
                                             break;
                                         case 0x0005:
-                                            Text += string.Format(Description, (Data[i + 5] > 0x09 ? Data[i + 5] - 0x0A : Data[i + 5]));
+                                            Text += string.Format(Description, (Data[i + 5] > 0x09 ? Data[i + 5] - 0x0A : Data[i + 5]), (Data[i + 5] > 0x09 ? 0 : 1));
                                             if (Data[i + 5] > 0x09)
                                                 KanjiBank = DnMe_Plus_Kanji_Bank_0;
                                             else
@@ -1432,13 +1441,13 @@ namespace Animal_Crossing_Text_Editor
                                     }
                                     break;
                                 case 0x07:
-                                    /*switch (Index)
+                                    switch (Index)
                                     {
                                         default:
                                             Text += Description;
                                             break;
-                                    }*/
-                                    Text += string.Format(Description, ((Data[i + 3] << 8) | Data[i + 4]).ToString("X4"));
+                                    }
+                                    //Text += string.Format(Description, ((Data[i + 3] << 8) | Data[i + 4]).ToString("X4"));
                                     break;
                                 case 0x08:
                                     switch (Index)
@@ -1587,154 +1596,430 @@ namespace Animal_Crossing_Text_Editor
             {
                 string Character = Text[i].ToString();
                 bool ContId_Set = false;
+                bool Tag_Set = false;
+
                 if (Character.Equals("<"))
                 {
                     int Index = Text.IndexOf(">", i + 1);
                     if (Index > -1)
                     {
-                        string Cont_Id = Text.Substring(i, Index - i + 1).ToLower();
-                        if ((Cont_Id.Contains("[") && !Cont_Id.Contains("]")) || (Cont_Id.Contains("]") && !Cont_Id.Contains("[")))
-                            MessageBox.Show("Error: Incomplete argument detected! Please ensure that your arguments are structured like this: [Argument]");
-
-                        var Matches = Regex.Matches(Cont_Id, @"\[(.+?)\]").Cast<Match>().Select(m => m.Groups[1].Value).ToList(); // Strip arguments
-                        int Count = 0;
-                        Cont_Id = Regex.Replace(Cont_Id, @"\[.+?\]", m => "[{" + Count++ +"}]"); // Turn ContId into it's argumentless form
-
-                        var Match = ContId_Map.FirstOrDefault(o => o.Value.ToLower().Equals(Cont_Id)); // Value will be null/empty string if no match is found
-                        if (!string.IsNullOrEmpty(Match.Value))
+                        // Tag Creation
+                        if (MainWindow.IsBMG)
                         {
-                            var Actual_Count = Regex.Matches(Match.Value, @"\[(.+?)\]").Cast<Match>().Select(m => m.Groups[1].Value).ToList().Count;
-                            if (Count < Actual_Count || Count > Actual_Count)
+                            byte Size = 5; // Minimum Tag Size = 5 bytes (0x80 specifier, byte size, byte group, ushort index)
+                            string Tag = Text.Substring(i, Index - i + 1);
+                            if ((Tag.Contains("[") && !Tag.Contains("]")) || (Tag.Contains("]") && !Tag.Contains("[")))
+                                MessageBox.Show("Error: Incomplete argument detected! Please ensure that your arguments are structured like this: [Argument]");
+
+                            var TagMatches = Regex.Matches(Tag, @"\[(.+?)\]").Cast<Match>().Select(m => m.Groups[1].Value).ToList(); // Strip arguments
+                            Tag = Tag.ToLower();
+                            int TagCount = 0;
+                            string StrippedTag = Regex.Replace(Tag, @"\[.+?\]", m => "[{" + TagCount++ + "}]"); // Turn Tag into it's argumentless form
+                            byte TagGroup = 0;
+                            ushort TagIndex = 0;
+                            bool FoundTag = false;
+
+                            foreach (KeyValuePair<byte, Dictionary<ushort, string>> Group in Tag_Map)
                             {
-                                MessageBox.Show(string.Format("Argument Error: ContId {0} takes {1} arguments, but {2} were supplied!", Match, Actual_Count, Count));
+                                foreach (KeyValuePair<ushort, string> tIndex in Group.Value)
+                                {
+                                    if (tIndex.Value.ToLower().Equals(Tag) || tIndex.Value.ToLower().Equals(StrippedTag))
+                                    {
+                                        FoundTag = true;
+                                        TagGroup = Group.Key;
+                                        TagIndex = tIndex.Key;
+                                        break;
+                                    }
+                                }
+                                if (FoundTag)
+                                    break;
                             }
 
-                            Data.Add(0x7F);
-                            Data.Add(Match.Key);
-                            int Value = 0;
-                            
-                            for (int x = 0; x < Actual_Count; x++) // We only want to go up to count, otherwise we might add too many arguments
-                                switch (Match.Key)
+                            if (FoundTag)
+                            {
+                                int Value = 0;
+                                List<byte> TagArguments = new List<byte>();
+
+                                switch (TagGroup)
                                 {
-                                    case 0x05:
-                                        if (int.TryParse(Matches[x], NumberStyles.AllowHexSpecifier, null, out Value))
+                                    case 0x01:
+                                        switch (TagIndex)
                                         {
-                                            Data.Add((byte)(Value >> 16));
-                                            Data.Add((byte)(Value >> 8));
-                                            Data.Add((byte)Value);
+                                            case 0x0004:
+                                            case 0x0006:
+                                            case 0x0009:
+                                            case 0x000A:
+                                            case 0x000B:
+                                                Size += 2;
+                                                if (TagMatches.Count > 0 && int.TryParse(TagMatches[0], out Value))
+                                                {
+                                                    TagArguments.Add((byte)((Value >> 8) & 0xFF));
+                                                    TagArguments.Add((byte)(Value & 0xFF));
+                                                }
+                                                else
+                                                {
+                                                    TagArguments.Add(0);
+                                                    TagArguments.Add(0);
+                                                    MessageBox.Show(string.Format("Argument Error: {0}, a required argument was invalid. It will be defaulted to 0.",
+                                                        Tag_Map[TagGroup][TagIndex]));
+                                                }
+                                                break;
+                                            case 0x0005:
+                                                Size += 1;
+                                                if (TagMatches.Count > 1 && int.TryParse(TagMatches[0], out Value) && byte.TryParse(TagMatches[1], out byte Bank))
+                                                {
+                                                    TagArguments.Add((byte)(Value + (Bank == 0 ? 0x0A : 0x00)));
+                                                }
+                                                else
+                                                {
+                                                    TagArguments.Add(0);
+                                                    MessageBox.Show(string.Format("Argument Error: {0}, a required argument was invalid. It will be defaulted to 0.",
+                                                        Tag_Map[TagGroup][TagIndex]));
+                                                }
+                                                break;
                                         }
                                         break;
-                                    case 0x08: // Player Expressions
-                                        if (x == 1)
+                                    case 0x02:
+                                        switch (TagIndex)
                                         {
-                                            var Player_Expression = Player_Emotions.FirstOrDefault(o => o.Value.ToLower().Equals(Matches[x]));
-                                            if (!string.IsNullOrEmpty(Player_Expression.Value))
-                                            {
-                                                Data.Add((byte)(Player_Expression.Key >> 8));
-                                                Data.Add((byte)Player_Expression.Key);
-                                            }
-                                            else if (ushort.TryParse(Matches[x], NumberStyles.AllowHexSpecifier, null, out ushort Player_Expression_Value))
-                                            {
-                                                Data.Add((byte)(Player_Expression_Value >> 8));
-                                                Data.Add((byte)Player_Expression_Value);
-                                            }
-                                            else
-                                            {
-                                                Data.Add(0);
-                                                Data.Add(0);
-                                                MessageBox.Show("Argument Error: <Player Emotion [] []> unable to find a match or parse hex for type: " + Matches[x]);
-                                            }
-                                        }
-                                        else if (x == 0)
-                                        {
-                                            if (byte.TryParse(Matches[x], NumberStyles.AllowHexSpecifier, null, out byte Player_Emotion_Modifier))
-                                            {
-                                                Data.Add(Player_Emotion_Modifier);
-                                            }
-                                            else
-                                            {
-                                                Data.Add(0);
-                                                MessageBox.Show("Argument Error: <Player Emotion [] []> unable to parse hex for modifier type: " + Matches[x]);
-                                            }
+                                            case 0x0000:
+                                                Size += 4;
+                                                for (int x = 0; x < 2; x++)
+                                                {
+                                                    if (TagMatches.Count > x && int.TryParse(TagMatches[x], NumberStyles.HexNumber, null, out Value))
+                                                    {
+                                                        TagArguments.Add((byte)((Value >> 8) & 0xFF));
+                                                        TagArguments.Add((byte)(Value & 0xFF));
+                                                    }
+                                                    else
+                                                    {
+                                                        TagArguments.Add(0);
+                                                        TagArguments.Add(0);
+                                                        MessageBox.Show(string.Format("Argument Error: {0}, argument #{1} was invalid or missing. It will be defaulted to 0.",
+                                                            Tag_Map[TagGroup][TagIndex], x));
+                                                    }
+                                                }
+                                                break;
+
+                                            case 0x0001:
+                                                Size += 6;
+                                                for (int x = 0; x < 3; x++)
+                                                {
+                                                    if (TagMatches.Count > x && int.TryParse(TagMatches[x], NumberStyles.HexNumber, null, out Value))
+                                                    {
+                                                        TagArguments.Add((byte)((Value >> 8) & 0xFF));
+                                                        TagArguments.Add((byte)(Value & 0xFF));
+                                                    }
+                                                    else
+                                                    {
+                                                        TagArguments.Add(0);
+                                                        TagArguments.Add(0);
+                                                        MessageBox.Show(string.Format("Argument Error: {0}, argument #{1} was invalid or missing. It will be defaulted to 0.",
+                                                            Tag_Map[TagGroup][TagIndex], x));
+                                                    }
+                                                }
+                                                break;
+
+                                            case 0x0002:
+                                                Size += 8;
+                                                for (int x = 0; x < 4; x++)
+                                                {
+                                                    if (TagMatches.Count > x && int.TryParse(TagMatches[x], NumberStyles.HexNumber, null, out Value))
+                                                    {
+                                                        TagArguments.Add((byte)((Value >> 8) & 0xFF));
+                                                        TagArguments.Add((byte)(Value & 0xFF));
+                                                    }
+                                                    else
+                                                    {
+                                                        TagArguments.Add(0);
+                                                        TagArguments.Add(0);
+                                                        MessageBox.Show(string.Format("Argument Error: {0}, argument #{1} was invalid or missing. It will be defaulted to 0.",
+                                                            Tag_Map[TagGroup][TagIndex], x));
+                                                    }
+                                                }
+                                                break;
+
+                                            case 0x0003:
+                                                Size += 10;
+                                                for (int x = 0; x < 5; x++)
+                                                {
+                                                    if (TagMatches.Count > x && int.TryParse(TagMatches[x], NumberStyles.HexNumber, null, out Value))
+                                                    {
+                                                        TagArguments.Add((byte)((Value >> 8) & 0xFF));
+                                                        TagArguments.Add((byte)(Value & 0xFF));
+                                                    }
+                                                    else
+                                                    {
+                                                        TagArguments.Add(0);
+                                                        TagArguments.Add(0);
+                                                        MessageBox.Show(string.Format("Argument Error: {0}, argument #{1} was invalid or missing. It will be defaulted to 0.",
+                                                            Tag_Map[TagGroup][TagIndex], x));
+                                                    }
+                                                }
+                                                break;
+
+                                            case 0x0004:
+                                                Size += 12;
+                                                for (int x = 0; x < 6; x++)
+                                                {
+                                                    if (TagMatches.Count > x && int.TryParse(TagMatches[x], NumberStyles.HexNumber, null, out Value))
+                                                    {
+                                                        TagArguments.Add((byte)((Value >> 8) & 0xFF));
+                                                        TagArguments.Add((byte)(Value & 0xFF));
+                                                    }
+                                                    else
+                                                    {
+                                                        TagArguments.Add(0);
+                                                        TagArguments.Add(0);
+                                                        MessageBox.Show(string.Format("Argument Error: {0}, argument #{1} was invalid or missing. It will be defaulted to 0.",
+                                                            Tag_Map[TagGroup][TagIndex], x));
+                                                    }
+                                                }
+                                                break;
+
+                                            case 0x0005:
+                                            case 0x0006:
+                                            case 0x0007:
+                                            case 0x0008:
+                                            case 0x0009:
+                                            case 0x000A:
+                                                Size += 2;
+                                                if (TagMatches.Count > 0 && int.TryParse(TagMatches[0], NumberStyles.HexNumber, null, out Value))
+                                                {
+                                                    TagArguments.Add((byte)((Value >> 8) & 0xFF));
+                                                    TagArguments.Add((byte)(Value & 0xFF));
+                                                }
+                                                else
+                                                {
+                                                    TagArguments.Add(0);
+                                                    TagArguments.Add(0);
+                                                    MessageBox.Show(string.Format("Argument Error: {0}, a required argument was invalid. It will be defaulted to 0.",
+                                                        Tag_Map[TagGroup][TagIndex]));
+                                                }
+                                                break;
                                         }
                                         break;
-                                    case 0x09: // Expressions
-                                        var Expression = Expression_List.FirstOrDefault(o => o.Value.ToLower().Equals(Matches[x]));
-                                        if (!string.IsNullOrEmpty(Expression.Value))
+
+                                    case 0xFF:
+                                        switch (TagIndex)
                                         {
-                                            Data.Add((byte)(Expression.Key >> 16));
-                                            Data.Add((byte)(Expression.Key >> 8));
-                                            Data.Add((byte)Expression.Key);
-                                        }
-                                        else if (int.TryParse(Matches[x], NumberStyles.AllowHexSpecifier, null, out Value))
-                                        {
-                                            Data.Add((byte)(Value >> 16));
-                                            Data.Add((byte)(Value >> 8));
-                                            Data.Add((byte)Value);
-                                        }
-                                        else
-                                        {
-                                            Data.Add(0);
-                                            Data.Add(0);
-                                            Data.Add(0);
-                                            MessageBox.Show("Argument Error: <Expression []> unable to find a match or parse hex for type: " + Matches[x]);
-                                        }
-                                        break;
-                                    case 0x50:
-                                        if (x == 0 && int.TryParse(Matches[0], out Value)
-                                            && int.TryParse(Matches[1], NumberStyles.AllowHexSpecifier, null, out int Value2))
-                                        {
-                                            Data.Add((byte)(Value2 >> 16));
-                                            Data.Add((byte)(Value2 >> 8));
-                                            Data.Add((byte)Value2);
-                                            Data.Add((byte)Value);
-                                        }
-                                        break;
-                                    case 0x59:
-                                        var Effect = SoundEffect_List.FirstOrDefault(o => o.Value.ToLower().Equals(Matches[x]));
-                                        if (!string.IsNullOrEmpty(Effect.Value))
-                                        {
-                                            Data.Add(Effect.Key);
-                                        }
-                                        else
-                                        {
-                                            Data.Add(0x07);
-                                            MessageBox.Show("Argument Error: <Play Sound Effect []> has an invalid sound effect! Will default to None.");
-                                        }
-                                        break;
-                                    default:
-                                        if (byte.TryParse(Matches[x], NumberStyles.AllowHexSpecifier, null, out byte Result))
-                                        {
-                                            Data.Add(Result);
-                                        }
-                                        else
-                                        {
-                                            MessageBox.Show(string.Format("Argument Error: Arguments must be in hexidecimal! Recieved: {0}", Matches[x]));
-                                            Data.Add(0);
+                                            case 0x0002:
+                                                byte ThisSize = 0;
+                                                if (byte.TryParse(TagMatches[0], out byte Kana) && TagMatches.Count > 1)
+                                                {
+                                                    TagArguments.Add(Kana);
+                                                    ThisSize = 1;
+                                                    foreach (char c in TagMatches[1])
+                                                    {
+                                                        var s = c.ToString();
+                                                        var CharMatch = Character_Map.FirstOrDefault(o => o.Value.Equals(s));
+                                                        if (!string.IsNullOrEmpty(CharMatch.Value))
+                                                        {
+                                                            ThisSize++;
+                                                            TagArguments.Add(CharMatch.Key);
+                                                        }
+                                                    }
+
+                                                    for (int k = 0; k < Kana; k++)
+                                                    {
+                                                        string s = Text.Substring(Index + 1 + k, 1);
+                                                        int KanaIndex = Array.IndexOf(DnMe_Plus_Kanji_Bank_0, s);
+                                                        if (KanaIndex < 0)
+                                                        {
+                                                            KanaIndex = Array.IndexOf(DnMe_Plus_Kanji_Bank_1, s);
+                                                        }
+
+                                                        if (KanaIndex < 0)
+                                                        {
+                                                            KanaIndex = 0;
+                                                        }
+
+                                                        TagArguments.Add((byte)KanaIndex);
+                                                    }
+
+                                                    i += Kana;
+                                                }
+                                                else
+                                                {
+                                                    TagArguments.Add(0);
+                                                    TagArguments.Add(0);
+                                                    MessageBox.Show(string.Format("Argument Error: {0}, a required argument was invalid. It will be defaulted to 0.",
+                                                        Tag_Map[TagGroup][TagIndex]));
+                                                }
+
+                                                Size += ThisSize;
+                                                break;
                                         }
                                         break;
                                 }
 
-                            i += Index - i;
-                            ContId_Set = true;
+                                string DebugString = "";
+                                foreach (byte b in Data)
+                                    DebugString += "0x" + b.ToString("X2") + " ";
+                                Console.WriteLine("Found matching tag! Tag data: " + DebugString);
+
+                                Data.Add(0x80);
+                                Data.Add(Size);
+                                Data.Add(TagGroup);
+                                Data.Add((byte)((TagIndex >> 8) & 0xFF));
+                                Data.Add((byte)(TagIndex & 0xFF));
+
+                                for (int a = 0; a < TagArguments.Count; a++)
+                                {
+                                    Data.Add(TagArguments[a]);
+                                }
+
+                                i += Index - i;
+                                Tag_Set = true;
+                            }
                         }
-                        else if (Cont_Id.Contains("<unknown contid 0x")
-                            && byte.TryParse(Cont_Id.Substring(18, 2), NumberStyles.AllowHexSpecifier, null, out byte ContId))
+
+                        if (!MainWindow.IsBMG || !Tag_Set)
                         {
-                            Data.Add(0x7F);
-                            Data.Add(ContId);
-                            i += Index - i;
-                            ContId_Set = true;
-                            //System.Windows.Forms.MessageBox.Show(Text[i].ToString());
-                        }
-                        else
-                        {
-                            MessageBox.Show("Couldn't find a cont id match for: " + Cont_Id);
+                            string Cont_Id = Text.Substring(i, Index - i + 1).ToLower();
+                            if ((Cont_Id.Contains("[") && !Cont_Id.Contains("]")) || (Cont_Id.Contains("]") && !Cont_Id.Contains("[")))
+                                MessageBox.Show("Error: Incomplete argument detected! Please ensure that your arguments are structured like this: [Argument]");
+
+                            var Matches = Regex.Matches(Cont_Id, @"\[(.+?)\]").Cast<Match>().Select(m => m.Groups[1].Value).ToList(); // Strip arguments
+                            int Count = 0;
+                            Cont_Id = Regex.Replace(Cont_Id, @"\[.+?\]", m => "[{" + Count++ + "}]"); // Turn ContId into it's argumentless form
+
+                            var Match = ContId_Map.FirstOrDefault(o => o.Value.ToLower().Equals(Cont_Id)); // Value will be null/empty string if no match is found
+                            if (!string.IsNullOrEmpty(Match.Value))
+                            {
+                                var Actual_Count = Regex.Matches(Match.Value, @"\[(.+?)\]").Cast<Match>().Select(m => m.Groups[1].Value).ToList().Count;
+                                if (Count < Actual_Count || Count > Actual_Count)
+                                {
+                                    MessageBox.Show(string.Format("Argument Error: ContId {0} takes {1} arguments, but {2} were supplied!", Match, Actual_Count, Count));
+                                }
+
+                                Data.Add(0x7F);
+                                Data.Add(Match.Key);
+                                int Value = 0;
+
+                                for (int x = 0; x < Actual_Count; x++) // We only want to go up to count, otherwise we might add too many arguments
+                                    switch (Match.Key)
+                                    {
+                                        case 0x05:
+                                            if (int.TryParse(Matches[x], NumberStyles.AllowHexSpecifier, null, out Value))
+                                            {
+                                                Data.Add((byte)(Value >> 16));
+                                                Data.Add((byte)(Value >> 8));
+                                                Data.Add((byte)Value);
+                                            }
+                                            break;
+                                        case 0x08: // Player Expressions
+                                            if (x == 1)
+                                            {
+                                                var Player_Expression = Player_Emotions.FirstOrDefault(o => o.Value.ToLower().Equals(Matches[x]));
+                                                if (!string.IsNullOrEmpty(Player_Expression.Value))
+                                                {
+                                                    Data.Add((byte)(Player_Expression.Key >> 8));
+                                                    Data.Add((byte)Player_Expression.Key);
+                                                }
+                                                else if (ushort.TryParse(Matches[x], NumberStyles.AllowHexSpecifier, null, out ushort Player_Expression_Value))
+                                                {
+                                                    Data.Add((byte)(Player_Expression_Value >> 8));
+                                                    Data.Add((byte)Player_Expression_Value);
+                                                }
+                                                else
+                                                {
+                                                    Data.Add(0);
+                                                    Data.Add(0);
+                                                    MessageBox.Show("Argument Error: <Player Emotion [] []> unable to find a match or parse hex for type: " + Matches[x]);
+                                                }
+                                            }
+                                            else if (x == 0)
+                                            {
+                                                if (byte.TryParse(Matches[x], NumberStyles.AllowHexSpecifier, null, out byte Player_Emotion_Modifier))
+                                                {
+                                                    Data.Add(Player_Emotion_Modifier);
+                                                }
+                                                else
+                                                {
+                                                    Data.Add(0);
+                                                    MessageBox.Show("Argument Error: <Player Emotion [] []> unable to parse hex for modifier type: " + Matches[x]);
+                                                }
+                                            }
+                                            break;
+                                        case 0x09: // Expressions
+                                            var Expression = Expression_List.FirstOrDefault(o => o.Value.ToLower().Equals(Matches[x]));
+                                            if (!string.IsNullOrEmpty(Expression.Value))
+                                            {
+                                                Data.Add((byte)(Expression.Key >> 16));
+                                                Data.Add((byte)(Expression.Key >> 8));
+                                                Data.Add((byte)Expression.Key);
+                                            }
+                                            else if (int.TryParse(Matches[x], NumberStyles.AllowHexSpecifier, null, out Value))
+                                            {
+                                                Data.Add((byte)(Value >> 16));
+                                                Data.Add((byte)(Value >> 8));
+                                                Data.Add((byte)Value);
+                                            }
+                                            else
+                                            {
+                                                Data.Add(0);
+                                                Data.Add(0);
+                                                Data.Add(0);
+                                                MessageBox.Show("Argument Error: <Expression []> unable to find a match or parse hex for type: " + Matches[x]);
+                                            }
+                                            break;
+                                        case 0x50:
+                                            if (x == 0 && int.TryParse(Matches[0], out Value)
+                                                && int.TryParse(Matches[1], NumberStyles.AllowHexSpecifier, null, out int Value2))
+                                            {
+                                                Data.Add((byte)(Value2 >> 16));
+                                                Data.Add((byte)(Value2 >> 8));
+                                                Data.Add((byte)Value2);
+                                                Data.Add((byte)Value);
+                                            }
+                                            break;
+                                        case 0x59:
+                                            var Effect = SoundEffect_List.FirstOrDefault(o => o.Value.ToLower().Equals(Matches[x]));
+                                            if (!string.IsNullOrEmpty(Effect.Value))
+                                            {
+                                                Data.Add(Effect.Key);
+                                            }
+                                            else
+                                            {
+                                                Data.Add(0x07);
+                                                MessageBox.Show("Argument Error: <Play Sound Effect []> has an invalid sound effect! Will default to None.");
+                                            }
+                                            break;
+                                        default:
+                                            if (byte.TryParse(Matches[x], NumberStyles.AllowHexSpecifier, null, out byte Result))
+                                            {
+                                                Data.Add(Result);
+                                            }
+                                            else
+                                            {
+                                                MessageBox.Show(string.Format("Argument Error: Arguments must be in hexidecimal! Recieved: {0}", Matches[x]));
+                                                Data.Add(0);
+                                            }
+                                            break;
+                                    }
+
+                                i += Index - i;
+                                ContId_Set = true;
+                            }
+                            else if (Cont_Id.Contains("<unknown contid 0x")
+                                && byte.TryParse(Cont_Id.Substring(18, 2), NumberStyles.AllowHexSpecifier, null, out byte ContId))
+                            {
+                                Data.Add(0x7F);
+                                Data.Add(ContId);
+                                i += Index - i;
+                                ContId_Set = true;
+                                //System.Windows.Forms.MessageBox.Show(Text[i].ToString());
+                            }
+                            else
+                            {
+                                MessageBox.Show("Couldn't find a cont id match for: " + Cont_Id);
+                            }
                         }
                     }
                 }
 
-                if (!ContId_Set)
+                if (!ContId_Set && !Tag_Set)
                 {
                     if (Character_Map.ContainsValue(Character))
                     {

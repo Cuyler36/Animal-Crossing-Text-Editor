@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+
+<SyntaxDefinition name = "ACScript" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+  <Color name="DarkOrange" foreground="#FFFF8C00" />
+  <Color name="Lichen" foreground="#FFC0D9AF" />
+  <RuleSet ignoreCase="false">
+    <Span color="DarkOrange">
+      <Begin>&lt;</Begin>
+      <End>&gt;</End>
+
+      <RuleSet>
+        <Span color="Lichen">
+          <Begin>\[</Begin>
+          <End>\]</End>
+        </Span>
+      </RuleSet>
+    </Span>
+  </RuleSet>
+</SyntaxDefinition>

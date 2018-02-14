@@ -4,18 +4,16 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using FastColoredTextBoxNS;
-using System.Windows.Media;
 using System.Globalization;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Xml;
+using ICSharpCode.AvalonEdit.Highlighting.Xshd;
+using ICSharpCode.AvalonEdit.Highlighting;
 
 namespace Animal_Crossing_Text_Editor
 {
@@ -42,8 +40,6 @@ namespace Animal_Crossing_Text_Editor
         private byte[] Buffer;
         private byte[] Table_Buffer; // Doesn't exist for BMG type
         private BackgroundWorker Parser_Worker = new BackgroundWorker();
-        private TextStyle Cont_Style = new TextStyle(System.Drawing.Brushes.Orange, null, System.Drawing.FontStyle.Regular);
-        private AutocompleteMenu AutoMenu;
         private string[] Keywords;
         private BMCEditorWindow BMCEditor = new BMCEditorWindow();
         private List<ListViewItem> TextItems;
@@ -59,13 +55,20 @@ namespace Animal_Crossing_Text_Editor
             Parser_Worker.ProgressChanged += Parser_Worker_Progress_Changed;
             Parser_Worker.RunWorkerCompleted += Parser_Worker_RunWorkerCompleted;
 
-            // Setup autocomplete
-            AutoMenu = new AutocompleteMenu(SyntaxBox);
-            AutoMenu.SearchPattern = @"[\w\.:=!<>]";
-            AutoMenu.AllowTabKey = true;
-            AutoMenu.ShowItemToolTips = true;
-            AutoMenu.ForeColor = System.Drawing.Color.White;
-            AutoMenu.BackColor = System.Drawing.Color.Gray;
+            // Load XSHD file for stylesheet
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            try
+            {
+                using (Stream s = new FileStream(Path.GetDirectoryName(assembly.Location) + "\\Resources\\Animal Crossing Text Editor Style.xshd", FileMode.Open))
+                {
+                    using (XmlTextReader reader = new XmlTextReader(s))
+                    {
+                        //Load default Syntax Highlighting
+                        Editor.SyntaxHighlighting = HighlightingLoader.Load(reader, HighlightingManager.Instance);
+                    }
+                }
+            }
+            catch (Exception e) { MessageBox.Show(e.Message + "\r\n" + e.StackTrace); }
 
             Keywords = TextUtility.ContId_Map.Values.ToArray();
             for (int i = 0; i < Keywords.Length; i++)
@@ -76,16 +79,6 @@ namespace Animal_Crossing_Text_Editor
                 }
             }
 
-            List<AutocompleteItem> Items = new List<AutocompleteItem>();
-            foreach (var Item in Keywords)
-            {
-                Items.Add(new AutocompleteItem(Item) { ToolTipTitle = Item,
-                    ToolTipText = ContDescriptions.Descriptions.ContainsKey(Item) ? ContDescriptions.Descriptions[Item] : "No Description" });
-            }
-
-            AutoMenu.Items.SetAutocompleteItems(Items);
-
-            SyntaxBox.Font = new System.Drawing.Font("Consolas", 10);
             Closed += delegate (object sender, EventArgs e)
             {
                 App.Current.Shutdown();
@@ -108,19 +101,17 @@ namespace Animal_Crossing_Text_Editor
             {
                 if (Entries != null && Index < Entries.Length)
                 {
-                    SyntaxBox.Enabled = true;
-                    SyntaxBox.Text = Entries[Index].Text;
+                    Editor.IsEnabled = true;
+                    Editor.Text = Entries[Index].Text;
                     SelectedIndex = Index;
-                    //OffsetLabel.Content = "Entry: " + SelectedIndex.ToString("X") + " | Offset: 0x" + (Entries[SelectedIndex].Offset).ToString("X");
                     Scroll_to_Index(Index);
                     TextListView.SelectedIndex = Index;
                 }
                 else if (!string.IsNullOrEmpty(BMG_Struct.FileType) && Index < BMG_Struct.INF_Section.MessageCount)
                 {
-                    SyntaxBox.Enabled = true;
-                    SyntaxBox.Text = BMG_Struct.INF_Section.Items[Index].Text; //(string)(TextListView.Items[Index] as ListViewItem).Content;
+                    Editor.IsEnabled = true;
+                    Editor.Text = BMG_Struct.INF_Section.Items[Index].Text;
                     SelectedIndex = Index;
-                    //OffsetLabel.Content = "Entry: " + SelectedIndex.ToString("X") + " | Offset: 0x" + BMG_Struct.INF_Section.Items[Index].Text_Offset.ToString("X");
                     Scroll_to_Index(Index);
                     TextListView.SelectedIndex = Index;
                 }
@@ -257,9 +248,43 @@ namespace Animal_Crossing_Text_Editor
             Entry.Data = New_Data;
 
             // Update Editor Text to reflect possible changes after re-decoding
-            SyntaxBox.Text = Decoded;
+            Editor.Text = Decoded;
         }
-        
+
+        private void ResizeBMG(BMG_INF_Item Entry, int Entry_Index, string New_Text)
+        {
+            byte[] New_Data = TextUtility.Encode(New_Text, Character_Set_Type);
+            string Decoded = TextUtility.Decode(New_Data); // TODO: Figure out how to not re-decode the bytes
+            // TEST
+            //MessageBox.Show("Arrays are equal size: " + (New_Data.Length == Entry.Data.Length).ToString());
+            for (int i = 0; i < New_Data.Length; i++)
+            {
+                if (i < Entry.Data.Length)
+                    Debug.WriteLine(string.Format("Index: {0} | Old Data: {1} | New Data: {2} | Equal: {3}", i, Entry.Data[i].ToString("X2"), New_Data[i].ToString("X2"), Entry.Data[i] == New_Data[i]));
+                else
+                    Debug.WriteLine("New Data is too long!");
+            }
+            int Size_Delta = New_Data.Length - (int)Entry.Length;
+            if (Size_Delta != 0)
+            {
+                for (int i = Entry_Index + 1; i < BMG_Struct.INF_Section.Items.Length; i++)
+                {
+                    BMG_Struct.INF_Section.Items[i].Text_Offset = (uint)(BMG_Struct.INF_Section.Items[i].Text_Offset + Size_Delta);
+                }
+            }
+
+            Entry.Text = Decoded;
+            Entry.Length = (uint)New_Data.Length;
+            Entry.Data = New_Data;
+
+            // Update Editor Text to reflect possible changes after re-decoding
+            Editor.Text = Decoded;
+
+            BMG_Struct.INF_Section.Items[SelectedIndex] = Entry;
+            var SelectedListViewItem = ((List<ListViewItem>)TextListView.ItemsSource)[SelectedIndex];
+            SelectedListViewItem.Content = BMG_Struct.INF_Section.Items[SelectedIndex].Text;
+        }
+
         private void Generate_Text_Entries()
         {
             if (Buffer == null || Table_Buffer == null)
@@ -359,14 +384,13 @@ namespace Animal_Crossing_Text_Editor
 
         private void TextEntry_Clicked(object sender, MouseButtonEventArgs e)
         {
-            //ContentTextBox.IsEnabled = true;
             if (TextListView.SelectedItem != null)
             {
-                SyntaxBox.Enabled = true;
+                Editor.IsEnabled = true;
                 var Item = (sender as ListView).SelectedItem as ListViewItem;
                 if (Item != null && Item.IsSelected)
                 {
-                    SyntaxBox.Text = (string)Item.Content;
+                    Editor.Text = (string)Item.Content;
                     SelectedIndex = ((List<ListViewItem>)TextListView.ItemsSource).IndexOf(Item);
                     Changing_Selected_Entry = true;
                     EntryBox.Text = SelectedIndex.ToString("X");
@@ -379,7 +403,6 @@ namespace Animal_Crossing_Text_Editor
                         OffsetBox.Text = Entries[SelectedIndex].Offset.ToString("X");
                     }
                     Changing_Selected_Entry = false;
-                    //OffsetLabel.Content = "Entry: " + SelectedIndex.ToString("X") + " | Offset: 0x" + (Entries == null ? "Unknown" : (Entries[SelectedIndex].Offset).ToString("X"));
                 }
             }
         }
@@ -426,22 +449,19 @@ namespace Animal_Crossing_Text_Editor
         {
             if (SelectedIndex > -1)
             {
-                if (!string.IsNullOrEmpty(SyntaxBox.Text))
+                if (!string.IsNullOrEmpty(Editor.Text))
                 {
-                    string Text = SyntaxBox.Text.Replace("\r", String.Empty);
+                    string Text = Editor.Text.Replace("\r", String.Empty);
 
-                    /*for (int i = 0; i < Text.Length; i++)
-                        if (Entries[SelectedIndex].Text.Length > i)
-                        {
-                            if (!Entries[SelectedIndex].Text[i].Equals(Text[i]))
-                                MessageBox.Show(string.Format("Index {0} didn't match: Old Text: {1} | New Text: {2}", i, ((byte)Entries[SelectedIndex].Text[i]).ToString("X2"), ((byte)Text[i]).ToString("X2")));
-                        }
-                        else
-                            MessageBox.Show("Index was greater than original length. i: " + i.ToString() + " | Value: " + Entries[SelectedIndex].Text[i]);
-
-                            MessageBox.Show(string.Format("Old Size: {0} | New Size: {1}", Entries[SelectedIndex].Text.Length, Text.Length));*/
-                    Resize(Entries[SelectedIndex], SelectedIndex, Text);
-                    ((List<ListViewItem>)TextListView.ItemsSource)[SelectedIndex].Content = Entries[SelectedIndex].Text;//Text;
+                    if (!IsBMG)
+                    {
+                        Resize(Entries[SelectedIndex], SelectedIndex, Text);
+                        ((List<ListViewItem>)TextListView.ItemsSource)[SelectedIndex].Content = Entries[SelectedIndex].Text;
+                    }
+                    else
+                    {
+                        ResizeBMG(BMG_Struct.INF_Section.Items[SelectedIndex], SelectedIndex, Text);
+                    }
                 }
             }
         }
@@ -482,12 +502,6 @@ namespace Animal_Crossing_Text_Editor
         private bool IsHex(string Text)
         {
             return Regex.IsMatch(Text, @"\A\b[0-9a-fA-F]+\b\Z");
-        }
-
-        private void SyntaxBox_TextChanged(object sender, FastColoredTextBoxNS.TextChangedEventArgs e)
-        {
-            e.ChangedRange.ClearStyle(Cont_Style);
-            e.ChangedRange.SetStyle(Cont_Style, "<[^>\n]+>");
         }
 
         private void MenuItem_Click(object sender, RoutedEventArgs e)
@@ -588,9 +602,9 @@ namespace Animal_Crossing_Text_Editor
                 {
                     if (Entry_Index < BMG_Struct.INF_Section.MessageCount)
                     {
-                        SyntaxBox.Enabled = true;
+                        Editor.IsEnabled = true;
                         Changing_Selected_Entry = true;
-                        SyntaxBox.Text = BMG_Struct.INF_Section.Items[Entry_Index].Text;
+                        Editor.Text = BMG_Struct.INF_Section.Items[Entry_Index].Text;
                         OffsetBox.Text = BMG_Struct.INF_Section.Items[Entry_Index].Text_Offset.ToString("X");
                         Changing_Selected_Entry = false;
                     }
@@ -598,7 +612,7 @@ namespace Animal_Crossing_Text_Editor
                 else
                 {
                     Changing_Selected_Entry = true;
-                    SyntaxBox.Text = Entries[SelectedIndex].Text;
+                    Editor.Text = Entries[SelectedIndex].Text;
                     OffsetBox.Text = Entries[SelectedIndex].Offset.ToString("X");
                     Changing_Selected_Entry = false;
                 }
@@ -617,12 +631,11 @@ namespace Animal_Crossing_Text_Editor
                         uint Next_Offset = (i + 1 >= BMG_Struct.INF_Section.MessageCount) ? Current_Offset + BMG_Struct.INF_Section.Items[i].Length : BMG_Struct.INF_Section.Items[i + 1].Text_Offset;
                         if (Offset == Current_Offset || (Offset > Current_Offset && Offset < Next_Offset))
                         {
-                            //Console.WriteLine("Setting to entry: " + i);
-                            SyntaxBox.Enabled = true;
+                            Editor.IsEnabled = true;
                             Changing_Selected_Entry = true;
                             EntryBox.Text = i.ToString("X");
                             Changing_Selected_Entry = false;
-                            SyntaxBox.Text = BMG_Struct.INF_Section.Items[i].Text;
+                            Editor.Text = BMG_Struct.INF_Section.Items[i].Text;
                             SelectedIndex = i;
                             return;
                         }
@@ -639,18 +652,17 @@ namespace Animal_Crossing_Text_Editor
                         uint Next_Offset = (i + 1 >= Entries.Length) ? (uint)(Current_Offset + Entries[i].Length) : (uint)Entries[i + 1].Offset;
                         if (Offset == Current_Offset || (Offset > Current_Offset && Offset < Next_Offset))
                         {
-                            //Console.WriteLine("Setting to entry: " + i);
-                            SyntaxBox.Enabled = true;
+                            Editor.IsEnabled = true;
                             Changing_Selected_Entry = true;
                             EntryBox.Text = i.ToString("X");
-                            SyntaxBox.Text = Entries[i].Text;
+                            Editor.Text = Entries[i].Text;
                             Changing_Selected_Entry = false;
                             SelectedIndex = i;
                             return;
                         }
                     }
                 }
-                //Console.WriteLine("Couldn't find an entry in the specified offset! Offset: 0x" + Offset.ToString("X"));
+
                 Changing_Selected_Entry = false;
             }
         }

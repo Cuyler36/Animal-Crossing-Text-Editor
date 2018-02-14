@@ -4,7 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
-        xmlns:sb="clr-namespace:FastColoredTextBoxNS;assembly=FastColoredTextBox"
+        xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+        xmlns:syntaxDef="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008"
         xmlns:local="clr-namespace:Animal_Crossing_Text_Editor"
         mc:Ignorable="d"
         Title="Animal Crossing Text Editor" Height="500" Width="750">
@@ -41,9 +42,6 @@
                 </Style>
             </ListBox.ItemContainerStyle>
         </ListView>
-        <WindowsFormsHost HorizontalAlignment="Stretch" Grid.Column="0" Grid.Row="0" Margin="10,50,10,46">
-            <sb:FastColoredTextBox x:Name="SyntaxBox" Enabled="False" BackColor="#FF333333" SelectionColor="LightBlue" ForeColor="White" TextChanged="SyntaxBox_TextChanged"/>
-        </WindowsFormsHost>
         <Button x:Name="UpdateTextButton" Content="Save Text" HorizontalAlignment="Right" Margin="0,0,19,10" VerticalAlignment="Bottom" Width="75" Click="UpdateTextButton_Click"/>
         <Label x:Name="EntryLabel" Content="Entry:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,21,0,0"/>
         <TextBox x:Name="EntryBox" Text="0" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50, 26, 0, 0" Width="40" MaxLength="4" TextChanged="EntryBox_TextChanged"/>
@@ -57,5 +55,8 @@
         <ProgressBar x:Name="ProgressBar" Height="20" Width="110" Margin="0,0,99,10" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
         <Button x:Name="nextButton" Content="Next" HorizontalAlignment="Right" Grid.Column="0" Margin="0,25,10,0" VerticalAlignment="Top" Width="75" Click="nextButton_Click"/>
         <Button x:Name="prevButton" Content="Previous" HorizontalAlignment="Right" Grid.Column="0" Margin="0,25,90,0" VerticalAlignment="Top" Width="75" Click="prevButton_Click"/>
+
+        <avalonEdit:TextEditor Name="Editor" Background="#FF333333" IsEnabled="False" Foreground="White" HorizontalAlignment="Stretch" Grid.Column="0" Grid.Row="0" Margin="10,50,10,46" FontFamily="Consolas" FontSize="14">
+        </avalonEdit:TextEditor>
     </Grid>
 </Window>
