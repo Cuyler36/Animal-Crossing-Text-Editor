@@ -230,9 +230,9 @@ namespace Animal_Crossing_Text_Editor
             for (int i = 0; i < New_Data.Length; i++)
             {
                 if (i < Entry.Data.Length)
-                    Debug.WriteLine(string.Format("Index: {0} | Old Data: {1} | New Data: {2}", i, Entry.Data[i].ToString("X2"), New_Data[i].ToString("X2")));
+                    Debug.WriteLine(string.Format("Index: {0} | Old Data: {1} | New Data: {2} | Equal: {3}", i, Entry.Data[i].ToString("X2"), New_Data[i].ToString("X2"), Entry.Data[i] == New_Data[i]));
                 else
-                    Debug.WriteLine("New Data is too long!");
+                    Debug.WriteLine("New Data is longer!");
             }
             int Size_Delta = New_Data.Length - Entry.Length;
             if (Size_Delta != 0)

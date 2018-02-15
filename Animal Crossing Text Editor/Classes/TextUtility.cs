@@ -1247,17 +1247,21 @@ namespace Animal_Crossing_Text_Editor
                                 case 0x16:
                                 case 0x63:
                                 case 0x6A:
-                                    Text += string.Format(ContId_Map[Cont_Param], Data[i + 1].ToString("X2") + Data[i + 2].ToString("X2"), Data[i + 3].ToString("X2") + Data[i + 4].ToString("X2"));
+                                    Text += string.Format(ContId_Map[Cont_Param], Data[i + 1].ToString("X2") + Data[i + 2].ToString("X2"),
+                                        Data[i + 3].ToString("X2") + Data[i + 4].ToString("X2"));
                                     i += 4;
                                     break;
                                 case 0x14:
                                 case 0x17:
-                                    Text += string.Format(ContId_Map[Cont_Param], Data[i + 1].ToString("X2") + Data[i + 2].ToString("X2"), Data[i + 3].ToString("X2") + Data[i + 4].ToString("X2"), Data[i + 5].ToString("X2") + Data[i + 6].ToString("X2"));
+                                    Text += string.Format(ContId_Map[Cont_Param], Data[i + 1].ToString("X2") + Data[i + 2].ToString("X2"),
+                                        Data[i + 3].ToString("X2") + Data[i + 4].ToString("X2"), Data[i + 5].ToString("X2") + Data[i + 6].ToString("X2"));
                                     i += 6;
                                     break;
                                 case 0x15:
                                 case 0x18:
-                                    Text += string.Format(ContId_Map[Cont_Param], Data[i + 1].ToString("X2") + Data[i + 2].ToString("X2"), Data[i + 3].ToString("X2") + Data[i + 4].ToString("X2"), Data[i + 5].ToString("X2") + Data[i + 6].ToString("X2"), Data[i + 7].ToString("X2") + Data[i + 8].ToString("X2"));
+                                    Text += string.Format(ContId_Map[Cont_Param], Data[i + 1].ToString("X2") + Data[i + 2].ToString("X2"),
+                                        Data[i + 3].ToString("X2") + Data[i + 4].ToString("X2"), Data[i + 5].ToString("X2") + Data[i + 6].ToString("X2"),
+                                        Data[i + 7].ToString("X2") + Data[i + 8].ToString("X2"));
                                     i += 8;
                                     break;
                                 case 0x50:
@@ -1270,7 +1274,9 @@ namespace Animal_Crossing_Text_Editor
                                     break;
                                 case 0x56:
                                 case 0x57:
-                                    Text += string.Format(ContId_Map[Cont_Param], Music_List.ContainsKey(Data[i + 1]) ? Music_List[Data[i + 1]] : Music_List[0], Music_Transitions.ContainsKey(Data[i + 2]) ? Music_Transitions[Data[i + 2]] : Music_Transitions[0]);
+                                    Text += string.Format(ContId_Map[Cont_Param], Music_List.ContainsKey(Data[i + 1])
+                                        ? Music_List[Data[i + 1]] : Music_List[0], Music_Transitions.ContainsKey(Data[i + 2])
+                                        ? Music_Transitions[Data[i + 2]] : Music_Transitions[0]);
                                     i += 2;
                                     break;
                                 case 0x59:
@@ -1543,9 +1549,7 @@ namespace Animal_Crossing_Text_Editor
                                         case 0x0002:
                                             if (i + Size < Data.Length)
                                             {
-                                                //Text += string.Format(Description, (Data[i + 5] == 0 ? DnMe_Plus_Kanji_Bank_0[Data[i + Size]] : DnMe_Plus_Kanji_Bank_1[Data[i + Size]])); // This is still not right. Need to figure it out.
-                                                Text += GetRuby(Data, i, Size, ref i); // This isn't right either..
-                                                //i++; // Skip the next text entry (as it's used for the Kanji character)
+                                                Text += GetRuby(Data, i, Size, ref i);
                                             }
                                             else
                                             {
@@ -1601,7 +1605,7 @@ namespace Animal_Crossing_Text_Editor
                 if (Character.Equals("<"))
                 {
                     int Index = Text.IndexOf(">", i + 1);
-                    if (Index > -1)
+                    if (Index > -1 && !Text.Substring(i, Index - i).Contains("\n"))
                     {
                         // Tag Creation
                         if (MainWindow.IsBMG)
@@ -2105,6 +2109,25 @@ namespace Animal_Crossing_Text_Editor
                                 for (int x = 0; x < Actual_Count; x++) // We only want to go up to count, otherwise we might add too many arguments
                                     switch (Match.Key)
                                     {
+                                        case 0x03:
+                                        case 0x51:
+                                        case 0x52:
+                                        case 0x53: // Change to use the line type enums
+                                        case 0x54:
+                                        case 0x58:
+                                        case 0x5A:
+                                        case 0x67:
+                                            if (int.TryParse(Matches[x], out Value))
+                                            {
+                                                Data.Add((byte)Value);
+                                            }
+                                            else
+                                            {
+                                                Data.Add(0);
+                                                MessageBox.Show("Argument Error: <Player Emotion [] []> unable to find a match or parse number for type: " + Matches[x]);
+                                            }
+                                            break;
+
                                         case 0x05:
                                             if (int.TryParse(Matches[x], NumberStyles.AllowHexSpecifier, null, out Value))
                                             {
@@ -2113,6 +2136,7 @@ namespace Animal_Crossing_Text_Editor
                                                 Data.Add((byte)Value);
                                             }
                                             break;
+
                                         case 0x08: // Player Expressions
                                             if (x == 1)
                                             {
@@ -2147,6 +2171,7 @@ namespace Animal_Crossing_Text_Editor
                                                 }
                                             }
                                             break;
+
                                         case 0x09: // Expressions
                                             var Expression = Expression_List.FirstOrDefault(o => o.Value.ToLower().Equals(Matches[x]));
                                             if (!string.IsNullOrEmpty(Expression.Value))
@@ -2155,7 +2180,7 @@ namespace Animal_Crossing_Text_Editor
                                                 Data.Add((byte)(Expression.Key >> 8));
                                                 Data.Add((byte)Expression.Key);
                                             }
-                                            else if (int.TryParse(Matches[x], NumberStyles.AllowHexSpecifier, null, out Value))
+                                            else if (int.TryParse(Matches[x].ToLower().Replace("unknown 0x", ""), NumberStyles.AllowHexSpecifier, null, out Value))
                                             {
                                                 Data.Add((byte)(Value >> 16));
                                                 Data.Add((byte)(Value >> 8));
@@ -2169,6 +2194,104 @@ namespace Animal_Crossing_Text_Editor
                                                 MessageBox.Show("Argument Error: <Expression []> unable to find a match or parse hex for type: " + Matches[x]);
                                             }
                                             break;
+
+                                        case 0x0E:
+                                        case 0x0F:
+                                        case 0x10:
+                                        case 0x11:
+                                        case 0x12:
+                                        case 0x77:
+                                        case 0x78:
+                                            if (x == 0 && int.TryParse(Matches[0], NumberStyles.HexNumber, null, out Value))
+                                            {
+                                                Data.Add((byte)(Value >> 8));
+                                                Data.Add((byte)Value);
+                                            }
+                                            else
+                                            {
+                                                MessageBox.Show(string.Format("Argument Error: Arguments must be in hexidecimal! Recieved: {0}", Matches[x]));
+                                                Data.Add(0);
+                                                Data.Add(0);
+                                            }
+                                            break;
+
+                                        case 0x13:
+                                        case 0x16:
+                                        case 0x63:
+                                        case 0x6A:
+                                            if (x == 0 && int.TryParse(Matches[0], NumberStyles.HexNumber, null, out Value))
+                                            {
+                                                Data.Add((byte)(Value >> 8));
+                                                Data.Add((byte)Value);
+                                            }
+                                            else if (x == 1 && int.TryParse(Matches[1], NumberStyles.HexNumber, null, out Value))
+                                            {
+                                                Data.Add((byte)(Value >> 8));
+                                                Data.Add((byte)Value);
+                                            }
+                                            else
+                                            {
+                                                MessageBox.Show(string.Format("Argument Error: Arguments must be in hexidecimal! Recieved: {0}", Matches[x]));
+                                                Data.Add(0);
+                                                Data.Add(0);
+                                            }
+                                            break;
+
+                                        case 0x14:
+                                        case 0x17:
+                                            if (x == 0 && int.TryParse(Matches[0], NumberStyles.HexNumber, null, out Value))
+                                            {
+                                                Data.Add((byte)(Value >> 8));
+                                                Data.Add((byte)Value);
+                                            }
+                                            else if (x == 1 && int.TryParse(Matches[1], NumberStyles.HexNumber, null, out Value))
+                                            {
+                                                Data.Add((byte)(Value >> 8));
+                                                Data.Add((byte)Value);
+                                            }
+                                            else if(x == 2 && int.TryParse(Matches[2], NumberStyles.HexNumber, null, out Value))
+                                            {
+                                                Data.Add((byte)(Value >> 8));
+                                                Data.Add((byte)Value);
+                                            }
+                                            else
+                                            {
+                                                MessageBox.Show(string.Format("Argument Error: Arguments must be in hexidecimal! Recieved: {0}", Matches[x]));
+                                                Data.Add(0);
+                                                Data.Add(0);
+                                            }
+                                            break;
+
+                                        case 0x15:
+                                        case 0x18:
+                                            if (x == 0 && int.TryParse(Matches[0], NumberStyles.HexNumber, null, out Value))
+                                            {
+                                                Data.Add((byte)(Value >> 8));
+                                                Data.Add((byte)Value);
+                                            }
+                                            else if (x == 1 && int.TryParse(Matches[1], NumberStyles.HexNumber, null, out Value))
+                                            {
+                                                Data.Add((byte)(Value >> 8));
+                                                Data.Add((byte)Value);
+                                            }
+                                            else if (x == 2 && int.TryParse(Matches[2], NumberStyles.HexNumber, null, out Value))
+                                            {
+                                                Data.Add((byte)(Value >> 8));
+                                                Data.Add((byte)Value);
+                                            }
+                                            else if (x == 3 && int.TryParse(Matches[3], NumberStyles.HexNumber, null, out Value))
+                                            {
+                                                Data.Add((byte)(Value >> 8));
+                                                Data.Add((byte)Value);
+                                            }
+                                            else
+                                            {
+                                                MessageBox.Show(string.Format("Argument Error: Arguments must be in hexidecimal! Recieved: {0}", Matches[x]));
+                                                Data.Add(0);
+                                                Data.Add(0);
+                                            }
+                                            break;
+
                                         case 0x50:
                                             if (x == 0 && int.TryParse(Matches[0], out Value)
                                                 && int.TryParse(Matches[1], NumberStyles.AllowHexSpecifier, null, out int Value2))
@@ -2179,6 +2302,37 @@ namespace Animal_Crossing_Text_Editor
                                                 Data.Add((byte)Value);
                                             }
                                             break;
+
+                                        case 0x56:
+                                        case 0x57:
+                                            if (x == 0)
+                                            {
+                                                var Music = Music_List.FirstOrDefault(o => o.Value.ToLower().Equals(Matches[x]));
+                                                if (!string.IsNullOrEmpty(Music.Value))
+                                                {
+                                                    Data.Add(Music.Key);
+                                                }
+                                                else
+                                                {
+                                                    Data.Add(0x00);
+                                                    MessageBox.Show("Argument Error: <Play/Stop Music [] []> had an invalid music track! Will default to Silence.");
+                                                }
+                                            }
+                                            else if (x == 1)
+                                            {
+                                                var Transition = Music_Transitions.FirstOrDefault(o => o.Value.ToLower().Equals(Matches[x]));
+                                                if (!string.IsNullOrEmpty(Transition.Value))
+                                                {
+                                                    Data.Add(Transition.Key);
+                                                }
+                                                else
+                                                {
+                                                    Data.Add(0x00);
+                                                    MessageBox.Show("Argument Error: <Play/Stop Music [] []> had an invalid music transition type! Will default to None.");
+                                                }
+                                            }
+                                            break;
+
                                         case 0x59:
                                             var Effect = SoundEffect_List.FirstOrDefault(o => o.Value.ToLower().Equals(Matches[x]));
                                             if (!string.IsNullOrEmpty(Effect.Value))
@@ -2191,6 +2345,80 @@ namespace Animal_Crossing_Text_Editor
                                                 MessageBox.Show("Argument Error: <Play Sound Effect []> has an invalid sound effect! Will default to None.");
                                             }
                                             break;
+
+                                        case 0x79:
+                                            if (x == 0 && int.TryParse(Matches[0], NumberStyles.HexNumber, null, out Value))
+                                            {
+                                                Data.Add((byte)(Value >> 8));
+                                                Data.Add((byte)Value);
+                                            }
+                                            else if (x == 1 && int.TryParse(Matches[1], NumberStyles.HexNumber, null, out Value))
+                                            {
+                                                Data.Add((byte)(Value >> 8));
+                                                Data.Add((byte)Value);
+                                            }
+                                            else if (x == 2 && int.TryParse(Matches[2], NumberStyles.HexNumber, null, out Value))
+                                            {
+                                                Data.Add((byte)(Value >> 8));
+                                                Data.Add((byte)Value);
+                                            }
+                                            else if (x == 3 && int.TryParse(Matches[3], NumberStyles.HexNumber, null, out Value))
+                                            {
+                                                Data.Add((byte)(Value >> 8));
+                                                Data.Add((byte)Value);
+                                            }
+                                            else if (x == 4 && int.TryParse(Matches[4], NumberStyles.HexNumber, null, out Value))
+                                            {
+                                                Data.Add((byte)(Value >> 8));
+                                                Data.Add((byte)Value);
+                                            }
+                                            else
+                                            {
+                                                MessageBox.Show(string.Format("Argument Error: Arguments must be in hexidecimal! Recieved: {0}", Matches[x]));
+                                                Data.Add(0);
+                                                Data.Add(0);
+                                            }
+                                            break;
+
+                                        case 0x7A:
+                                            if (x == 0 && int.TryParse(Matches[0], NumberStyles.HexNumber, null, out Value))
+                                            {
+                                                Data.Add((byte)(Value >> 8));
+                                                Data.Add((byte)Value);
+                                            }
+                                            else if (x == 1 && int.TryParse(Matches[1], NumberStyles.HexNumber, null, out Value))
+                                            {
+                                                Data.Add((byte)(Value >> 8));
+                                                Data.Add((byte)Value);
+                                            }
+                                            else if (x == 2 && int.TryParse(Matches[2], NumberStyles.HexNumber, null, out Value))
+                                            {
+                                                Data.Add((byte)(Value >> 8));
+                                                Data.Add((byte)Value);
+                                            }
+                                            else if (x == 3 && int.TryParse(Matches[3], NumberStyles.HexNumber, null, out Value))
+                                            {
+                                                Data.Add((byte)(Value >> 8));
+                                                Data.Add((byte)Value);
+                                            }
+                                            else if (x == 4 && int.TryParse(Matches[4], NumberStyles.HexNumber, null, out Value))
+                                            {
+                                                Data.Add((byte)(Value >> 8));
+                                                Data.Add((byte)Value);
+                                            }
+                                            else if (x == 5 && int.TryParse(Matches[5], NumberStyles.HexNumber, null, out Value))
+                                            {
+                                                Data.Add((byte)(Value >> 8));
+                                                Data.Add((byte)Value);
+                                            }
+                                            else
+                                            {
+                                                MessageBox.Show(string.Format("Argument Error: Arguments must be in hexidecimal! Recieved: {0}", Matches[x]));
+                                                Data.Add(0);
+                                                Data.Add(0);
+                                            }
+                                            break;
+
                                         default:
                                             if (byte.TryParse(Matches[x], NumberStyles.AllowHexSpecifier, null, out byte Result))
                                             {

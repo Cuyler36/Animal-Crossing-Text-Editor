@@ -4,7 +4,7 @@
   <Color name="DarkOrange" foreground="#FFFF8C00" />
   <Color name="Lichen" foreground="#FFC0D9AF" />
   <RuleSet ignoreCase="false">
-    <Span color="DarkOrange">
+    <Span color="DarkOrange" multiline="false">
       <Begin>&lt;</Begin>
       <End>&gt;</End>
 
@@ -13,6 +13,7 @@
           <Begin>\[</Begin>
           <End>\]</End>
         </Span>
+        <Span begin="\\" end="." />
       </RuleSet>
     </Span>
   </RuleSet>
