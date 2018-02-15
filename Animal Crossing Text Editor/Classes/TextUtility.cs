@@ -1800,12 +1800,217 @@ namespace Animal_Crossing_Text_Editor
                                         }
                                         break;
 
+                                    case 0x03:
+                                        switch (TagIndex)
+                                        {
+                                            case 0x0006:
+                                                Size += 1;
+                                                if (TagMatches.Count > 0 && int.TryParse(TagMatches[0], NumberStyles.HexNumber, null, out Value))
+                                                {
+                                                    TagArguments.Add((byte)Value);
+                                                }
+                                                else
+                                                {
+                                                    TagArguments.Add(0);
+                                                    MessageBox.Show(string.Format("Argument Error: {0}, a required argument was invalid. It will be defaulted to 0.",
+                                                        Tag_Map[TagGroup][TagIndex]));
+                                                }
+                                                break;
+                                        }
+                                        break;
+
+                                    case 0x0A:
+                                        switch (TagIndex)
+                                        {
+                                            case 0x0012:
+                                            case 0x0013:
+                                                if (TagMatches.Count > 1)
+                                                {
+                                                    Size += 2;
+
+                                                    var MusicPair = Music_List.FirstOrDefault(o => o.Value.Equals(TagMatches[0]));
+                                                    var TransitionPair = Music_Transitions.FirstOrDefault(o => o.Value.Equals(TagMatches[1]));
+
+                                                    if (!string.IsNullOrEmpty(MusicPair.Value))
+                                                    {
+                                                        TagArguments.Add(MusicPair.Key);
+                                                    }
+                                                    else
+                                                    {
+                                                        TagArguments.Add(0);
+                                                        MessageBox.Show(string.Format("Argument Error: {0}, the selected music track was invalid. It will be defaulted to 0.",
+                                                            Tag_Map[TagGroup][TagIndex]));
+                                                    }
+
+                                                    if (!string.IsNullOrEmpty(TransitionPair.Value))
+                                                    {
+                                                        TagArguments.Add(TransitionPair.Key);
+                                                    }
+                                                    else
+                                                    {
+                                                        TagArguments.Add(0);
+                                                        MessageBox.Show(string.Format("Argument Error: {0}, the selected music transition was invalid. It will be defaulted to 0.",
+                                                            Tag_Map[TagGroup][TagIndex]));
+                                                    }
+                                                }
+                                                break;
+                                        }
+                                        break;
+
+                                    case 0x0B:
+                                        switch (TagIndex)
+                                        {
+                                            case 0x0000:
+                                            case 0x0001:
+                                            case 0x0002:
+                                            case 0x001A:
+                                                Size += 1;
+                                                if (TagMatches.Count > 0 && int.TryParse(TagMatches[0], NumberStyles.HexNumber, null, out Value))
+                                                {
+                                                    TagArguments.Add((byte)Value);
+                                                }
+                                                else
+                                                {
+                                                    TagArguments.Add(0);
+                                                    MessageBox.Show(string.Format("Argument Error: {0}, a required argument was invalid. It will be defaulted to 0.",
+                                                        Tag_Map[TagGroup][TagIndex]));
+                                                }
+                                                break;
+
+                                            case 0x0003:
+                                            case 0x0004:
+                                                Size += 1;
+                                                if (TagMatches.Count > 0 && int.TryParse(TagMatches[0], out Value))
+                                                {
+                                                    TagArguments.Add((byte)Value);
+                                                }
+                                                else
+                                                {
+                                                    TagArguments.Add(0);
+                                                    MessageBox.Show(string.Format("Argument Error: {0}, a required argument was invalid. It will be defaulted to 0.",
+                                                        Tag_Map[TagGroup][TagIndex]));
+                                                }
+                                                break;
+                                        }
+                                        break;
+
+                                    case 0x0C:
+                                        switch (TagIndex)
+                                        {
+                                            case 0x0000:
+                                                Size += 2;
+                                                for (int x = 0; x < 1; x++)
+                                                {
+                                                    if (TagMatches.Count > x && int.TryParse(TagMatches[x], NumberStyles.HexNumber, null, out Value))
+                                                    {
+                                                        TagArguments.Add((byte)((Value >> 8) & 0xFF));
+                                                        TagArguments.Add((byte)(Value & 0xFF));
+                                                    }
+                                                    else
+                                                    {
+                                                        TagArguments.Add(0);
+                                                        TagArguments.Add(0);
+                                                        MessageBox.Show(string.Format("Argument Error: {0}, argument #{1} was invalid or missing. It will be defaulted to 0.",
+                                                            Tag_Map[TagGroup][TagIndex], x));
+                                                    }
+                                                }
+                                                break;
+
+                                            case 0x0001:
+                                            case 0x0002:
+                                            case 0x0006:
+                                            case 0x0007:
+                                                Size += 4;
+                                                for (int x = 0; x < 2; x++)
+                                                {
+                                                    if (TagMatches.Count > x && int.TryParse(TagMatches[x], NumberStyles.HexNumber, null, out Value))
+                                                    {
+                                                        TagArguments.Add((byte)((Value >> 8) & 0xFF));
+                                                        TagArguments.Add((byte)(Value & 0xFF));
+                                                    }
+                                                    else
+                                                    {
+                                                        TagArguments.Add(0);
+                                                        TagArguments.Add(0);
+                                                        MessageBox.Show(string.Format("Argument Error: {0}, argument #{1} was invalid or missing. It will be defaulted to 0.",
+                                                            Tag_Map[TagGroup][TagIndex], x));
+                                                    }
+                                                }
+                                                break;
+
+                                            case 0x0003:
+                                                Size += 6;
+                                                for (int x = 0; x < 3; x++)
+                                                {
+                                                    if (TagMatches.Count > x && int.TryParse(TagMatches[x], NumberStyles.HexNumber, null, out Value))
+                                                    {
+                                                        TagArguments.Add((byte)((Value >> 8) & 0xFF));
+                                                        TagArguments.Add((byte)(Value & 0xFF));
+                                                    }
+                                                    else
+                                                    {
+                                                        TagArguments.Add(0);
+                                                        TagArguments.Add(0);
+                                                        MessageBox.Show(string.Format("Argument Error: {0}, argument #{1} was invalid or missing. It will be defaulted to 0.",
+                                                            Tag_Map[TagGroup][TagIndex], x));
+                                                    }
+                                                }
+                                                break;
+
+                                            case 0x0004:
+                                                Size += 8;
+                                                for (int x = 0; x < 4; x++)
+                                                {
+                                                    if (TagMatches.Count > x && int.TryParse(TagMatches[x], NumberStyles.HexNumber, null, out Value))
+                                                    {
+                                                        TagArguments.Add((byte)((Value >> 8) & 0xFF));
+                                                        TagArguments.Add((byte)(Value & 0xFF));
+                                                    }
+                                                    else
+                                                    {
+                                                        TagArguments.Add(0);
+                                                        TagArguments.Add(0);
+                                                        MessageBox.Show(string.Format("Argument Error: {0}, argument #{1} was invalid or missing. It will be defaulted to 0.",
+                                                            Tag_Map[TagGroup][TagIndex], x));
+                                                    }
+                                                }
+                                                break;
+                                        }
+                                        break;
+
                                     case 0xFF:
                                         switch (TagIndex)
                                         {
+                                            case 0x0000:
+                                                Size += 1;
+                                                if (TagMatches.Count > 0 && int.TryParse(TagMatches[0], out Value))
+                                                {
+                                                    TagArguments.Add((byte)Value);
+                                                }
+                                                else
+                                                {
+                                                    TagArguments.Add(0);
+                                                    MessageBox.Show(string.Format("Argument Error: {0}, a required argument was invalid. It will be defaulted to 0.",
+                                                        Tag_Map[TagGroup][TagIndex]));
+                                                }
+                                                break;
+                                            case 0x0001:
+                                                Size += 2;
+                                                if (TagMatches.Count > 0 && int.TryParse(TagMatches[0], out Value))
+                                                {
+                                                    TagArguments.Add((byte)((Value >> 8) & 0xFF));
+                                                    TagArguments.Add((byte)Value);
+                                                }
+                                                else
+                                                {
+                                                    TagArguments.Add(0);
+                                                    MessageBox.Show(string.Format("Argument Error: {0}, a required argument was invalid. It will be defaulted to 0.",
+                                                        Tag_Map[TagGroup][TagIndex]));
+                                                }
+                                                break;
                                             case 0x0002:
                                                 byte ThisSize = 0;
-                                                if (byte.TryParse(TagMatches[0], out byte Kana) && TagMatches.Count > 1)
+                                                if (TagMatches.Count > 1 && byte.TryParse(TagMatches[0], out byte Kana))
                                                 {
                                                     TagArguments.Add(Kana);
                                                     ThisSize = 1;

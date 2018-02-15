@@ -255,14 +255,13 @@ namespace Animal_Crossing_Text_Editor
         {
             byte[] New_Data = TextUtility.Encode(New_Text, Character_Set_Type);
             string Decoded = TextUtility.Decode(New_Data); // TODO: Figure out how to not re-decode the bytes
-            // TEST
-            //MessageBox.Show("Arrays are equal size: " + (New_Data.Length == Entry.Data.Length).ToString());
+            
             for (int i = 0; i < New_Data.Length; i++)
             {
                 if (i < Entry.Data.Length)
                     Debug.WriteLine(string.Format("Index: {0} | Old Data: {1} | New Data: {2} | Equal: {3}", i, Entry.Data[i].ToString("X2"), New_Data[i].ToString("X2"), Entry.Data[i] == New_Data[i]));
                 else
-                    Debug.WriteLine("New Data is too long!");
+                    Debug.WriteLine("New Data is longer!");
             }
             int Size_Delta = New_Data.Length - (int)Entry.Length;
             if (Size_Delta != 0)
