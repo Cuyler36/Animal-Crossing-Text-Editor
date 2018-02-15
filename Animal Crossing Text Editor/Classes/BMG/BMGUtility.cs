@@ -107,25 +107,7 @@ namespace Animal_Crossing_Text_Editor
                 // Write DAT data
                 for (int i = 0; i < File.INF_Section.Items.Length; i++)
                 {
-                    if (!string.IsNullOrEmpty(File.INF_Section.Items[i].Text)) // Skip writing duplicate entries
-                    {
-                        List<byte> Data = new List<byte>();
-                        foreach (string Char in File.INF_Section.Items[i].Text.TextElements())
-                        {
-                            if (Character_Map.ContainsValue(Char))
-                            {
-                                Data.Add(Character_Map.First(o => o.Value == Char).Key);
-                            }
-                            else
-                            {
-                                Data.Add(Encoding.ASCII.GetBytes(Char)[0]);
-                            }
-                        }
-                        byte[] String_Data = Data.ToArray();
-                        Writer.Write(String_Data);
-                    }
-                    //if (i == File.INF_Section.Items.Length - 1)
-                    //System.Windows.Forms.MessageBox.Show("Last Entry: " + File.INF_Section.Items[i].Text + " Position: 0x" + Writer.BaseStream.Position.ToString("X"));
+                    Writer.Write(File.INF_Section.Items[i].Data);
                 }
 
                 Writer.Flush();

@@ -410,31 +410,41 @@ namespace Animal_Crossing_Text_Editor
         {
             if (File_Path != null)
             {
-                // Write Table File first
-                if (File.Exists(Table_Path))
-                    File.Delete(Table_Path);
-
-                using (FileStream Table_Stream = new FileStream(Table_Path, FileMode.OpenOrCreate))
+                if (!IsBMG)
                 {
-                    for (int i = 0; i < Entries.Length; i++)
+                    // Write Table File first
+                    if (File.Exists(Table_Path))
+                        File.Delete(Table_Path);
+
+                    using (FileStream Table_Stream = new FileStream(Table_Path, FileMode.OpenOrCreate))
                     {
-                        byte[] Data = BitConverter.GetBytes(i + 1 < Entries.Length ? Entries[i + 1].Offset : Entries[i].Offset + Entries[i].Length).Reverse().ToArray();
-                        Table_Stream.Write(Data, 0, Data.Length);
+                        for (int i = 0; i < Entries.Length; i++)
+                        {
+                            byte[] Data = BitConverter.GetBytes(i + 1 < Entries.Length ? Entries[i + 1].Offset : Entries[i].Offset + Entries[i].Length).Reverse().ToArray();
+                            Table_Stream.Write(Data, 0, Data.Length);
+                        }
+                        Table_Stream.Flush();
                     }
-                    Table_Stream.Flush();
+
+                    // Write String File next
+                    if (File.Exists(File_Path))
+                        File.Delete(File_Path);
+
+                    using (FileStream File_Stream = new FileStream(File_Path, FileMode.OpenOrCreate))
+                    {
+                        for (int i = 0; i < Entries.Length; i++)
+                        {
+                            File_Stream.Write(Entries[i].Data, 0, Entries[i].Data.Length);
+                        }
+                        File_Stream.Flush();
+                    }
                 }
-
-                // Write String File next
-                if (File.Exists(File_Path))
-                    File.Delete(File_Path);
-
-                using (FileStream File_Stream = new FileStream(File_Path, FileMode.OpenOrCreate))
+                else
                 {
-                    for (int i = 0; i < Entries.Length; i++)
-                    {
-                        File_Stream.Write(Entries[i].Data, 0, Entries[i].Data.Length);
-                    }
-                    File_Stream.Flush();
+                    if (File.Exists(File_Path))
+                        File.Delete(File_Path);
+
+                    BMGUtility.Write(BMG_Struct, File_Path);
                 }
             }
         }
