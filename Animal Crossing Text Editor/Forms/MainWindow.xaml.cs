@@ -493,7 +493,14 @@ namespace Animal_Crossing_Text_Editor
                 Character_Set_Type = File_Type.Animal_Crossing;
                 TextUtility.Character_Map = Character_Set_Type == File_Type.Doubutsu_no_Mori_Plus
                     ? TextUtility.Doubutsu_no_Mori_Plus_Character_Map : TextUtility.Animal_Crossing_Character_Map;
-                Generate_Text_Entries();
+
+                if (IsBMG && !string.IsNullOrEmpty(File_Path))
+                {
+                    BMG_Struct = BMGUtility.Decode(File_Path);
+                    Generate_BMG_Text_Entries(BMG_Struct);
+                }
+                else
+                    Generate_Text_Entries();
             }
         }
 
@@ -504,7 +511,13 @@ namespace Animal_Crossing_Text_Editor
                 Character_Set_Type = File_Type.Doubutsu_no_Mori_Plus;
                 TextUtility.Character_Map = Character_Set_Type == File_Type.Doubutsu_no_Mori_Plus
                     ? TextUtility.Doubutsu_no_Mori_Plus_Character_Map : TextUtility.Animal_Crossing_Character_Map;
-                Generate_Text_Entries();
+                if (IsBMG && !string.IsNullOrEmpty(File_Path))
+                {
+                    BMG_Struct = BMGUtility.Decode(File_Path);
+                    Generate_BMG_Text_Entries(BMG_Struct);
+                }
+                else
+                    Generate_Text_Entries();
             }
         }
 
@@ -568,6 +581,7 @@ namespace Animal_Crossing_Text_Editor
         {
             if (Entries != null || !string.IsNullOrEmpty(BMG_Struct.FileType))
             {
+                Editor.IsEnabled = true;
                 Changing_Selected_Entry = true;
                 Goto(++SelectedIndex);
                 EntryBox.Text = SelectedIndex.ToString("X");
@@ -587,6 +601,7 @@ namespace Animal_Crossing_Text_Editor
         {
             if (SelectedIndex > 0 && (Entries != null || !string.IsNullOrEmpty(BMG_Struct.FileType)))
             {
+                Editor.IsEnabled = true;
                 Changing_Selected_Entry = true;
                 Goto(--SelectedIndex);
                 EntryBox.Text = SelectedIndex.ToString("X");
