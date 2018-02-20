@@ -521,6 +521,14 @@ namespace Animal_Crossing_Text_Editor
             }
         }
 
+        private void CopyTextToClipboard(string Text)
+        {
+            var replaceRegex = new Regex(@"<([^>]+)>");
+            var strippedText = replaceRegex.Replace(Text, "").Trim();
+            Clipboard.SetText(strippedText);
+            Debug.WriteLine(strippedText);
+        }
+
         private bool IsHex(string Text)
         {
             return Regex.IsMatch(Text, @"\A\b[0-9a-fA-F]+\b\Z");
@@ -568,12 +576,14 @@ namespace Animal_Crossing_Text_Editor
             }
             else if (SelectedIndex > -1 && IsBMG)
             {
+                /*
                 string s = "";
                 for (int i = 0; i < BMG_Struct.INF_Section.Items[SelectedIndex].Data.Length; i++)
                 {
                     s += BMG_Struct.INF_Section.Items[SelectedIndex].Data[i].ToString("X2") + " ";
                 }
-                Debug.WriteLine(s);
+                Debug.WriteLine(s);*/
+                CopyTextToClipboard(BMG_Struct.INF_Section.Items[SelectedIndex].Text);
             }
         }
 

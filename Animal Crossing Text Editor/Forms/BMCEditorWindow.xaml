@@ -6,7 +6,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:Animal_Crossing_Text_Editor"
         mc:Ignorable="d"
-        Title="BMCEditorWindow" Height="350" Width="360">
+        Title="BMC Editor" Height="350" Width="360">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
