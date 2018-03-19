@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using ICSharpCode.AvalonEdit.Highlighting.Xshd;
 using ICSharpCode.AvalonEdit.Highlighting;
+using ICSharpCode.AvalonEdit.CodeCompletion;
 
 namespace Animal_Crossing_Text_Editor
 {
@@ -43,7 +44,9 @@ namespace Animal_Crossing_Text_Editor
         private string[] Keywords;
         private BMCEditorWindow BMCEditor = new BMCEditorWindow();
         private List<ListViewItem> TextItems;
+        private CompletionWindow completionWindow;
         private bool Changing_Selected_Entry = false;
+        private bool AutoSaveEnabled = true;
 
         public static File_Type Character_Set_Type = File_Type.Animal_Crossing;
 
@@ -83,6 +86,9 @@ namespace Animal_Crossing_Text_Editor
             {
                 App.Current.Shutdown();
             };
+
+            Editor.TextArea.TextEntered += Editor_TextEntered;
+            Editor.TextArea.TextEntering += Editor_TextEntering;
         }
 
         private void Scroll_to_Index(int Index)
@@ -171,10 +177,12 @@ namespace Animal_Crossing_Text_Editor
                     {
                         if (!string.IsNullOrEmpty(Entries[i].Text))
                         {
-                            ListViewItem TextEntry = new ListViewItem();
-                            TextEntry.Content = Entries[i].Text;
-                            TextEntry.HorizontalContentAlignment = HorizontalAlignment.Left;
-                            TextEntry.VerticalContentAlignment = VerticalAlignment.Top;
+                            ListViewItem TextEntry = new ListViewItem
+                            {
+                                Content = Entries[i].Text,
+                                HorizontalContentAlignment = HorizontalAlignment.Left,
+                                VerticalContentAlignment = VerticalAlignment.Top
+                            };
 
                             TextItems.Add(TextEntry);
                         }
@@ -261,7 +269,10 @@ namespace Animal_Crossing_Text_Editor
                 if (i < Entry.Data.Length)
                     Debug.WriteLine(string.Format("Index: {0} | Old Data: {1} | New Data: {2} | Equal: {3}", i, Entry.Data[i].ToString("X2"), New_Data[i].ToString("X2"), Entry.Data[i] == New_Data[i]));
                 else
+                {
                     Debug.WriteLine("New Data is longer!");
+                    break;
+                }
             }
             int Size_Delta = New_Data.Length - (int)Entry.Length;
             if (Size_Delta != 0)
@@ -316,10 +327,12 @@ namespace Animal_Crossing_Text_Editor
                 // TODO: Implement BackgroundWorker
                 if (!string.IsNullOrEmpty(BMG_Struct.INF_Section.Items[i].Text))
                 {
-                    ListViewItem TextEntry = new ListViewItem();
-                    TextEntry.Content = BMG_Struct.INF_Section.Items[i].Text;
-                    TextEntry.HorizontalContentAlignment = HorizontalAlignment.Left;
-                    TextEntry.VerticalContentAlignment = VerticalAlignment.Top;
+                    ListViewItem TextEntry = new ListViewItem
+                    {
+                        Content = BMG_Struct.INF_Section.Items[i].Text,
+                        HorizontalContentAlignment = HorizontalAlignment.Left,
+                        VerticalContentAlignment = VerticalAlignment.Top
+                    };
 
                     TextItems.Add(TextEntry);
                 }
@@ -375,7 +388,7 @@ namespace Animal_Crossing_Text_Editor
             }
         }
 
-        private void SearchBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (SearchBox.IsEnabled && TextListView.ItemsSource != null && SearchBox.IsFocused)
                 CollectionViewSource.GetDefaultView(TextListView.ItemsSource).Refresh();
@@ -386,8 +399,7 @@ namespace Animal_Crossing_Text_Editor
             if (TextListView.SelectedItem != null)
             {
                 Editor.IsEnabled = true;
-                var Item = (sender as ListView).SelectedItem as ListViewItem;
-                if (Item != null && Item.IsSelected)
+                if ((sender as ListView).SelectedItem is ListViewItem Item && Item.IsSelected)
                 {
                     Editor.Text = (string)Item.Content;
                     SelectedIndex = ((List<ListViewItem>)TextListView.ItemsSource).IndexOf(Item);
@@ -402,6 +414,22 @@ namespace Animal_Crossing_Text_Editor
                         OffsetBox.Text = Entries[SelectedIndex].Offset.ToString("X");
                     }
                     Changing_Selected_Entry = false;
+                }
+            }
+        }
+
+        private void DoAutoSave()
+        {
+            if (AutoSaveEnabled && File_Path != null)
+            {
+                string DirectoryPath = Path.GetDirectoryName(File_Path);
+                if (!IsBMG)
+                {
+                    // Handle non BMG entries here
+                }
+                else
+                {
+                    BMGUtility.Write(BMG_Struct, DirectoryPath + "\\" + Path.GetFileNameWithoutExtension(File_Path) + "_AutoSave.bin");
                 }
             }
         }
@@ -471,6 +499,9 @@ namespace Animal_Crossing_Text_Editor
                     {
                         ResizeBMG(BMG_Struct.INF_Section.Items[SelectedIndex], SelectedIndex, Text);
                     }
+
+                    // AutoSave
+                    DoAutoSave();
                 }
             }
         }
@@ -699,6 +730,79 @@ namespace Animal_Crossing_Text_Editor
 
                 Changing_Selected_Entry = false;
             }
+        }
+
+        private void Editor_TextEntering(object sender, TextCompositionEventArgs e)
+        {
+            if (e.Text.Length > 0 && completionWindow != null)
+            {
+                if (!char.IsLetterOrDigit(e.Text[0]))
+                {
+                    completionWindow.CompletionList.RequestInsertion(e);
+                }
+            }
+        }
+
+        private void Editor_TextEntered(object sender, TextCompositionEventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(e.Text))
+            {
+                
+            }
+        }
+
+        private void Editor_TextChanged(object sender, EventArgs e)
+        {
+            /*if (Editor.CaretOffset > 0 && Editor.CaretOffset < Editor.Text.Length &&
+                !string.IsNullOrWhiteSpace(Editor.Text.ElementAt(Editor.CaretOffset - 1).ToString()))
+            {
+                var Line = Editor.Document.GetLineByOffset(Editor.CaretOffset);
+                var LineText = Editor.Text.Substring(Line.Offset, Line.Length);
+                int StartOffset = -1;
+
+                for (int i = LineText.Length - 1; i > -1; i--)
+                {
+                    if (string.IsNullOrWhiteSpace(LineText.ElementAt(i).ToString()))
+                    {
+                        StartOffset = i + 1;
+                        break;
+                    }
+                }
+
+                if (StartOffset > -1)
+                {
+                    completionWindow = new CompletionWindow(Editor.TextArea)
+                    {
+                        SizeToContent = SizeToContent.WidthAndHeight
+                    };
+
+                    var Data = completionWindow.CompletionList.CompletionData;
+                    bool Match = false;
+
+                    string CurrentAutoCompleteString = LineText.Substring(StartOffset);
+                    foreach (string s in Keywords)
+                    {
+                        if (Regex.IsMatch(s, "^" + CurrentAutoCompleteString))
+                        {
+                            Data.Add(new CompletionData(s, ContDescriptions.Descriptions.ContainsKey(s) ? ContDescriptions.Descriptions[s] : "No Description"));
+                            Match = true;
+                        }
+                    }
+
+                    if (Match)
+                    {
+                        completionWindow.Show();
+                        completionWindow.Closed += delegate
+                        {
+                            completionWindow = null;
+                        };
+                    }
+                    else
+                    {
+                        completionWindow = null;
+                    }
+                }
+            }*/
         }
     }
 }

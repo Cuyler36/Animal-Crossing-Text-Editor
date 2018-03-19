@@ -56,6 +56,6 @@
         <Button x:Name="nextButton" Content="Next" HorizontalAlignment="Right" Grid.Column="0" Margin="0,25,10,0" VerticalAlignment="Top" Width="75" Click="nextButton_Click"/>
         <Button x:Name="prevButton" Content="Previous" HorizontalAlignment="Right" Grid.Column="0" Margin="0,25,90,0" VerticalAlignment="Top" Width="75" Click="prevButton_Click"/>
 
-        <avalonEdit:TextEditor Name="Editor" Background="#FF333333" IsEnabled="False" ShowLineNumbers="True" LineNumbersForeground="#FF96BBE0" Foreground="White" HorizontalAlignment="Stretch" Grid.Column="0" Grid.Row="0" Margin="10,50,10,46" FontFamily="Consolas" FontSize="14"/>
+        <avalonEdit:TextEditor Name="Editor" Background="#FF333333" IsEnabled="False" ShowLineNumbers="True" LineNumbersForeground="#FF96BBE0" Foreground="White" HorizontalAlignment="Stretch" Grid.Column="0" Grid.Row="0" Margin="10,50,10,46" FontFamily="Consolas" FontSize="14" TextChanged="Editor_TextChanged"/>
     </Grid>
 </Window>

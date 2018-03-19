@@ -639,16 +639,19 @@ namespace Animal_Crossing_Text_Editor
             // 0x6F (Same as above)
             // 0x70 (Same as above)
             { 0x71, "<Island Name>" },
-            //{ 0x72, "<Enable Justification>" }, // Enable String Justification (mMsg_Main_Cursol_SetCursolJust_ControlCursol)
-            //{ 0x73, "<Disable Justification>" }, // Disable String Justification (mMsg_Main_Cursol_ClrCursolJust_ControlCursol)
-            //{ 0x74, "<Enable Article Cut>" }, // (mMsg_Main_Cursol_CutArticle_ControlCursol)
-            //{ 0x75, "<Enable Capital Letter>" }, // (mMsg_Cursol_CapitalLetter_ControlCursol)
+            { 0x72, "<Enable Justification>" }, // Enable String Justification (mMsg_Main_Cursol_SetCursolJust_ControlCursol)
+            { 0x73, "<Disable Justification>" }, // Disable String Justification (mMsg_Main_Cursol_ClrCursolJust_ControlCursol)
+            { 0x74, "<Enable Article Cut>" }, // (mMsg_Main_Cursol_CutArticle_ControlCursol)
+            // START OF Animal Crossing ONLY Control Codes
+            { 0x75, "<Enable Capital Letter>" }, // (mMsg_Cursol_CapitalLetter_ControlCursol)
             { 0x76, "<AM/PM>" },
             { 0x77, "<Choice #5 MessageId [{0}]>" },
             { 0x78, "<Choice #6 MessageId [{0}]>" },
             { 0x79, "<Set 5 Choices [{0}] [{1}] [{2}] [{3}] [{4}]>" },
-            { 0x7A, "<Set 6 Choices [{0}] [{1}] [{2}] [{3}] [{4}] [{5}]>" }
-            // 7A = Last Control Code? (Found in mFont_CodeSize_get)
+            { 0x7A, "<Set 6 Choices [{0}] [{1}] [{2}] [{3}] [{4}] [{5}]>" },
+            // START OF Doubutsu no Mori e+ ONLY Control Codes
+            { 0x7B, "<9 Bit>" }, // mMsg_Main_Cursol_9bit_ControlCursol
+            { 0x7C, "<Display Symbol [{0}]>" } // Pulls a symbol from Kanji_Bank_0 | mMsg_Main_Cursol_FontKigou_ControlCursol (Kigou = Symbol or Code)
         };
 
         public static Dictionary<int, string> Expression_List = new Dictionary<int, string> // Might actually have "banks" but we're just gonna use shorts for now
@@ -808,7 +811,7 @@ namespace Animal_Crossing_Text_Editor
                 { 0x0003, "<NPC Emotion [Sleepy]>" }, // r5 = 4, r6 = 2, r7 = 4
                 { 0x0004, "<NPC Emotion [Normal]>" }, // r5 = 4, r6 = 2, r7 = 5
                 { 0x0005, "<NPC Emotion [Gloomy]>" }, // r5 = 4, r6 = 2, r7 = 7 (where is r7 = 6)??
-                { 0x0006, "<NPC Emotion [Continue] [{0}]>" }, // r5 = 4, r6 = 8, r7 = <byte>@{0}
+                { 0x0006, "<Continue NPC Emotion for [{0}]>" }, // r5 = 4, r6 = 8, r7 = <byte>@{0}
             }
             },
             { 0x04, new Dictionary<ushort, string> // Internal Name = "Str" (String)
@@ -953,6 +956,12 @@ namespace Animal_Crossing_Text_Editor
                 { 0x0007, "<Unknown TM Tag 0x0007>" },
                 { 0x0008, "<Unknown TM Tag 0x0008>" },
                 { 0x0009, "<Unknown TM Tag 0x0009>" },
+                { 0x000A, "<Unknown TM Tag 0x000A>" },
+                { 0x000B, "<Unknown TM Tag 0x000B>" },
+                { 0x000C, "<Unknown TM Tag 0x000C>" },
+                { 0x000D, "<Unknown TM Tag 0x000D>" },
+                { 0x000E, "<Unknown TM Tag 0x000E>" },
+                { 0x000F, "<Unknown TM Tag 0x000F>" },
             }
             },
             { 0x08, new Dictionary<ushort, string> // Internal Name = "PlSt" (Player Status)?
@@ -1043,14 +1052,25 @@ namespace Animal_Crossing_Text_Editor
             },
             { 0x0C, new Dictionary<ushort, string> // Internal Name = "Jump"
             {
-                { 0x0000, "<Set Selected Dialog [{0}]>" },
-                { 0x0001, "<Select Random Jump Entry Between [{0}] and [{1}]>" },
-                { 0x0002, "<Select Random Dialog from [{0}] [{1}]>" },
-                { 0x0003, "<Select Random Dialog from [{0}] [{1}] [{2}]>" },
-                { 0x0004, "<Select Random Dialog from [{0}] [{1}] [{2}] [{3}]>" },
-                { 0x0005, "<NPC Friendship Jump [{0}] [{1}] [{2}]" }, // <byte>friendship <ushort>lessThan <ushort>greaterOrEqual
-                { 0x0006, "<Select Random Dialog from [{0}] [{1}]>" }, // Check if player is the first player? (Or working?) Idk. Investigate?
-                { 0x0007, "<Player Gender Jump [{0}] [{1}]" }, // <ushort>MaleMessageId, <ushort>FemaleMessageId
+                { 0x0000, "<Set Selected Dialog [{0}]>" }, // mMsgTag_Jump_NextForce
+                { 0x0001, "<Select Random Jump Entry Between [{0}] and [{1}]>" }, // NextRandSec (random section)
+                { 0x0002, "<Select Random Dialog from [{0}] [{1}]>" }, // NextRand2
+                { 0x0003, "<Select Random Dialog from [{0}] [{1}] [{2}]>" }, // NextRand3
+                { 0x0004, "<Select Random Dialog from [{0}] [{1}] [{2}] [{3}]>" }, // NextRand4
+                { 0x0005, "<NPC Friendship Jump [{0}] [{1}] [{2}]>" }, // <byte>friendship <ushort>lessThan <ushort>greaterOrEqual | Ifsj
+                { 0x0006, "<Player Visiting Jump [{0}] [{1}]>" }, // <ushort>VisitorMessageId, <ushort>ResidentMessageId | Ifjj
+                { 0x0007, "<Player Gender Jump [{0}] [{1}]>" }, // <ushort>MaleMessageId, <ushort>FemaleMessageId | Ifsx
+                { 0x0008, "<Shop Level Jump [{0}] [{1}] [{2}] [{3}]>" }, // <ushort>CrannyMessageId, <ushort>NooknGoMessageId, <ushort>NookwayMessageId, <ushort>NookingtonsMessageId | Iftl (Tanchikuni Level)
+                { 0x0009, "<Player House Size Jump [{0}] [{1}] [{2}] [{3}]>" }, // <ushort>NoUpgradeId, <ushort>FirstUpgradeId, <ushort>SecondUpgradeId, <ushort>ThirdPlusUpgradeId | Ifhl (House Level)
+                { 0x000A, "<Player House Basement Jump [{0}] [{1}]>" }, // <ushort>NoBasementId, <ushort>HasBasementId | Ifbl (Basement Level)
+                { 0x000B, "<Player Island Jump [{0}] [{1}]>" }, // <ushort>NoIslandId, <ushort>HasIslandId | Ifil (Island Level)
+                { 0x000C, "<Player Insect Collection Jump [{0}] [{1}] [{2}]>" }, // <ushort>LessThan42CollectedId, <ushort>MoreThan42CollectedId, <ushort>AllCollectedId | Ific (Insect Collection)
+                { 0x000D, "<Player Fish Collection Jump [{0}] [{1}] [{2}]>" }, // <ushort>LessThan42CollectedId, <ushort>MoreThan42CollectedId, <ushort>AllCollectedId | Iffc (Fish Collection)
+                { 0x000E, "<Player Resident Count Jump [{0}] [{1}] [{2]} [{3}]>" }, // <ushort>0/1 Players, <ushort>2 Players, <ushort>3 Players, <ushort>4 Players | Ifpn (Player Number)
+                { 0x000F, "<NPC Race Jump [{0}] [{1}]>" }, // <byte>NPC_Race, <ushort>MessageId | Sets the message continuation id if the NPC's race is equal to NPC_Race. | Ifdj (??)
+                { 0x0010, "<Fruit Tree Check Jump [{0}] [{1}]>" }, // <byte> FruitTreeIndex (1 = Apple, 2 = Orange, 3 = Cherry, 4 = Pear, 5 = Peach, 6 = Coconut), <ushort>HaveOneMessageId | Checks to see if your village has at least one of the specified tree types in it. | lfkj (??)
+                { 0x0011, "<Check NPC Feeling State [{0}] [{1}]>" }, // <byte>NPC Feeling State, <ushort>MessageIdIfMatch
+                { 0x0012, "<>" }
                 // TODO: Rest of the unique jumps (figure them out)
             }
             },
@@ -1091,7 +1111,7 @@ namespace Animal_Crossing_Text_Editor
             },
             { 0x10, new Dictionary<ushort, string> // Internal Name = "ManpuSub" (Emotion Subroutine)
             {
-
+                { 0x0000, "<Emotion Subroutine 0000>" }
             }
             },
             { 0x11, new Dictionary<ushort, string> // Internal Name = "TmSub"
@@ -1333,10 +1353,6 @@ namespace Animal_Crossing_Text_Editor
                     {
                         byte Group = Data[i + 2];
                         ushort Index = (ushort)((Data[i + 3] << 8) | Data[i + 4]);
-
-                        // Temporary
-                        if (Group == 0x07)
-                            Index = 0;
 
                         if (Tag_Map.ContainsKey(Group) && Tag_Map[Group].ContainsKey(Index))
                         {

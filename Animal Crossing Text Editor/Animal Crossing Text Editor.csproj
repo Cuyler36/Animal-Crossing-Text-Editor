@@ -81,6 +81,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Classes\CompletionData.cs" />
     <Compile Include="Classes\Extensions\BinaryExtensions.cs" />
     <Compile Include="Classes\BMG\BMC.cs" />
     <Compile Include="Forms\BMCEditorWindow.xaml.cs">
