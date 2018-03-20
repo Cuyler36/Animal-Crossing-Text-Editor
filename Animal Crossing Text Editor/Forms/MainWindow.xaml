@@ -25,6 +25,7 @@
                     <MenuItem Header="_Save" Click="Save_Click"/>
                     <MenuItem Header="Save _As" Click="SaveAs_Click"/>
                     <MenuItem Header="Open _BMC File" Click="MenuItem_Click_1"/>
+                    <MenuItem Header="_Dump Contents" Click="Dump_Click"/>
                 </MenuItem>
                 <MenuItem Header="_Cursor">
                     <MenuItem Header="_Goto Entry" Click="MenuItem_Click"/>

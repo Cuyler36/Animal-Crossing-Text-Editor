@@ -530,7 +530,7 @@ namespace Animal_Crossing_Text_Editor
         public static Dictionary<byte, string> ContId_Map = new Dictionary<byte, string> // Cont stands for Control
         {
             { 0x00, "<End Conversation>" }, // "Last" Code
-            { 0x01, "<Goto Jump Entry>" }, // "Continue" Code
+            { 0x01, "<Switch to Selected Dialog>" }, // "Continue" Code
             { 0x02, "<New Page>" },
             { 0x03, "<Pause [{0}]>" }, // "SetTime" Code
             { 0x04, "<Press A>" }, // Might be "bring up next arrow"
@@ -578,11 +578,11 @@ namespace Animal_Crossing_Text_Editor
             { 0x2E, "<Last Choice Selected>" },
             { 0x2F, "<Town Name>" },
             { 0x30, "<Random Number>" }, // 0 - 99
-            { 0x31, "<Item 0>" },
-            { 0x32, "<Item 1>" },
-            { 0x33, "<Item 2>" },
-            { 0x34, "<Item 3>" },
-            { 0x35, "<Item 4>" },
+            { 0x31, "<Item String 0>" },
+            { 0x32, "<Item String 1>" },
+            { 0x33, "<Item String 2>" },
+            { 0x34, "<Item String 3>" },
+            { 0x35, "<Item String 4>" },
             { 0x36, "<String 10>" },
             { 0x37, "<String 11>" },
             { 0x38, "<String 12>" },
@@ -946,7 +946,7 @@ namespace Animal_Crossing_Text_Editor
             },
             { 0x07, new Dictionary<ushort, string> // Internal Name = "Tm" (Trademark)? (Probably not)
             {
-                { 0x0000, "<Unknown TM Tag 0x0000>" }, // Figure out what each one does, then document them
+                { 0x0000, "<Unknown TM Tag 0x0000>" }, // Plays the villager shirt equip animation
                 { 0x0001, "<Unknown TM Tag 0x0001>" },
                 { 0x0002, "<Unknown TM Tag 0x0002>" },
                 { 0x0003, "<Unknown TM Tag 0x0003>" },
@@ -957,7 +957,7 @@ namespace Animal_Crossing_Text_Editor
                 { 0x0008, "<Unknown TM Tag 0x0008>" },
                 { 0x0009, "<Unknown TM Tag 0x0009>" },
                 { 0x000A, "<Unknown TM Tag 0x000A>" },
-                { 0x000B, "<Unknown TM Tag 0x000B>" },
+                { 0x000B, "<Unknown TM Tag 0x000B>" }, // Item being put in pockets animation
                 { 0x000C, "<Unknown TM Tag 0x000C>" },
                 { 0x000D, "<Unknown TM Tag 0x000D>" },
                 { 0x000E, "<Unknown TM Tag 0x000E>" },

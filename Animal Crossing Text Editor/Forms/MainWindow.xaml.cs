@@ -15,6 +15,7 @@ using System.Xml;
 using ICSharpCode.AvalonEdit.Highlighting.Xshd;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.CodeCompletion;
+using System.Threading.Tasks;
 
 namespace Animal_Crossing_Text_Editor
 {
@@ -480,6 +481,62 @@ namespace Animal_Crossing_Text_Editor
         private void SaveAs_Click(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        private void ReportDumpProgress(int Index)
+        {
+            double Percent = 0;
+            if (!IsBMG)
+            {
+                Percent = Index / (double)Entries.Length;
+            }
+            else
+            {
+                Percent = Index / (double)BMG_Struct.INF_Section.Items.Length;
+            }
+            ProgressBar.Value = Percent * 100;
+        }
+
+        private async void Dump_Click(object sender, RoutedEventArgs e)
+        {
+            using (var openFolderDialog = new System.Windows.Forms.FolderBrowserDialog())
+            {
+                openFolderDialog.SelectedPath = "";
+                int Index = 0;
+                if (openFolderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    if (!IsBMG)
+                    {
+                        await Task.Run(() =>
+                        {
+                            for (int i = 0; i < Entries.Length; i++)
+                            {
+                                using (var stream = File.CreateText(openFolderDialog.SelectedPath + "\\" + i.ToString("X4") + ".txt"))
+                                {
+                                    stream.Write(Entries[i].Text.Replace("\n", "\r\n"));
+                                }
+                                Index++;
+                                Dispatcher.Invoke(new Action(() => ReportDumpProgress(Index)));
+                            }
+                        });
+                    }
+                    else
+                    {
+                        await Task.Run(() =>
+                        {
+                            for (int i = 0; i < BMG_Struct.INF_Section.Items.Length; i++)
+                            {
+                                using (var stream = File.CreateText(openFolderDialog.SelectedPath + "\\" + i.ToString("X4") + ".txt"))
+                                {
+                                    stream.Write(BMG_Struct.INF_Section.Items[i].Text.Replace("\n", "\r\n"));
+                                }
+                                Index++;
+                                Dispatcher.Invoke(new Action(() => ReportDumpProgress(Index)));
+                            }
+                        });
+                    }
+                }
+            }
         }
 
         private void UpdateTextButton_Click(object sender, RoutedEventArgs e)
