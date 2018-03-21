@@ -73,7 +73,7 @@ namespace Animal_Crossing_Text_Editor
             { 0x38, "8" },
             { 0x39, "9" },
             { 0x3A, ":" },
-            { 0x3B, "🌢" },
+            { 0x3B, "🌢" }, // Multichar byte
             { 0x3C, "<" },
             { 0x3D, "=" },
             { 0x3E, ">" },
@@ -106,7 +106,7 @@ namespace Animal_Crossing_Text_Editor
             { 0x59, "Y" },
             { 0x5A, "Z" },
             { 0x5B, "ã" },
-            { 0x5C, "💢" },
+            { 0x5C, "💢" }, //
             { 0x5D, "ä" },
             { 0x5E, "å" },
             { 0x5F, "_" },
@@ -288,7 +288,7 @@ namespace Animal_Crossing_Text_Editor
             { 0x38, "8" },
             { 0x39, "9" },
             { 0x3A, ":" },
-            { 0x3B, "🌢" }, // Unicode
+            { 0x3B, "•" }, // Actually a raindrop 🌢
             { 0x3C, "<" },
             { 0x3D, "+" },
             { 0x3E, ">" },
@@ -321,7 +321,7 @@ namespace Animal_Crossing_Text_Editor
             { 0x59, "Y" },
             { 0x5A, "Z" },
             { 0x5B, "も" },
-            { 0x5C, "💢" }, // Unicode
+            { 0x5C, "×" }, // Actually 💢
             { 0x5D, "や" },
             { 0x5E, "ゆ" },
             { 0x5F, "_" },
@@ -489,42 +489,44 @@ namespace Animal_Crossing_Text_Editor
 
         public static string[] DnMe_Plus_Kanji_Bank_0 = new string[256]
         {
-            "😮", "😄", "😠", "😣", "🐾", "⚷", "✉", "💰", "★", "☀", "☁", "☂", "☃", "🌬", "×", "÷",
-            "🐶", "🐱", "🐰", "🐦", "🐮", "🐷", "🐟", "🐞", "💀", "🍀", "ひ", "○", "🗙", "□", "△", "=", // ひ = Gyroid
-            "予", "岸", "向", "定", "写", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ",
-            "貝", "耳", "川", "虫", "入", "王", "学", " ", " ", " ", " ", " ", " ", " ", " ", " ",
-            "帰", "魚", "教", "兄", "細", "姉", "走", "太", "体", "池", "弟", "当", "歩", "妹", "南", "頭",
-            "育", "寒", "急", "橋", "決", "者", "勝", "送", "想", "島", "悲", "負", "勉", "放", "重", "他",
-            "愛", "改", "完", "芸", "成", "選", "置", "働", "別", "望", "満", "冷", "辺", "熱", "必", "要",
-            "久", "術", "増", "貸", "断", "築", "預", "接", "解", "準", "備", "保", "設", " ", " ", " ",
-            "危", "困", "砂", "姿", "捨", "操", "届", "収", "泉", "呼", "除", "存", " ", " ", " ", " ",
-            "釣", "捕", "怒", "舟", "浜", "誰", "恋", "払", "贈", "頼", "渡", "残", "埋", "押", "込", "深",
-            "通", "同", "止", "語", "答", "活", "首", "遠", " ", " ", " ", " ", " ", " ", " ", " ",
-            "飲", "消", "落", "助", "暗", "化", "遊", "漢", "祭", "級", "去", "次", "流", "発", "旅", "深",
-            "続", "治", "量", "不", "照", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ",
-            " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ",
-            " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ",
-            "越", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "
+//           00    01    02   03    04    05    06    07    08    09   0A    0B    0C    0D    0E    0F   
+            "😮", "😄", "😠", "😣", "🐾", "⚷", "✉", "💰", "★", "☀", "☁", "☂", "☃", "🌬", "×", "÷", // 0
+            "🐶", "🐱", "🐰", "🐦", "🐮", "🐷", "🐟", "🐞", "💀", "🍀", "ひ", "○", "🗙", "□", "△", "=", // 1 | ひ = Gyroid
+            "予", "岸", "向", "定", "写", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", // 2
+            "貝", "耳", "川", "虫", "入", "王", "学", " ", " ", " ", " ", " ", " ", " ", " ", " ", // 3
+            "帰", "魚", "教", "兄", "細", "姉", "走", "太", "体", "池", "弟", "当", "歩", "妹", "南", "頭", // 4
+            "育", "寒", "急", "橋", "決", "者", "勝", "送", "想", "島", "悲", "負", "勉", "放", "重", "他", // 5
+            "愛", "改", "完", "芸", "成", "選", "置", "働", "別", "望", "満", "冷", "辺", "熱", "必", "要", // 6
+            "久", "術", "増", "貸", "断", "築", "預", "接", "解", "準", "備", "保", "設", " ", " ", " ", // 7
+            "危", "困", "砂", "姿", "捨", "操", "届", "収", "泉", "呼", "除", "存", " ", " ", " ", " ", // 8
+            "釣", "捕", "怒", "舟", "浜", "誰", "恋", "払", "贈", "頼", "渡", "桟", "埋", "押", "込", "抜", // 9
+            "通", "同", "止", "語", "答", "活", "首", "遠", " ", " ", " ", " ", " ", " ", " ", " ", // A
+            "飲", "消", "落", "助", "暗", "化", "遊", "漢", "祭", "級", "去", "次", "流", "発", "旅", "深", // B
+            "続", "治", "量", "不", "照", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", // C
+            " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", // D
+            " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", // E
+            "越", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " " // F
         };
 
         public static string[] DnMe_Plus_Kanji_Bank_1 = new string[256]
         {
-            "右", "雨", "音", "下", "火", "花", "一", "気", "休", "金", "空", "月", "見", "ロ", "左", "山",
-            "子", "字", "天", "車", "手", "出", "女", "小", "上", "森", "人", "水", "正", "生", "青", "タ",
-            "石", "赤", "声", "先", "早", "草", "足", "村", "大", "男", "中", "館", "町", "土", "日", "年",
-            "白", "文", "木", "本", "名", "目", "立", "力", "引", "何", "夏", "家", "歌", "画", "回", "会",
-            "海", "絵", "外", "楽", "間", "岩", "顔", "汽", "記", "仕", "根", "強", "由", "近", "具", "計",
-            "元", "言", "原", "戸", "午", "後", "広", "交", "光", "考", "行", "高", "黄", "合", "黒", "今",
-            "作", "算", "代", "思", "紙", "自", "時", "弱", "秋", "週", "春", "書", "少", "場", "色", "食",
-            "心", "新", "親", "図", "数", "星", "晴", "切", "雪", "前", "多", "台", "地", "起", "知", "昼",
-            "長", "朝", "直", "道", "店", "雷", "冬", "読", "売", "買", "番", "分", "聞", "方", "毎", "財",
-            "明", "夜", "野", "友", "用", "躍", "来", "話", "安", "源", "意", "員", "運", "駅", "屋", "荷",
-            "階", "感", "期", "世", "曲", "局", "使", "始", "事", "持", "実", "受", "終", "集", "住", "所",
-            "商", "植", "真", "全", "相", "待", "題", "短", "議", "着", "注", "丁", "度", "室", "動", "配",
-            "初", "美", "秒", "品", "部", "服", "福", "物", "返", "味", "面", "問", "有", "葉", "縁", "礼",
-            "開", "以", "貨", "願", "季", "好", "最", "昨", "残", "笑", "信", "節", "達", "貯", "伝", "念",
-            "建", "変", "便", "末", "無", "良", "確", "券", "雑", "性", "界", "暴", "穴", "病", "社", "座",
-            "誕", "段", "値", "取", "認", "宝", "忘", "郵", "欲", "冗", "録", "博", "仲", "利", "似", "応"
+//           00    01    02   03    04    05    06    07    08    09   0A    0B    0C    0D    0E    0F   
+            "右", "雨", "音", "下", "火", "花", "一", "気", "休", "金", "空", "月", "見", "口", "左", "山", // 0
+            "子", "字", "天", "車", "手", "出", "女", "小", "上", "森", "人", "水", "正", "生", "青", "タ", // 1
+            "石", "赤", "声", "先", "早", "草", "足", "村", "大", "男", "中", "館", "町", "土", "日", "年", // 2
+            "白", "文", "木", "本", "名", "目", "立", "力", "引", "何", "夏", "家", "歌", "画", "回", "会", // 3
+            "海", "絵", "外", "楽", "間", "岩", "顔", "汽", "記", "仕", "根", "強", "由", "近", "具", "計", // 4
+            "元", "言", "原", "戸", "午", "後", "広", "交", "光", "考", "行", "高", "黄", "合", "黒", "今", // 5
+            "作", "算", "代", "思", "紙", "自", "時", "弱", "秋", "週", "春", "書", "少", "場", "色", "食", // 6
+            "心", "新", "親", "図", "数", "星", "晴", "切", "雪", "前", "多", "台", "地", "起", "知", "昼", // 7
+            "長", "朝", "直", "道", "店", "雷", "冬", "読", "売", "買", "番", "分", "聞", "方", "毎", "財", // 8
+            "明", "夜", "野", "友", "用", "躍", "来", "話", "安", "源", "意", "員", "運", "駅", "屋", "荷", // 9
+            "階", "感", "期", "世", "曲", "局", "使", "始", "事", "持", "実", "受", "終", "集", "住", "所", // A
+            "商", "植", "真", "全", "相", "待", "題", "短", "議", "着", "注", "丁", "度", "室", "動", "配", // B
+            "初", "美", "秒", "品", "部", "服", "福", "物", "返", "味", "面", "問", "有", "葉", "縁", "礼", // C
+            "開", "以", "貨", "願", "季", "好", "最", "昨", "残", "笑", "信", "節", "達", "貯", "伝", "念", // D
+            "建", "変", "便", "末", "無", "良", "確", "券", "雑", "性", "界", "暴", "穴", "病", "社", "座", // E
+            "誕", "段", "値", "取", "認", "宝", "忘", "郵", "欲", "冗", "録", "博", "仲", "利", "似", "応"  // F
         };
 
         public static Dictionary<byte, string> ContId_Map = new Dictionary<byte, string> // Cont stands for Control
@@ -539,9 +541,9 @@ namespace Animal_Crossing_Text_Editor
             { 0x07, "<Unskippable>" }, // Unsure about this one
             { 0x08, "<Player Emotion [{0}] [{1}]>" }, // (mMsg_Main_Cursol_SetDemoOrderPlayer_ControlCursol) (Affects Player_actor_RecieveDemoOrder_EffectOrder) (Player_actor_ChangeAnimation_FromDemoOrder_Talk)
             { 0x09, "<Expression [{0}]>" }, // NPC Expressions (mMsg_Main_Cursol_SetDemoOrderNPC0_ControlCursol) (aNPC_check_manpu_demoCode)
-            //{ 0x0A, "<Unknown ContId 0x0A>" }, // Three extra bytes
-            //{ 0x0B, "<Unknown ContId 0x0B>" }, // Three extra bytes
-            //{ 0x0C, "<Unknown ContId 0x0C>" }, // "Quest" Code (See mMsg_Main_Cursol_SetDemoOrderQuest_ControlCursol)
+            { 0x0A, "<Set Demo Order NPC 0 [{0}] [{1}] [{2}]>" }, // Three extra bytes
+            { 0x0B, "<Set Demo Order NPC 1 [{0}] [{1}] [{2}]>" }, // Three extra bytes
+            { 0x0C, "<Set Demo Order NPC 2 [{0}] [{1}] [{2}]>" }, // "Quest" Code (See mMsg_Main_Cursol_SetDemoOrderQuest_ControlCursol)
             { 0x0D, "<Open Choice Selection Menu>" },
             { 0x0E, "<Set Jump Entry [{0}]>" },
             { 0x0F, "<Choice #1 MessageId [{0}]>" }, // Choice #1? (+ two bytes / one ushort) might point to the choice index to use (hex)
@@ -859,13 +861,13 @@ namespace Animal_Crossing_Text_Editor
                 { 0x0028, "<Item String 2>" },
                 { 0x0029, "<Item String 3>" },
                 { 0x002A, "<Item String 4>" },
-                { 0x002B, "<NPC Nickname>" },
-                { 0x002C, "<NPC Town Name>" }, // Check this (mMsgTag_Str_NpcNameTribe)
+                { 0x002B, "<NPC Nickname [{0}] [{1}] [{2}]>" }, // <byte>@{0}, <ushort>MessageId1, <ushort>MessageId2 | Check what this is. (NpcNamePersonal)
+                { 0x002C, "<NPC Town Name [{0}] [{1}] [{2}]>" }, // Check this (mMsgTag_Str_NpcNameTribe)
                 { 0x002D, "<Opln>" }, // Check this (mMsgTag_Str_Opln) (Original Player Name??)
                 { 0x002E, "<Own Island Name>" }, // Other player island name? (Check this)
                 { 0x002F, "<Cloth Type>" }, // Check this (mMsgTag_Str_PlClothType) (Probably "Player Cloth Type", so maybe: shirt, umbrella, carpet, wallpaper?
-                { 0x0030, "<NPC Past Nickname>" },
-                { 0x0031, "<NPC Past Town Name>" },
+                { 0x0030, "<NPC Past Nickname [{0}] [{1}]>" },
+                { 0x0031, "<NPC Past Town Name [{0}] [{1}]>" },
                 { 0x0032, "<Original Catchphrase>" }, // (Original Catchphrase?) (mMsgTag_Str_TruthTail Check this
                 { 0x0033, "<Town Name in Kana>" }
             }
@@ -1066,12 +1068,23 @@ namespace Animal_Crossing_Text_Editor
                 { 0x000B, "<Player Island Jump [{0}] [{1}]>" }, // <ushort>NoIslandId, <ushort>HasIslandId | Ifil (Island Level)
                 { 0x000C, "<Player Insect Collection Jump [{0}] [{1}] [{2}]>" }, // <ushort>LessThan42CollectedId, <ushort>MoreThan42CollectedId, <ushort>AllCollectedId | Ific (Insect Collection)
                 { 0x000D, "<Player Fish Collection Jump [{0}] [{1}] [{2}]>" }, // <ushort>LessThan42CollectedId, <ushort>MoreThan42CollectedId, <ushort>AllCollectedId | Iffc (Fish Collection)
-                { 0x000E, "<Player Resident Count Jump [{0}] [{1}] [{2]} [{3}]>" }, // <ushort>0/1 Players, <ushort>2 Players, <ushort>3 Players, <ushort>4 Players | Ifpn (Player Number)
+                { 0x000E, "<Player Resident Count Jump [{0}] [{1}] [{2}] [{3}]>" }, // <ushort>0/1 Players, <ushort>2 Players, <ushort>3 Players, <ushort>4 Players | Ifpn (Player Number)
                 { 0x000F, "<NPC Race Jump [{0}] [{1}]>" }, // <byte>NPC_Race, <ushort>MessageId | Sets the message continuation id if the NPC's race is equal to NPC_Race. | Ifdj (??)
                 { 0x0010, "<Fruit Tree Check Jump [{0}] [{1}]>" }, // <byte> FruitTreeIndex (1 = Apple, 2 = Orange, 3 = Cherry, 4 = Pear, 5 = Peach, 6 = Coconut), <ushort>HaveOneMessageId | Checks to see if your village has at least one of the specified tree types in it. | lfkj (??)
-                { 0x0011, "<Check NPC Feeling State [{0}] [{1}]>" }, // <byte>NPC Feeling State, <ushort>MessageIdIfMatch
-                { 0x0012, "<>" }
-                // TODO: Rest of the unique jumps (figure them out)
+                { 0x0011, "<Check NPC Feeling State [{0}] [{1}]>" }, // <byte>NPC Feeling State, <ushort>MessageIdIfMatch | Ifgk (??)
+                { 0x0012, "<Dialog Condtional Jump Ifmt [{0}] [{1}]>" }, // <byte>@0, <ushort>MessageIdIfMatch | Ifmt (??)
+                { 0x0013, "<Dialog Condtional Jump Ifda [{0}] [{1}]>" }, // <byte>@0, <ushort>MessageIdIfMatch | Ifda (??)
+                { 0x0014, "<Dialog Condtional Jump Iftm [{0}] [{1}]>" }, // <byte>@0, <ushort>MessageIdIfMatch | Iftm (??)
+                { 0x0015, "<Dialog Condtional Jump Ifwj [{0}] [{1}]>" }, // <byte>@0, <ushort>MessageIdIfMatch | Ifwj (??)
+                { 0x0016, "<Fruit Check in Player Inventory Jump [{0}] [{1}]>" }, // <byte>FruitIndex (Refer to FruitTreeIndex), <ushort>MessageIdIfMatch | Ifhf (Have Fruit)
+                { 0x0017, "<Dialog Condtional Jump Ifmd [{0}] [{1}]>" }, // <byte>@0, <ushort>MessageIdIfMatch | Ifmd (??) (NOTE: Checks room & carpets) (May have something to do with pattern carpets/wallpapers)
+                { 0x0018, "<Dialog Condtional Jump Ifsd [{0}] [{1}] [{2}]>" }, // <ushort>MessageId1, <ushort>MessageId2, <ushort>MessageId3 | Ifsd (Has something to do with shirts (possibly comparing between your shirt and the NPC's shirt too))
+                { 0x0019, "<Dialog Condtional Jump Ifpl [{0}] [{1}]>" }, // <ushort>MessageIdIfNotMatch?, <ushort>MessageIdIfMatch | Ifpl (??) (NOTE: Checks player shirt? Might compare against the villager's shirt)
+                { 0x001A, "<Monument In Acre Jump [{0}] [{1}]>" }, // <ushort>HasMonumentId, <ushort>NoMonumentId | Ifmo (Monument)
+                { 0x001B, "<Check B Key Jump [{0}] [{1}]>" }, // <byte>@{0} (Might be what key/key press count), <ushort>MessageId | Sets Message Continue Id if some b key condition is met | ChkBKey
+                { 0x001C, "<Check All Key Jump [{0}] [{1}]>" }, // <byte>@{0} (Might be what key/key press count), <ushort>MessageId | Sets Message Continue Id if some key condition is met | ChkAllKey
+                { 0x001D, "<Dialog Conditional Jump Happy [{0}] [{1}]>" } // <ushort>IfHappyId, <ushort>NotHappyId | Happy
+                // TODO: Rest of the unique jumps (figure them out) (also add decode/encode logic for them)
             }
             },
             { 0x0D, new Dictionary<ushort, string> // Internal Name = "Talk3" (NPC Talk Routines? Maybe for listening in on them?)
@@ -1106,12 +1119,35 @@ namespace Animal_Crossing_Text_Editor
                 { 0x0003, "<NPC Emotion Sub [Sleepy]>" },
                 { 0x0004, "<NPC Emotion Sub [Normal]>" },
                 { 0x0005, "<NPC Emotion Sub [Gloomy]>" },
-                { 0x0006, "<NPC Emotion Sub [Continue] [{0}]>" } // <byte>@{0}
+                { 0x0006, "<Continue NPC Emotion Sub [{0}]>" } // <byte>@{0}
             }
             },
             { 0x10, new Dictionary<ushort, string> // Internal Name = "ManpuSub" (Emotion Subroutine)
             {
-                { 0x0000, "<Emotion Subroutine 0000>" }
+                { 0x0000, "<Emotion Subroutine 0000>" },
+                { 0x0001, "<Emotion Subroutine 0001>" },
+                { 0x0002, "<Emotion Subroutine 0002>" },
+                { 0x0003, "<Emotion Subroutine 0003>" },
+                { 0x0004, "<Emotion Subroutine 0004>" },
+                { 0x0005, "<Emotion Subroutine 0005>" },
+                { 0x0006, "<Emotion Subroutine 0006>" },
+                { 0x0007, "<Emotion Subroutine 0007>" },
+                { 0x0008, "<Emotion Subroutine 0008>" },
+                { 0x0009, "<Emotion Subroutine 0009>" },
+                { 0x000A, "<Emotion Subroutine 000A>" },
+                { 0x000B, "<Emotion Subroutine 000B>" },
+                { 0x000C, "<Emotion Subroutine 000C>" },
+                { 0x000D, "<Emotion Subroutine 000D>" },
+                { 0x000E, "<Emotion Subroutine 000E>" },
+                { 0x000F, "<Emotion Subroutine 000F>" },
+                { 0x0010, "<Emotion Subroutine 0010>" },
+                { 0x0011, "<Emotion Subroutine 0011>" },
+                { 0x0012, "<Emotion Subroutine 0012>" },
+                { 0x0013, "<Emotion Subroutine 0013>" },
+                { 0x0014, "<Emotion Subroutine 0014>" },
+                { 0x0015, "<Emotion Subroutine 0015>" },
+                { 0x0016, "<Emotion Subroutine 0016>" },
+                { 0x0017, "<Emotion Subroutine 0017>" },
             }
             },
             { 0x11, new Dictionary<ushort, string> // Internal Name = "TmSub"
@@ -1121,7 +1157,12 @@ namespace Animal_Crossing_Text_Editor
             },
             { 0x12, new Dictionary<ushort, string> // Internal Name = "BodySub"
             {
-
+                { 0x0000, "<Body Subroutine 0000>" },
+                { 0x0001, "<Body Subroutine 0001>" },
+                { 0x0002, "<Body Subroutine 0002>" },
+                { 0x0003, "<Body Subroutine 0003>" },
+                { 0x0004, "<Body Subroutine 0004>" },
+                { 0x0005, "<Body Subroutine 0005>" },
             }
             },
             { 0xFF, new Dictionary<ushort, string> // Internal Name = "Sys" (System)
@@ -1251,6 +1292,12 @@ namespace Animal_Crossing_Text_Editor
                                         Text += string.Format(ContId_Map[0x09], Expression_List[Expression]);
                                     else
                                         Text += string.Format(ContId_Map[0x09], "Unknown 0x" + Expression.ToString("X6"));
+                                    i += 3;
+                                    break;
+                                case 0x0A:
+                                case 0x0B:
+                                case 0x0C:
+                                    Text += string.Format(ContId_Map[Cont_Param], Data[i + 1].ToString("X2"), Data[i + 2].ToString("X2"), Data[i + 3].ToString("X2"));
                                     i += 3;
                                     break;
                                 case 0x0E:
@@ -1441,6 +1488,15 @@ namespace Animal_Crossing_Text_Editor
                                 case 0x04:
                                     switch (Index)
                                     {
+                                        case 0x002B:
+                                        case 0x002C:
+                                            Text += string.Format(Description, Data[i + 5].ToString("X2"), ((ushort)((Data[i + 6] << 8) | Data[i + 7])).ToString("X4"),
+                                                ((ushort)((Data[i + 8] << 8) | Data[i + 9])).ToString("X4"));
+                                            break;
+                                        case 0x0030:
+                                        case 0x0031:
+                                            Text += string.Format(Description, Data[i + 5].ToString("X2"), ((ushort)((Data[i + 6] << 8) | Data[i + 7])).ToString("X4"));
+                                            break;
                                         default:
                                             Text += Description;
                                             break;
@@ -1524,10 +1580,16 @@ namespace Animal_Crossing_Text_Editor
                                             Text += string.Format(Description, Data[i + 5].ToString("X2") + Data[i + 6].ToString("X2"));
                                             break;
                                         case 0x0003:
+                                        case 0x000C:
+                                        case 0x000D:
+                                        case 0x0018:
                                             Text += string.Format(Description, Data[i + 5].ToString("X2") + Data[i + 6].ToString("X2"), Data[i + 7].ToString("X2") + Data[i + 8].ToString("X2"),
                                                 Data[i + 9].ToString("X2") + Data[i + 10].ToString("X2"));
                                             break;
                                         case 0x0004:
+                                        case 0x0008:
+                                        case 0x0009:
+                                        case 0x000E:
                                             Text += string.Format(Description, Data[i + 5].ToString("X2") + Data[i + 6].ToString("X2"), Data[i + 7].ToString("X2") + Data[i + 8].ToString("X2"),
                                                 Data[i + 9].ToString("X2") + Data[i + 10].ToString("X2"), Data[i + 11].ToString("X2") + Data[i + 12].ToString("X2"));
                                             break;
@@ -1535,7 +1597,29 @@ namespace Animal_Crossing_Text_Editor
                                         case 0x0002:
                                         case 0x0006:
                                         case 0x0007:
+                                        case 0x000A:
+                                        case 0x000B:
+                                        case 0x0019:
+                                        case 0x001A:
+                                        case 0x001D:
                                             Text += string.Format(Description, Data[i + 5].ToString("X2") + Data[i + 6].ToString("X2"), Data[i + 7].ToString("X2") + Data[i + 8].ToString("X2"));
+                                            break;
+                                        case 0x000F:
+                                        case 0x0010:
+                                        case 0x0011:
+                                        case 0x0012:
+                                        case 0x0013:
+                                        case 0x0014:
+                                        case 0x0015:
+                                        case 0x0016:
+                                        case 0x0017:
+                                        case 0x001B:
+                                        case 0x001C:
+                                            Text += string.Format(Description, Data[i + 5].ToString("X2"), ((Data[i + 6] << 8) | Data[i + 7]).ToString("X4"));
+                                            break;
+                                        case 0x0005:
+                                            Text += string.Format(Description, Data[i + 5].ToString("X2"), ((Data[i + 6] << 8) | Data[i + 7]).ToString("X4"),
+                                                ((Data[i + 8] << 8) | Data[i + 9]).ToString("X4"));
                                             break;
                                         default:
                                             Text += Description;
@@ -1839,6 +1923,59 @@ namespace Animal_Crossing_Text_Editor
                                         }
                                         break;
 
+                                    case 0x04:
+                                        switch (TagIndex)
+                                        {
+                                            case 0x002B:
+                                            case 0x002C:
+                                                {
+                                                    Size += 5;
+                                                    if (TagMatches.Count > 2 && byte.TryParse(TagMatches[0], NumberStyles.HexNumber, null, out byte PersonalIndex)
+                                                        && ushort.TryParse(TagMatches[1], NumberStyles.HexNumber, null, out ushort MsgId0)
+                                                        && ushort.TryParse(TagMatches[2], NumberStyles.HexNumber, null, out ushort MsgId1))
+                                                    {
+                                                        TagArguments.Add(PersonalIndex);
+                                                        TagArguments.Add((byte)(MsgId0 >> 8));
+                                                        TagArguments.Add((byte)MsgId0);
+                                                        TagArguments.Add((byte)(MsgId1 >> 8));
+                                                        TagArguments.Add((byte)MsgId1);
+                                                    }
+                                                    else
+                                                    {
+                                                        TagArguments.Add(0);
+                                                        TagArguments.Add(0);
+                                                        TagArguments.Add(0);
+                                                        TagArguments.Add(0);
+                                                        TagArguments.Add(0);
+                                                        MessageBox.Show(string.Format("Argument Error: {0}, a required argument was invalid. It will be defaulted to 0.",
+                                                            Tag_Map[TagGroup][TagIndex]));
+                                                    }
+                                                    break;
+                                                }
+                                            case 0x0030:
+                                            case 0x0031:
+                                                {
+                                                    Size += 3;
+                                                    if (TagMatches.Count > 1 && byte.TryParse(TagMatches[0], NumberStyles.HexNumber, null, out byte PersonalIndex)
+                                                        && ushort.TryParse(TagMatches[1], NumberStyles.HexNumber, null, out ushort MsgId0))
+                                                    {
+                                                        TagArguments.Add(PersonalIndex);
+                                                        TagArguments.Add((byte)(MsgId0 >> 8));
+                                                        TagArguments.Add((byte)MsgId0);
+                                                    }
+                                                    else
+                                                    {
+                                                        TagArguments.Add(0);
+                                                        TagArguments.Add(0);
+                                                        TagArguments.Add(0);
+                                                        MessageBox.Show(string.Format("Argument Error: {0}, a required argument was invalid. It will be defaulted to 0.",
+                                                            Tag_Map[TagGroup][TagIndex]));
+                                                    }
+                                                    break;
+                                                }
+                                        }
+                                        break;
+
                                     case 0x0A:
                                         switch (TagIndex)
                                         {
@@ -1940,6 +2077,11 @@ namespace Animal_Crossing_Text_Editor
                                             case 0x0002:
                                             case 0x0006:
                                             case 0x0007:
+                                            case 0x000A:
+                                            case 0x000B:
+                                            case 0x0019:
+                                            case 0x001A:
+                                            case 0x001D:
                                                 Size += 4;
                                                 for (int x = 0; x < 2; x++)
                                                 {
@@ -1959,6 +2101,9 @@ namespace Animal_Crossing_Text_Editor
                                                 break;
 
                                             case 0x0003:
+                                            case 0x000C:
+                                            case 0x000D:
+                                            case 0x0018:
                                                 Size += 6;
                                                 for (int x = 0; x < 3; x++)
                                                 {
@@ -1978,6 +2123,9 @@ namespace Animal_Crossing_Text_Editor
                                                 break;
 
                                             case 0x0004:
+                                            case 0x0008:
+                                            case 0x0009:
+                                            case 0x000E:
                                                 Size += 8;
                                                 for (int x = 0; x < 4; x++)
                                                 {
@@ -1993,6 +2141,104 @@ namespace Animal_Crossing_Text_Editor
                                                         MessageBox.Show(string.Format("Argument Error: {0}, argument #{1} was invalid or missing. It will be defaulted to 0.",
                                                             Tag_Map[TagGroup][TagIndex], x));
                                                     }
+                                                }
+                                                break;
+
+                                            case 0x000F:
+                                            case 0x0010:
+                                            case 0x0011:
+                                            case 0x0012:
+                                            case 0x0013:
+                                            case 0x0014:
+                                            case 0x0015:
+                                            case 0x0016:
+                                            case 0x0017:
+                                            case 0x001B:
+                                            case 0x001C:
+                                                Size += 3;
+                                                for (int x = 0; x < 2; x++)
+                                                {
+                                                    if (x == 0)
+                                                    {
+                                                        if (TagMatches.Count > 0 && byte.TryParse(TagMatches[0], NumberStyles.HexNumber, null, out byte ConditionIndex))
+                                                        {
+                                                            TagArguments.Add(ConditionIndex);
+                                                        }
+                                                        else
+                                                        {
+                                                            TagArguments.Add(0);
+                                                            MessageBox.Show(string.Format("Argument Error: {0}, argument #{1} was invalid or missing. It will be defaulted to 0.",
+                                                                Tag_Map[TagGroup][TagIndex], x));
+                                                        }
+                                                    }
+                                                    else if (x == 1)
+                                                    {
+                                                        if (TagMatches.Count > 1 && int.TryParse(TagMatches[1], NumberStyles.HexNumber, null, out Value))
+                                                        {
+                                                            TagArguments.Add((byte)((Value >> 8) & 0xFF));
+                                                            TagArguments.Add((byte)(Value & 0xFF));
+                                                        }
+                                                        else
+                                                        {
+                                                            TagArguments.Add(0);
+                                                            TagArguments.Add(0);
+                                                            MessageBox.Show(string.Format("Argument Error: {0}, argument #{1} was invalid or missing. It will be defaulted to 0.",
+                                                                Tag_Map[TagGroup][TagIndex], x));
+                                                        }
+                                                    }
+                                                }
+                                                break;
+                                            case 0x0005:
+                                                Size += 5;
+                                                for (int x = 0; x < 3; x++)
+                                                {
+                                                    if (x == 0)
+                                                    {
+                                                        if (TagMatches.Count > 0 && byte.TryParse(TagMatches[0], NumberStyles.HexNumber, null, out byte ConditionIndex))
+                                                        {
+                                                            TagArguments.Add(ConditionIndex);
+                                                        }
+                                                        else
+                                                        {
+                                                            TagArguments.Add(0);
+                                                            MessageBox.Show(string.Format("Argument Error: {0}, argument #{1} was invalid or missing. It will be defaulted to 0.",
+                                                                Tag_Map[TagGroup][TagIndex], x));
+                                                        }
+                                                    }
+                                                    else if (x == 1 || x == 2)
+                                                    {
+                                                        if (TagMatches.Count > 1 && int.TryParse(TagMatches[x], NumberStyles.HexNumber, null, out Value))
+                                                        {
+                                                            TagArguments.Add((byte)((Value >> 8) & 0xFF));
+                                                            TagArguments.Add((byte)(Value & 0xFF));
+                                                        }
+                                                        else
+                                                        {
+                                                            TagArguments.Add(0);
+                                                            TagArguments.Add(0);
+                                                            MessageBox.Show(string.Format("Argument Error: {0}, argument #{1} was invalid or missing. It will be defaulted to 0.",
+                                                                Tag_Map[TagGroup][TagIndex], x));
+                                                        }
+                                                    }
+                                                }
+                                                break;
+                                        }
+                                        break;
+
+                                    case 0x0F:
+                                        switch (TagIndex)
+                                        {
+                                            case 0x0006:
+                                                Size += 1;
+                                                if (TagMatches.Count > 0 && byte.TryParse(TagMatches[0], NumberStyles.HexNumber, null, out byte ContinueIndex))
+                                                {
+                                                    TagArguments.Add(ContinueIndex);
+                                                }
+                                                else
+                                                {
+                                                    TagArguments.Add(0);
+                                                    MessageBox.Show(string.Format("Argument Error: {0}, a required argument was invalid. It will be defaulted to 0.",
+                                                        Tag_Map[TagGroup][TagIndex]));
                                                 }
                                                 break;
                                         }
@@ -2062,7 +2308,7 @@ namespace Animal_Crossing_Text_Editor
                                                         TagArguments.Add((byte)KanaIndex);
                                                     }
 
-                                                    i += Kana;
+                                                    Index += Kana;
                                                 }
                                                 else
                                                 {
@@ -2078,10 +2324,10 @@ namespace Animal_Crossing_Text_Editor
                                         break;
                                 }
 
-                                string DebugString = "";
+                                /*string DebugString = "";
                                 foreach (byte b in Data)
                                     DebugString += "0x" + b.ToString("X2") + " ";
-                                Console.WriteLine("Found matching tag! Tag data: " + DebugString);
+                                Console.WriteLine("Found matching tag! Tag data: " + DebugString);*/
 
                                 Data.Add(0x80);
                                 Data.Add(Size);
@@ -2462,7 +2708,7 @@ namespace Animal_Crossing_Text_Editor
                             }
                             else
                             {
-                                MessageBox.Show("Couldn't find a cont id match for: " + Cont_Id);
+                                //MessageBox.Show("Couldn't find a cont id match for: " + Cont_Id);
                             }
                         }
                     }
@@ -2476,7 +2722,7 @@ namespace Animal_Crossing_Text_Editor
                     }
                     else
                     {
-                        Console.WriteLine("Couldn't find byte for character: " + Character);
+                        
                     }
                 }
             }

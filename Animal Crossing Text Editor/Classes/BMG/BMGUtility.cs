@@ -114,7 +114,7 @@ namespace Animal_Crossing_Text_Editor
             }
         }
 
-        public static BMG Decode(string Path)
+        public static BMG Decode(string Path, Delegate ReportProgressFunc = null)
         {
             using (BinaryReader Reader = new BinaryReader(new FileStream(Path, FileMode.Open)))
             {
@@ -156,8 +156,6 @@ namespace Animal_Crossing_Text_Editor
                 {
                     BMG_INF_Item Item = new BMG_INF_Item();
                     Item.Text_Offset = BitConverter.ToUInt32(Reader.ReadBytes(4).Reverse().ToArray(), 0);
-                    //Console.WriteLine("Offset: 0x" + Item.Text_Offset.ToString("X"));
-                    //Console.ReadLine();
                     bmg.INF_Section.Items[i] = Item;
                 }
 
@@ -170,8 +168,6 @@ namespace Animal_Crossing_Text_Editor
                     DAT1_Found = false;
                     while (!DAT1_Found)
                     {
-                        //Reader.BaseStream.Position = bmg.INF_Section.Size + 0x20;
-                        //System.Windows.MessageBox.Show("Can't find DAT1! Trying offset: 0x" + Reader.BaseStream.Position.ToString("X"));
                         if (Encoding.ASCII.GetString(Reader.ReadBytes(4)) == "DAT1")
                         {
                             Reader.BaseStream.Position -= 4;
@@ -182,52 +178,41 @@ namespace Animal_Crossing_Text_Editor
                 }
                 else
                     Reader.BaseStream.Position -= 4;
-                //Console.WriteLine((bmg.INF_Section.Size).ToString("X"));
+
                 bmg.DAT_Section.Offset = (int)Reader.BaseStream.Position;
                 bmg.DAT_Section.SectionType = Encoding.ASCII.GetString(Reader.ReadBytes(4));
                 bmg.DAT_Section.Size = BitConverter.ToUInt32(Reader.ReadBytes(4).Reverse().ToArray(), 0);
                 bmg.DAT_Section.Strings = new string[bmg.INF_Section.MessageCount];
 
-                // Debug Lines
-                //Console.WriteLine(bmg.DAT_Section.SectionType);
-                //Console.ReadLine();
-
-                // Load our strings
                 long String_Start_Offset = bmg.DAT_Section.Offset + 0x8;
 
-                //Console.WriteLine("Start Offset: 0x" + String_Start_Offset.ToString("X"));
-                //Console.ReadLine();
-
-                for (int i = 0; i < bmg.INF_Section.MessageCount; i++)
+                //await Task.Run(() =>
                 {
-                    Reader.BaseStream.Position = String_Start_Offset + bmg.INF_Section.Items[i].Text_Offset;
-                    //bmg.DAT_Section.Strings[i] = Reader.BaseStream.Position.ToString("X") + " | ";
+                    for (int i = 0; i < bmg.INF_Section.MessageCount; i++)
+                    {
+                        Reader.BaseStream.Position = String_Start_Offset + bmg.INF_Section.Items[i].Text_Offset;
 
-                    /*Console.WriteLine("Offset: 0x" + bmg.INF_Section.Items[i].Text_Offset.ToString("X") +
-                        string.Format(" | Reading String {0} / {1} from: 0x", i + 1, bmg.INF_Section.MessageCount)
-                        + (String_Start_Offset + bmg.INF_Section.Items[i].Text_Offset).ToString("X"));*/
-                    
-                    long Ending_Offset = 0;
-                    if (i == bmg.INF_Section.MessageCount - 1)
-                    {
-                        Ending_Offset = Reader.BaseStream.Length;
-                        //System.Windows.Forms.MessageBox.Show(string.Format("Starting Offset: 0x{0} | Ending Offset: 0x{1}", Reader.BaseStream.Position.ToString("X"), Ending_Offset.ToString("X")));
+                        long Ending_Offset = 0;
+                        if (i == bmg.INF_Section.MessageCount - 1)
+                        {
+                            Ending_Offset = Reader.BaseStream.Length;
+                        }
+                        else
+                        {
+                            Ending_Offset = String_Start_Offset + bmg.INF_Section.Items[i + 1].Text_Offset;
+                        }
+
+                        long Starting_Offset = Reader.BaseStream.Position;
+                        bmg.INF_Section.Items[i].Data = Reader.ReadBytes((int)(Ending_Offset - Reader.BaseStream.Position));
+                        bmg.INF_Section.Items[i].Text = TextUtility.Decode(bmg.INF_Section.Items[i].Data);
+                        bmg.INF_Section.Items[i].Length = (uint)(Ending_Offset - Starting_Offset);
                     }
-                    else
+
+                    if (ReportProgressFunc != null)
                     {
-                        Ending_Offset = String_Start_Offset + bmg.INF_Section.Items[i + 1].Text_Offset;
+                        
                     }
-                    /*if (i + 1 < bmg.INF_Section.Items.Length)
-                        Console.WriteLine(string.Format("Start Offset: {2} | Ending Offset: {0} | Length: {1}",
-                            (Ending_Offset - 1).ToString("X"), (bmg.INF_Section.Items[i + 1].Text_Offset - bmg.INF_Section.Items[i].Text_Offset).ToString("X"),
-                            Reader.BaseStream.Position.ToString("X")));
-                    //Console.WriteLine(string.Format("Current Offset: {0} | Next Offset: {1}", bmg.INF_Section.Items[i].Text_Offset, bmg.INF_Section.Items[i + 1].Text_Offset));
-                    //Console.ReadKey();*/
-                    long Starting_Offset = Reader.BaseStream.Position;
-                    bmg.INF_Section.Items[i].Data = Reader.ReadBytes((int)(Ending_Offset - Reader.BaseStream.Position));
-                    bmg.INF_Section.Items[i].Text = TextUtility.Decode(bmg.INF_Section.Items[i].Data);
-                    bmg.INF_Section.Items[i].Length = (uint)(Ending_Offset - Starting_Offset);
-                }
+                }//);
 
                 return bmg;
             }
@@ -235,7 +220,7 @@ namespace Animal_Crossing_Text_Editor
 
         public static void SaveStrings(string FilePath)
         {
-            BMG bmg = Decode(FilePath);
+            BMG bmg = Decode(FilePath, null);
 
             using (StreamWriter Writer = File.CreateText(Path.GetDirectoryName(FilePath) + "/" + Path.GetFileNameWithoutExtension(FilePath) + "_Output.txt"))
             {

@@ -16,6 +16,7 @@ using ICSharpCode.AvalonEdit.Highlighting.Xshd;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.CodeCompletion;
 using System.Threading.Tasks;
+using Microsoft.Win32;
 
 namespace Animal_Crossing_Text_Editor
 {
@@ -347,6 +348,114 @@ namespace Animal_Crossing_Text_Editor
             SearchBox.IsEnabled = true;
         }
 
+        private void RebuildDatabase(string messageDirectory, bool GenerateAsBMG = false)
+        {
+            if (Directory.Exists(messageDirectory))
+            {
+                if (!GenerateAsBMG)
+                {
+
+                }
+                else
+                {
+                    BMG ConstructedBMG = new BMG
+                    {
+                        FileType = "MESGbmg1",
+                        Size = 0,
+                        SectionCount = 2,
+                        Encoding = 0x03000000,
+                        Padding = new byte[12],
+                        INF_Section = new BMG_Section_INF
+                        {
+                            SectionType = "INF1",
+                            INF_Size = 4,
+                            Unknown = 0
+                        },
+                        DAT_Section = new BMG_Section_DAT
+                        {
+                            SectionType = "DAT1"
+                        }
+                    };
+
+                    string[] ImportableFiles = Directory.GetFiles(messageDirectory, "*.*", SearchOption.AllDirectories).Where(f => f.Contains(".txt")).ToArray();
+                    SortedDictionary<ushort, string> SortedMessages = new SortedDictionary<ushort, string>();
+
+                    Console.WriteLine($"Generating BMG started. Encoding {ImportableFiles.Length} messages");
+
+                    foreach (string file in ImportableFiles)
+                    {
+                        if (ushort.TryParse(Path.GetFileNameWithoutExtension(file), NumberStyles.HexNumber, null, out ushort MessageId))
+                        {
+                            if (!SortedMessages.ContainsKey(MessageId))
+                            {
+                                SortedMessages.Add(MessageId, File.ReadAllText(file, System.Text.Encoding.UTF8).Replace("\r\n", "\n"));
+                            }
+                            else
+                            {
+                                Console.WriteLine(string.Format("More than one entry with message id: 0x{0} existed! This entry will be skipped: {1}", MessageId.ToString("X4"), file));
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine(string.Format("File: {0} contained an invalid name. It must be an unsigned short number. Example: 3A2E.txt", file));
+                        }
+                    }
+
+                    // Add any missing entries between the first and last in the import table
+                    ushort LargestEntry = SortedMessages.Last().Key;
+                    for (ushort i = 0; i < LargestEntry; i++)
+                    {
+                        if (!SortedMessages.ContainsKey(i))
+                        {
+                            Console.WriteLine(string.Format("Adding missing entry: 0x{0} as a blank <End Conversation> entry!", i.ToString("X4")));
+                            SortedMessages.Add(i, "<End Conversation>");
+                        }
+                    }
+
+                    bool WasBMG = IsBMG;
+                    IsBMG = true;
+
+                    int INFSize = SortedMessages.Count * 4;
+                    int StartDATOffset = INFSize + 0x28;
+                    StartDATOffset += 0x20 - (StartDATOffset % 0x20);
+
+                    int CurrentDATOffset = 1; // For some reason, e+'s BMG files all start at 1 for their offset
+
+                    ConstructedBMG.INF_Section.Size = (uint)(0x20 + INFSize); // In e+ BMG's, the size includes the BMG data header. This is probably more like "Offset of next section")
+                    ConstructedBMG.INF_Section.MessageCount = (ushort)SortedMessages.Count;
+                    ConstructedBMG.DAT_Section.Offset = StartDATOffset;
+
+                    // Create BMG entries list
+                    ConstructedBMG.INF_Section.Items = new BMG_INF_Item[SortedMessages.Count];
+                    for (ushort i = 0; i < SortedMessages.Count; i++)
+                    {
+                        ConstructedBMG.INF_Section.Items[i] = new BMG_INF_Item
+                        {
+                            Data = TextUtility.Encode(SortedMessages[i], File_Type.Doubutsu_no_Mor_e_Plus),
+                            Text = SortedMessages[i],
+                            Text_Offset = (uint)CurrentDATOffset
+                        };
+                        CurrentDATOffset += ConstructedBMG.INF_Section.Items[i].Data.Length;
+                    }
+
+                    ConstructedBMG.DAT_Section.Size = (uint)CurrentDATOffset;
+
+                    // Write constructed BMG file
+                    SaveFileDialog SaveBMGFileDialog = new SaveFileDialog
+                    {
+                        Filter = "BMG File|*.bmg|Binary File|*.bin"
+                    };
+
+                    if (SaveBMGFileDialog.ShowDialog().Value)
+                    {
+                        BMGUtility.Write(ConstructedBMG, SaveBMGFileDialog.FileName);
+                    }
+
+                    IsBMG = WasBMG;
+                }
+            }
+        }
+
         private void Open_Click(object sender, RoutedEventArgs e)
         {
             SelectDialog.Filter = "Binary Files|*.bin";
@@ -535,6 +644,17 @@ namespace Animal_Crossing_Text_Editor
                             }
                         });
                     }
+                }
+            }
+        }
+
+        private void Rebuild_Click(object sender, RoutedEventArgs e)
+        {
+            using (var SelectFolderDialog = new System.Windows.Forms.FolderBrowserDialog { SelectedPath = "" })
+            {
+                if (SelectFolderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK && Directory.Exists(SelectFolderDialog.SelectedPath))
+                {
+                    RebuildDatabase(SelectFolderDialog.SelectedPath, true); // TODO: Remove true at some point (probably ask for which encoding they want)
                 }
             }
         }
