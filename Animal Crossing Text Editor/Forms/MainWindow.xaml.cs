@@ -348,7 +348,13 @@ namespace Animal_Crossing_Text_Editor
             SearchBox.IsEnabled = true;
         }
 
-        private void RebuildDatabase(string messageDirectory, bool GenerateAsBMG = false)
+        private void ReportRebuildProgress(int Index, int Count)
+        {
+            double Percent = ((double)Index / (double)Count) * 100;
+            ProgressBar.Value = Percent;
+        }
+
+        private async void RebuildDatabase(string messageDirectory, bool GenerateAsBMG = false)
         {
             if (Directory.Exists(messageDirectory))
             {
@@ -381,64 +387,72 @@ namespace Animal_Crossing_Text_Editor
                     SortedDictionary<ushort, string> SortedMessages = new SortedDictionary<ushort, string>();
 
                     Console.WriteLine($"Generating BMG started. Encoding {ImportableFiles.Length} messages");
+                    bool WasBMG = IsBMG;
+                    int idx = 0;
 
-                    foreach (string file in ImportableFiles)
+                    await Task.Run(() =>
                     {
-                        if (ushort.TryParse(Path.GetFileNameWithoutExtension(file), NumberStyles.HexNumber, null, out ushort MessageId))
+                        foreach (string file in ImportableFiles)
                         {
-                            if (!SortedMessages.ContainsKey(MessageId))
+                            if (ushort.TryParse(Path.GetFileNameWithoutExtension(file), NumberStyles.HexNumber, null, out ushort MessageId))
                             {
-                                SortedMessages.Add(MessageId, File.ReadAllText(file, System.Text.Encoding.UTF8).Replace("\r\n", "\n"));
+                                if (!SortedMessages.ContainsKey(MessageId))
+                                {
+                                    SortedMessages.Add(MessageId, File.ReadAllText(file, System.Text.Encoding.UTF8).Replace("\r\n", "\n"));
+                                }
+                                else
+                                {
+                                    Console.WriteLine(string.Format("More than one entry with message id: 0x{0} existed! This entry will be skipped: {1}", MessageId.ToString("X4"), file));
+                                }
                             }
                             else
                             {
-                                Console.WriteLine(string.Format("More than one entry with message id: 0x{0} existed! This entry will be skipped: {1}", MessageId.ToString("X4"), file));
+                                Console.WriteLine(string.Format("File: {0} contained an invalid name. It must be an unsigned short number. Example: 3A2E.txt", file));
+                            }
+                            idx++;
+
+                            Dispatcher.Invoke(new Action(() => ReportRebuildProgress(idx, ImportableFiles.Length)));
+                        }
+                        // Add any missing entries between the first and last in the import table
+                        ushort LargestEntry = SortedMessages.Last().Key;
+                        for (ushort i = 0; i < LargestEntry; i++)
+                        {
+                            if (!SortedMessages.ContainsKey(i))
+                            {
+                                Console.WriteLine(string.Format("Adding missing entry: 0x{0} as a blank <End Conversation> entry!", i.ToString("X4")));
+                                SortedMessages.Add(i, "<End Conversation>");
                             }
                         }
-                        else
+
+                        IsBMG = true;
+
+                        int INFSize = SortedMessages.Count * 4;
+                        int StartDATOffset = INFSize + 0x28;
+                        StartDATOffset += 0x20 - (StartDATOffset % 0x20);
+
+                        int CurrentDATOffset = 1; // For some reason, e+'s BMG files all start at 1 for their offset
+
+                        ConstructedBMG.INF_Section.Size = (uint)(0x20 + INFSize); // In e+ BMG's, the size includes the BMG data header. This is probably more like "Offset of next section")
+                        ConstructedBMG.INF_Section.MessageCount = (ushort)SortedMessages.Count;
+                        ConstructedBMG.DAT_Section.Offset = StartDATOffset;
+
+                        // Create BMG entries list
+                        ConstructedBMG.INF_Section.Items = new BMG_INF_Item[SortedMessages.Count];
+                        for (ushort i = 0; i < SortedMessages.Count; i++)
                         {
-                            Console.WriteLine(string.Format("File: {0} contained an invalid name. It must be an unsigned short number. Example: 3A2E.txt", file));
+                            ConstructedBMG.INF_Section.Items[i] = new BMG_INF_Item
+                            {
+                                Data = TextUtility.Encode(SortedMessages[i], File_Type.Doubutsu_no_Mor_e_Plus),
+                                Text = SortedMessages[i],
+                                Text_Offset = (uint)CurrentDATOffset
+                            };
+                            CurrentDATOffset += ConstructedBMG.INF_Section.Items[i].Data.Length;
+
+                            Dispatcher.Invoke(new Action(() => ReportRebuildProgress(i, SortedMessages.Count)));
                         }
-                    }
 
-                    // Add any missing entries between the first and last in the import table
-                    ushort LargestEntry = SortedMessages.Last().Key;
-                    for (ushort i = 0; i < LargestEntry; i++)
-                    {
-                        if (!SortedMessages.ContainsKey(i))
-                        {
-                            Console.WriteLine(string.Format("Adding missing entry: 0x{0} as a blank <End Conversation> entry!", i.ToString("X4")));
-                            SortedMessages.Add(i, "<End Conversation>");
-                        }
-                    }
-
-                    bool WasBMG = IsBMG;
-                    IsBMG = true;
-
-                    int INFSize = SortedMessages.Count * 4;
-                    int StartDATOffset = INFSize + 0x28;
-                    StartDATOffset += 0x20 - (StartDATOffset % 0x20);
-
-                    int CurrentDATOffset = 1; // For some reason, e+'s BMG files all start at 1 for their offset
-
-                    ConstructedBMG.INF_Section.Size = (uint)(0x20 + INFSize); // In e+ BMG's, the size includes the BMG data header. This is probably more like "Offset of next section")
-                    ConstructedBMG.INF_Section.MessageCount = (ushort)SortedMessages.Count;
-                    ConstructedBMG.DAT_Section.Offset = StartDATOffset;
-
-                    // Create BMG entries list
-                    ConstructedBMG.INF_Section.Items = new BMG_INF_Item[SortedMessages.Count];
-                    for (ushort i = 0; i < SortedMessages.Count; i++)
-                    {
-                        ConstructedBMG.INF_Section.Items[i] = new BMG_INF_Item
-                        {
-                            Data = TextUtility.Encode(SortedMessages[i], File_Type.Doubutsu_no_Mor_e_Plus),
-                            Text = SortedMessages[i],
-                            Text_Offset = (uint)CurrentDATOffset
-                        };
-                        CurrentDATOffset += ConstructedBMG.INF_Section.Items[i].Data.Length;
-                    }
-
-                    ConstructedBMG.DAT_Section.Size = (uint)CurrentDATOffset;
+                        ConstructedBMG.DAT_Section.Size = (uint)CurrentDATOffset;
+                    });
 
                     // Write constructed BMG file
                     SaveFileDialog SaveBMGFileDialog = new SaveFileDialog
@@ -456,7 +470,14 @@ namespace Animal_Crossing_Text_Editor
             }
         }
 
-        private void Open_Click(object sender, RoutedEventArgs e)
+        private void ReportBMGLoadProgress(int Index, int Count)
+        {
+            ProgressBar.Value = ((double)Index / (double)Count) * 100;
+        }
+
+        private delegate void ReportBMGLoadProgressHandle(int Index, int Count);
+
+        private async void Open_Click(object sender, RoutedEventArgs e)
         {
             SelectDialog.Filter = "Binary Files|*.bin";
             SelectDialog.FileName = "";
@@ -470,7 +491,7 @@ namespace Animal_Crossing_Text_Editor
                 {
                     IsBMG = true;
                     Debug.WriteLine("BMG File Detected!");
-                    BMG_Struct = BMGUtility.Decode(File_Path); // Should probably change to a byte array at some point
+                    BMG_Struct = await BMGUtility.Decode(File_Path, new ReportBMGLoadProgressHandle(ReportBMGLoadProgress)); // Should probably change to a byte array at some point
                     Generate_BMG_Text_Entries(BMG_Struct);
                 }
                 else
@@ -694,7 +715,7 @@ namespace Animal_Crossing_Text_Editor
                 SearchLabel.Visibility = Visibility.Visible;
         }
 
-        private void AC_CharSet_Checked(object sender, RoutedEventArgs e)
+        private async void AC_CharSet_Checked(object sender, RoutedEventArgs e)
         {
             if (AC_CharSet.IsChecked == true)
             {
@@ -704,7 +725,7 @@ namespace Animal_Crossing_Text_Editor
 
                 if (IsBMG && !string.IsNullOrEmpty(File_Path))
                 {
-                    BMG_Struct = BMGUtility.Decode(File_Path);
+                    BMG_Struct = await BMGUtility.Decode(File_Path);
                     Generate_BMG_Text_Entries(BMG_Struct);
                 }
                 else
@@ -712,7 +733,7 @@ namespace Animal_Crossing_Text_Editor
             }
         }
 
-        private void DnM_CharSet_Checked(object sender, RoutedEventArgs e)
+        private async void DnM_CharSet_Checked(object sender, RoutedEventArgs e)
         {
             if (DnM_CharSet.IsChecked == true)
             {
@@ -721,7 +742,7 @@ namespace Animal_Crossing_Text_Editor
                     ? TextUtility.Doubutsu_no_Mori_Plus_Character_Map : TextUtility.Animal_Crossing_Character_Map;
                 if (IsBMG && !string.IsNullOrEmpty(File_Path))
                 {
-                    BMG_Struct = BMGUtility.Decode(File_Path);
+                    BMG_Struct = await BMGUtility.Decode(File_Path);
                     Generate_BMG_Text_Entries(BMG_Struct);
                 }
                 else

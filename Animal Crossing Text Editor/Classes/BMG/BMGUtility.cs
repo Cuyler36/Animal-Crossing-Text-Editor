@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Windows;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -114,7 +115,7 @@ namespace Animal_Crossing_Text_Editor
             }
         }
 
-        public static BMG Decode(string Path, Delegate ReportProgressFunc = null)
+        public static async Task<BMG> Decode(string Path, Delegate ReportProgressFunc = null)
         {
             using (BinaryReader Reader = new BinaryReader(new FileStream(Path, FileMode.Open)))
             {
@@ -186,7 +187,7 @@ namespace Animal_Crossing_Text_Editor
 
                 long String_Start_Offset = bmg.DAT_Section.Offset + 0x8;
 
-                //await Task.Run(() =>
+                await Task.Run(() =>
                 {
                     for (int i = 0; i < bmg.INF_Section.MessageCount; i++)
                     {
@@ -206,21 +207,23 @@ namespace Animal_Crossing_Text_Editor
                         bmg.INF_Section.Items[i].Data = Reader.ReadBytes((int)(Ending_Offset - Reader.BaseStream.Position));
                         bmg.INF_Section.Items[i].Text = TextUtility.Decode(bmg.INF_Section.Items[i].Data);
                         bmg.INF_Section.Items[i].Length = (uint)(Ending_Offset - Starting_Offset);
+
+                        if (ReportProgressFunc != null)
+                        {
+                            Application.Current.Dispatcher.Invoke(new Action(() => ReportProgressFunc.DynamicInvoke(i, bmg.INF_Section.MessageCount)));
+                        }
                     }
 
-                    if (ReportProgressFunc != null)
-                    {
-                        
-                    }
-                }//);
+                    return bmg;
+                });
 
                 return bmg;
             }
         }
 
-        public static void SaveStrings(string FilePath)
+        public static async void SaveStrings(string FilePath)
         {
-            BMG bmg = Decode(FilePath, null);
+            BMG bmg = await Decode(FilePath, null);
 
             using (StreamWriter Writer = File.CreateText(Path.GetDirectoryName(FilePath) + "/" + Path.GetFileNameWithoutExtension(FilePath) + "_Output.txt"))
             {
