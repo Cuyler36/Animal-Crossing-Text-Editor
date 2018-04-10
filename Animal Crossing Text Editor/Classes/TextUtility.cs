@@ -158,7 +158,7 @@ namespace Animal_Crossing_Text_Editor
             { 0x8D, "⁰" },
             { 0x8E, "ù" },
             { 0x8F, "ú" },
-            { 0x90, "–" },
+            { 0x90, "ー" }, // –
             { 0x91, "û" },
             { 0x92, "ü" },
             { 0x93, "ý" },
@@ -619,8 +619,8 @@ namespace Animal_Crossing_Text_Editor
             { 0x59, "<Play Sound Effect [{0}]>" }, // (See _mMsg_Get_sound_trg_sys_forData) (mMsg_Main_Cursol_SoundTrgSys_ControlCursol) (Appears to be clamped to a max of 0x07) (3 and 4 are special?)
             { 0x5A, "<Line Size [{0}]>" },
             { 0x5B, "<Game Sets Jump Entry>" }, // The current routine automatically sets the jump entry
-            { 0x5C, "<Main Nookling>" },
-            { 0x5D, "<Secondary Nookling>" },
+            { 0x5C, "<Voice Enabled>" }, // Main Nookling
+            { 0x5D, "<Voice Disabled>" }, // Secondary Nookling
             { 0x5E, "<B Button Selects Last Choice>" },
             // 0x5F (GiveOpen) (mMsg_Main_Cursol_GiveOpen_ControlCursol)
             // 0x60 (GiveClothes) (mMsg_Main_Cursol_GiveClose_ControlCursol)
@@ -643,9 +643,9 @@ namespace Animal_Crossing_Text_Editor
             { 0x71, "<Island Name>" },
             { 0x72, "<Enable Justification>" }, // Enable String Justification (mMsg_Main_Cursol_SetCursolJust_ControlCursol)
             { 0x73, "<Disable Justification>" }, // Disable String Justification (mMsg_Main_Cursol_ClrCursolJust_ControlCursol)
-            { 0x74, "<Enable Article Cut>" }, // (mMsg_Main_Cursol_CutArticle_ControlCursol)
+            { 0x74, "<Cut Article>" }, // (mMsg_Main_Cursol_CutArticle_ControlCursol)
             // START OF Animal Crossing ONLY Control Codes
-            { 0x75, "<Enable Capital Letter>" }, // (mMsg_Cursol_CapitalLetter_ControlCursol)
+            { 0x75, "<Capitalize>" }, // (mMsg_Cursol_CapitalLetter_ControlCursol)
             { 0x76, "<AM/PM>" },
             { 0x77, "<Choice #5 MessageId [{0}]>" },
             { 0x78, "<Choice #6 MessageId [{0}]>" },
@@ -834,8 +834,8 @@ namespace Animal_Crossing_Text_Editor
                 { 0x000D, "<Second>" },
                 { 0x000E, "<Random Number>" },
                 { 0x000F, "<AM/PM>" },
-                { 0x0010, "<Capital>" }, // mMsgTag_Str_Capital (Check what this does)
-                { 0x0011, "<Article Cut>" }, // mMsgTag_Str_ArticleCut (Check what this does)
+                { 0x0010, "<Capitalize>" }, // mMsgTag_Str_Capital (Capitalizes the first letter of the next string)
+                { 0x0011, "<Cut Article>" }, // mMsgTag_Str_ArticleCut (Removes "a, an, the", etc from some string if it is there)
                 { 0x0012, "<String 0>" },
                 { 0x0013, "<String 1>" },
                 { 0x0014, "<String 2>" },
@@ -1170,7 +1170,7 @@ namespace Animal_Crossing_Text_Editor
                 { 0x0000, "<Line Color Index [{0}]>" }, // Might not be only "next character"
                 { 0x0001, "<Line Size [{0}]>" }, // Ends at the next Line Size or end of line?
                 { 0x0002, "<Ruby for [{0}] Kana [{1}]>" }, // Only if the player's Kanji Level is greater than or equal to the previously set one
-                { 0x0003, "<Set Font {Unused}>" } // mMsgTag_Sys_Font (a dummy method, calls mMsgTag_dummy_proc)
+                { 0x0003, "<Set Font {Unused}>" } // mMsgTag_Sys_Font (a dummy method, calls mMsgTag_dummy_proc | was likely intended for use with kanji but was integreated with Kanji Level)
             }
             }
         };
@@ -1211,7 +1211,7 @@ namespace Animal_Crossing_Text_Editor
             byte KanaCount = Data[DataStart + 5];
             int RubyStart = 6;
             int RubyCount = TagSize - 6;
-            int KanaStart = RubyStart + RubyCount; // - 1
+            int KanaStart = RubyStart + RubyCount;
             string BaseString = Tag_Map[0xFF][0x0002];
             string Ruby = "";
             for (int i = DataStart + RubyStart; i < DataStart + RubyStart + RubyCount; i++)
@@ -1221,27 +1221,116 @@ namespace Animal_Crossing_Text_Editor
 
             var FormattedString = string.Format(BaseString, KanaCount, Ruby);
 
-            //Debug.WriteLine("Kanji Bank: " + KanjiBank);
-
             for (int i = 0; i < KanaCount; i++)
             {
                 FormattedString += KanjiBank[Data[DataStart + KanaStart + i]];
             }
-
-            /*if (!Temp)
-            {
-                Console.WriteLine(Data[DataStart + 5].ToString("X2"));
-                Temp = true;
-                Console.WriteLine(string.Format("Kana Count: {0} | Ruby Start: {1} | Ruby Count: {2} | Kana Start: {3} | String: {4}",
-                    KanaCount, RubyStart, RubyCount, KanaStart, FormattedString));
-            }*/
 
             Count += KanaCount;
 
             return FormattedString;
         }
 
-        public static string Decode(byte[] Data)
+        // Convert <Color Line [{0}]> and <Color [{1}] Characters [{0}]> Control Codes to Message Tags
+        // TODO: The replace portion for <Color [X] Characters [X]> need to count (and skip) commands. Currently they count towards the total.
+        private static string SwapControlCodeColorForMessageTagColor(string Input, List<System.Drawing.Color> Colors)
+        {
+            int Index = 0;
+            while ((Index = Input.IndexOf("<Color Line", Index)) > -1)
+            {
+                int EndIndex = Input.IndexOf(">", Index);
+                if (EndIndex > -1 && int.TryParse(Regex.Match(Input.Substring(Index, EndIndex - Index), @"\[(.+?)\]").Groups[1].Value, NumberStyles.HexNumber, null, out int HexColor))
+                {
+                    int LineEndIndex = Input.IndexOf('\n', EndIndex);
+                    if (LineEndIndex < 0)
+                    {
+                        LineEndIndex = Input.Length - 1; // Set it to the end of the string
+                    }
+
+                    System.Drawing.Color ThisColor = System.Drawing.Color.FromArgb((0xFF << 24) | HexColor);
+                    for (int i = 0; i < Colors.Count; i++)
+                    {
+                        if (Colors[i] == ThisColor)
+                        {
+                            if (LineEndIndex < Input.Replace("<End Conversation>", "").Length - 1)
+                            {
+                                Input = Input.Substring(0, Index) + $"<Line Color Index [{i}]>" + Input.Substring(EndIndex + 1, LineEndIndex - EndIndex)
+                                    + "<Line Color Index [0]>" + Input.Substring(LineEndIndex + 1);
+                            }
+                            else
+                            {
+                                Input = Input.Substring(0, Index) + $"<Line Color Index [{i}]>" + Input.Substring(EndIndex + 1);
+                            }
+                        }
+                    }
+                }
+            }
+
+            Index = 0;
+            while ((Index = Input.IndexOf("<Color [", Index)) > -1)
+            {
+                int EndIndex = Input.IndexOf(">", Index);
+                var Matches = Regex.Matches(Input.Substring(Index, EndIndex - Index), @"\[(.+?)\]").Cast<Match>().Select(m => m.Groups[1].Value).ToList();
+
+                if (EndIndex > -1 && Matches.Count == 2 && int.TryParse(Matches[0], out int CharacterCount) && int.TryParse(Matches[1], NumberStyles.HexNumber, null, out int HexColor))
+                {
+                    int ColorEndIndex = EndIndex + CharacterCount;
+                    int CharactersColored = 0;
+                    int LastColorIndex = EndIndex;
+                    bool CommandArea = false;
+                    for (int i = EndIndex; i < Input.Length; i++)
+                    {
+                        if (CharactersColored >= CharacterCount)
+                        {
+                            break;
+                        }
+
+                        if (Input[i] == '<')
+                        {
+                            CommandArea = true;
+                        }
+
+                        if (!CommandArea)
+                        {
+                            CharactersColored++;
+                        }
+
+                        if (Input[i] == '>')
+                        {
+                            CommandArea = false;
+                        }
+
+                        LastColorIndex++;
+                    }
+
+                    System.Drawing.Color ThisColor = System.Drawing.Color.FromArgb((0xFF << 24) | HexColor);
+                    for (int i = 0; i < Colors.Count; i++)
+                    {
+                        if (Colors[i] == ThisColor)
+                        {
+                            if (LastColorIndex < Input.Replace("<End Conversation>", "").Length - 1)
+                            {
+                                Input = Input.Substring(0, Index) + $"<Line Color Index [{i}]>" + Input.Substring(EndIndex + 1, LastColorIndex - EndIndex)
+                                    + "<Line Color Index [0]>" + Input.Substring(LastColorIndex + 1);
+                            }
+                            else
+                            {
+                                Input = Input.Substring(0, Index) + $"<Line Color Index [{i}]>" + Input.Substring(EndIndex + 1);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return Input;
+        }
+
+        private static void ConvertCharacterSizeToLineSize(string Input)
+        {
+            
+        }
+
+        public static string Decode(byte[] Data, List<System.Drawing.Color> BMC_Colors = null)
         {
             string Text = "";
             for (int i = 0; i < Data.Length; i++)
@@ -1690,11 +1779,17 @@ namespace Animal_Crossing_Text_Editor
             return Text;
         }
 
-        public static byte[] Encode(string Text, File_Type Character_Set_Type)
+        public static byte[] Encode(string Text, File_Type Character_Set_Type, List<System.Drawing.Color> Colors = null)
         {
             List<byte> Data = new List<byte>();
             Dictionary<byte, string> Character_Map = Character_Set_Type == File_Type.Animal_Crossing
                 ? Animal_Crossing_Character_Map : Doubutsu_no_Mori_Plus_Character_Map;
+
+            // If BMG, replace any ControlCode Color Commands
+            if (MainWindow.IsBMG && Colors != null)
+            {
+                Text = SwapControlCodeColorForMessageTagColor(Text, Colors);
+            }
 
             for (int i = 0; i < Text.Length; i++)
             {

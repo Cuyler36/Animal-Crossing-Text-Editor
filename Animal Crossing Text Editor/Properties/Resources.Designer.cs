@@ -61,12 +61,52 @@ namespace Animal_Crossing_Text_Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap AC_Text {
+            get {
+                object obj = ResourceManager.GetObject("AC_Text", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap AFe__English_Text {
+            get {
+                object obj = ResourceManager.GetObject("AFe__English_Text", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         internal static byte[] Animal_Crossing_Text_Editor_Style {
             get {
                 object obj = ResourceManager.GetObject("Animal_Crossing_Text_Editor_Style", resourceCulture);
                 return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Dialog_Window {
+            get {
+                object obj = ResourceManager.GetObject("Dialog_Window", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap NPCNamePlate {
+            get {
+                object obj = ResourceManager.GetObject("NPCNamePlate", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
     }

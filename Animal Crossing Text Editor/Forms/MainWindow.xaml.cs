@@ -17,6 +17,12 @@ using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.CodeCompletion;
 using System.Threading.Tasks;
 using Microsoft.Win32;
+using System.Drawing;
+using ICSharpCode.AvalonEdit.Rendering;
+using ICSharpCode.AvalonEdit.Document;
+using Animal_Crossing_Text_Editor.Classes.TextPreview;
+using System.Windows.Media.Imaging;
+using System.Windows.Media;
 
 namespace Animal_Crossing_Text_Editor
 {
@@ -47,8 +53,12 @@ namespace Animal_Crossing_Text_Editor
         private BMCEditorWindow BMCEditor = new BMCEditorWindow();
         private List<ListViewItem> TextItems;
         private CompletionWindow completionWindow;
+        private List<System.Drawing.Color> BMC_Colors;
         private bool Changing_Selected_Entry = false;
         private bool AutoSaveEnabled = true;
+        private TextRenderer ACRenderer;
+        private TextRenderer AFeRenderer;
+        private Forms.TextPreviewWindow previewWindow = new Forms.TextPreviewWindow();
 
         public static File_Type Character_Set_Type = File_Type.Animal_Crossing;
 
@@ -61,19 +71,7 @@ namespace Animal_Crossing_Text_Editor
             Parser_Worker.RunWorkerCompleted += Parser_Worker_RunWorkerCompleted;
 
             // Load XSHD file for stylesheet
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            try
-            {
-                using (Stream s = new FileStream(Path.GetDirectoryName(assembly.Location) + "\\Resources\\Animal Crossing Text Editor Style.xshd", FileMode.Open))
-                {
-                    using (XmlTextReader reader = new XmlTextReader(s))
-                    {
-                        //Load default Syntax Highlighting
-                        Editor.SyntaxHighlighting = HighlightingLoader.Load(reader, HighlightingManager.Instance);
-                    }
-                }
-            }
-            catch (Exception e) { MessageBox.Show(e.Message + "\r\n" + e.StackTrace); }
+            LoadXSHDStyleSheet();
 
             Keywords = TextUtility.ContId_Map.Values.ToArray();
             for (int i = 0; i < Keywords.Length; i++)
@@ -91,6 +89,48 @@ namespace Animal_Crossing_Text_Editor
 
             Editor.TextArea.TextEntered += Editor_TextEntered;
             Editor.TextArea.TextEntering += Editor_TextEntering;
+
+            // Text Renderer Initialization
+            ACRenderer = new TextRenderer(Convert(Properties.Resources.AC_Text), 12, 16, 12, 16);
+            AFeRenderer = new TextRenderer(Convert(Properties.Resources.AFe__English_Text), 24, 32, 14, 32);
+        }
+
+        private BitmapSource Convert(System.Drawing.Bitmap bitmap)
+        {
+            var bitmapData = bitmap.LockBits(
+                new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                System.Drawing.Imaging.ImageLockMode.ReadOnly, bitmap.PixelFormat);
+
+            var bitmapSource = BitmapSource.Create(
+                bitmapData.Width, bitmapData.Height,
+                bitmap.HorizontalResolution, bitmap.VerticalResolution,
+                PixelFormats.Bgra32, null,
+                bitmapData.Scan0, bitmapData.Stride * bitmapData.Height, bitmapData.Stride);
+
+            bitmap.UnlockBits(bitmapData);
+            return bitmapSource;
+        }
+
+        private void LoadXSHDStyleSheet()
+        {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            try
+            {
+                using (Stream s = new FileStream(Path.GetDirectoryName(assembly.Location) + "\\Resources\\Animal Crossing Text Editor Style.xshd", FileMode.Open))
+                {
+                    using (XmlTextReader reader = new XmlTextReader(s))
+                    {
+                        //Load default Syntax Highlighting
+                        Editor.SyntaxHighlighting = HighlightingLoader.Load(reader, HighlightingManager.Instance);
+                    }
+                }
+            }
+            catch (Exception e) { MessageBox.Show(e.Message + "\r\n" + e.StackTrace); }
+        }
+        
+        private void AddBMCColorHighlightRules()
+        {
+            // Stubbed for now
         }
 
         private void Scroll_to_Index(int Index)
@@ -177,7 +217,7 @@ namespace Animal_Crossing_Text_Editor
                 {
                     if (Entries[i] != null)
                     {
-                        if (!string.IsNullOrEmpty(Entries[i].Text))
+                        if (true || !string.IsNullOrEmpty(Entries[i].Text))
                         {
                             ListViewItem TextEntry = new ListViewItem
                             {
@@ -234,7 +274,7 @@ namespace Animal_Crossing_Text_Editor
         private void Resize(TextEntry Entry, int Entry_Index, string New_Text)
         {
             byte[] New_Data = TextUtility.Encode(New_Text, Character_Set_Type);
-            string Decoded = TextUtility.Decode(New_Data); // TODO: Figure out how to not re-decode the bytes
+            string Decoded = TextUtility.Decode(New_Data, BMC_Colors); // TODO: Figure out how to not re-decode the bytes
             // TEST
             //MessageBox.Show("Arrays are equal size: " + (New_Data.Length == Entry.Data.Length).ToString());
             for (int i = 0; i < New_Data.Length; i++)
@@ -263,9 +303,9 @@ namespace Animal_Crossing_Text_Editor
 
         private void ResizeBMG(BMG_INF_Item Entry, int Entry_Index, string New_Text)
         {
-            byte[] New_Data = TextUtility.Encode(New_Text, Character_Set_Type);
-            string Decoded = TextUtility.Decode(New_Data); // TODO: Figure out how to not re-decode the bytes
-            
+            byte[] New_Data = TextUtility.Encode(New_Text, Character_Set_Type, BMC_Colors);
+            string Decoded = TextUtility.Decode(New_Data, BMC_Colors); // TODO: Figure out how to not re-decode the bytes
+
             for (int i = 0; i < New_Data.Length; i++)
             {
                 if (i < Entry.Data.Length)
@@ -327,7 +367,7 @@ namespace Animal_Crossing_Text_Editor
             for (int i = 0; i < BMG_Struct.INF_Section.Items.Length; i++)
             {
                 // TODO: Implement BackgroundWorker
-                if (!string.IsNullOrEmpty(BMG_Struct.INF_Section.Items[i].Text))
+                if (true || !string.IsNullOrEmpty(BMG_Struct.INF_Section.Items[i].Text))
                 {
                     ListViewItem TextEntry = new ListViewItem
                     {
@@ -346,6 +386,18 @@ namespace Animal_Crossing_Text_Editor
             View.Filter = Filter;
 
             SearchBox.IsEnabled = true;
+        }
+
+        private List<System.Drawing.Color> GetBMCColors(BMC bmc)
+        {
+            List<System.Drawing.Color> BMCColors = new List<System.Drawing.Color>();
+
+            for (int i = 0; i < bmc.CLT_Section.Items.Length; i++)
+            {
+                BMCColors.Add(System.Drawing.Color.FromArgb((int)bmc.CLT_Section.Items[i]));
+            }
+
+            return BMCColors;
         }
 
         private void ReportRebuildProgress(int Index, int Count)
@@ -442,7 +494,7 @@ namespace Animal_Crossing_Text_Editor
                         {
                             ConstructedBMG.INF_Section.Items[i] = new BMG_INF_Item
                             {
-                                Data = TextUtility.Encode(SortedMessages[i], File_Type.Doubutsu_no_Mor_e_Plus),
+                                Data = TextUtility.Encode(SortedMessages[i], File_Type.Doubutsu_no_Mor_e_Plus, BMC_Colors),
                                 Text = SortedMessages[i],
                                 Text_Offset = (uint)CurrentDATOffset
                             };
@@ -485,17 +537,34 @@ namespace Animal_Crossing_Text_Editor
             if (SelectDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 IsBMG = false;
+                BMC_Colors = null;
                 File_Path = SelectDialog.FileName;
                 byte[] Buff = File.ReadAllBytes(File_Path);
                 if (BMGUtility.IsBuffBMG(Buff))
                 {
                     IsBMG = true;
                     Debug.WriteLine("BMG File Detected!");
-                    BMG_Struct = await BMGUtility.Decode(File_Path, new ReportBMGLoadProgressHandle(ReportBMGLoadProgress)); // Should probably change to a byte array at some point
+                    
+                    // Check for (and load if found) msg_color.bmc
+                    string BMC_Location = Path.GetDirectoryName(File_Path) + "\\" + Path.GetFileNameWithoutExtension(File_Path) + "_color.bmc";
+                    if (!File.Exists(BMC_Location))
+                    {
+                        BMC_Location = Path.GetDirectoryName(File_Path) + "\\msg_color.bmc";
+                    }
+
+                    if (File.Exists(BMC_Location))
+                    {
+                        BMC_Colors = GetBMCColors(new BMC(File.ReadAllBytes(BMC_Location)));
+                        Debug.WriteLine($"BMC File found! Loaded {BMC_Colors.Count} colors.");
+                    }
+
+                    BMG_Struct = await BMGUtility.Decode(File_Path, BMC_Colors, new ReportBMGLoadProgressHandle(ReportBMGLoadProgress)); // Should probably change to a byte array at some point
                     Generate_BMG_Text_Entries(BMG_Struct);
                 }
                 else
                 {
+                    // Reset Stylesheet
+                    LoadXSHDStyleSheet();
                     IsBMG = false;
                     if (File_Path.Contains("_table.bin"))
                     {
@@ -725,7 +794,7 @@ namespace Animal_Crossing_Text_Editor
 
                 if (IsBMG && !string.IsNullOrEmpty(File_Path))
                 {
-                    BMG_Struct = await BMGUtility.Decode(File_Path);
+                    BMG_Struct = await BMGUtility.Decode(File_Path, BMC_Colors);
                     Generate_BMG_Text_Entries(BMG_Struct);
                 }
                 else
@@ -742,7 +811,7 @@ namespace Animal_Crossing_Text_Editor
                     ? TextUtility.Doubutsu_no_Mori_Plus_Character_Map : TextUtility.Animal_Crossing_Character_Map;
                 if (IsBMG && !string.IsNullOrEmpty(File_Path))
                 {
-                    BMG_Struct = await BMGUtility.Decode(File_Path);
+                    BMG_Struct = await BMGUtility.Decode(File_Path, BMC_Colors);
                     Generate_BMG_Text_Entries(BMG_Struct);
                 }
                 else
@@ -761,15 +830,6 @@ namespace Animal_Crossing_Text_Editor
         private bool IsHex(string Text)
         {
             return Regex.IsMatch(Text, @"\A\b[0-9a-fA-F]+\b\Z");
-        }
-
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            var GotoDialog = new GotoWindow();
-            if (GotoDialog.ShowDialog() == true)
-            {
-                Goto(GotoDialog.GotoValue);
-            }
         }
 
         private void MenuItem_Click_1(object sender, RoutedEventArgs e)
@@ -820,19 +880,24 @@ namespace Animal_Crossing_Text_Editor
         {
             if (Entries != null || !string.IsNullOrEmpty(BMG_Struct.FileType))
             {
-                Editor.IsEnabled = true;
-                Changing_Selected_Entry = true;
-                Goto(++SelectedIndex);
-                EntryBox.Text = SelectedIndex.ToString("X");
-                if (IsBMG)
+                if ((IsBMG && BMG_Struct.INF_Section.Items.Length > SelectedIndex + 1)
+                    || (Entries != null && Entries.Length > SelectedIndex + 1))
                 {
-                    OffsetBox.Text = BMG_Struct.INF_Section.Items[SelectedIndex].Text_Offset.ToString("X");
+
+                    Editor.IsEnabled = true;
+                    Changing_Selected_Entry = true;
+                    Goto(++SelectedIndex);
+                    EntryBox.Text = SelectedIndex.ToString("X");
+                    if (IsBMG)
+                    {
+                        OffsetBox.Text = BMG_Struct.INF_Section.Items[SelectedIndex].Text_Offset.ToString("X");
+                    }
+                    else
+                    {
+                        OffsetBox.Text = Entries[SelectedIndex].Offset.ToString("X");
+                    }
+                    Changing_Selected_Entry = false;
                 }
-                else
-                {
-                    OffsetBox.Text = Entries[SelectedIndex].Offset.ToString("X");
-                }
-                Changing_Selected_Entry = false;
             }
         }
 
@@ -840,19 +905,22 @@ namespace Animal_Crossing_Text_Editor
         {
             if (SelectedIndex > 0 && (Entries != null || !string.IsNullOrEmpty(BMG_Struct.FileType)))
             {
-                Editor.IsEnabled = true;
-                Changing_Selected_Entry = true;
-                Goto(--SelectedIndex);
-                EntryBox.Text = SelectedIndex.ToString("X");
-                if (IsBMG)
+                if (SelectedIndex - 1 > -1)
                 {
-                    OffsetBox.Text = BMG_Struct.INF_Section.Items[SelectedIndex].Text_Offset.ToString("X");
+                    Editor.IsEnabled = true;
+                    Changing_Selected_Entry = true;
+                    Goto(--SelectedIndex);
+                    EntryBox.Text = SelectedIndex.ToString("X");
+                    if (IsBMG)
+                    {
+                        OffsetBox.Text = BMG_Struct.INF_Section.Items[SelectedIndex].Text_Offset.ToString("X");
+                    }
+                    else
+                    {
+                        OffsetBox.Text = Entries[SelectedIndex].Offset.ToString("X");
+                    }
+                    Changing_Selected_Entry = false;
                 }
-                else
-                {
-                    OffsetBox.Text = Entries[SelectedIndex].Offset.ToString("X");
-                }
-                Changing_Selected_Entry = false;
             }
         }
 
@@ -945,12 +1013,45 @@ namespace Animal_Crossing_Text_Editor
         {
             if (!string.IsNullOrWhiteSpace(e.Text))
             {
-                
+
             }
         }
 
         private void Editor_TextChanged(object sender, EventArgs e)
         {
+            if (IsBMG)
+            {
+                List<BitmapSource> PagesList = new List<BitmapSource>();
+                foreach (string Page in Editor.Text.Split(new string[] { "<New Page>" }, StringSplitOptions.None))
+                {
+                    var Image = AFeRenderer.RenderText(Page, TextUtility.Doubutsu_no_Mori_Plus_Character_Map,
+                        TextUtility.DnMe_Plus_Kanji_Bank_0, TextUtility.DnMe_Plus_Kanji_Bank_1);
+                    if (Image != null)
+                    {
+                        PagesList.Add(Image);
+                    }
+                }
+
+                previewWindow.windowBackground.Source = Convert(Properties.Resources.Dialog_Window);
+                previewWindow.TextPreviews = PagesList.ToArray();
+            }
+            else
+            {
+                // TODO: Check here for AF/AF+/AC
+                List<BitmapSource> PagesList = new List<BitmapSource>();
+                foreach (string Page in Editor.Text.Split(new string[] { "<New Page>" }, StringSplitOptions.None))
+                {
+                    var Image = ACRenderer.RenderText(Page, TextUtility.Animal_Crossing_Character_Map);
+                    if (Image != null)
+                    {
+                        PagesList.Add(Image);
+                    }
+                }
+
+                previewWindow.windowBackground.Source = Convert(Properties.Resources.Dialog_Window);
+                previewWindow.TextPreviews = PagesList.ToArray();
+            }
+
             /*if (Editor.CaretOffset > 0 && Editor.CaretOffset < Editor.Text.Length &&
                 !string.IsNullOrWhiteSpace(Editor.Text.ElementAt(Editor.CaretOffset - 1).ToString()))
             {
@@ -1001,6 +1102,48 @@ namespace Animal_Crossing_Text_Editor
                     }
                 }
             }*/
+        }
+
+        // From https://stackoverflow.com/questions/11806764/adding-syntax-highlighting-rules-to-avalonedit-programmatically
+        internal sealed class CustomizedBrush : HighlightingBrush
+        {
+            private readonly System.Windows.Media.SolidColorBrush brush;
+            public CustomizedBrush(System.Windows.Media.Color color)
+            {
+                brush = CreateFrozenBrush(color);
+            }
+
+            public CustomizedBrush(System.Drawing.Color c)
+            {
+                var c2 = System.Windows.Media.Color.FromArgb(c.A, c.R, c.G, c.B);
+                brush = CreateFrozenBrush(c2);
+            }
+
+            public override System.Windows.Media.Brush GetBrush(ITextRunConstructionContext context)
+            {
+                return brush;
+            }
+
+            public override string ToString()
+            {
+                return brush.ToString();
+            }
+
+            private static System.Windows.Media.SolidColorBrush CreateFrozenBrush(System.Windows.Media.Color color)
+            {
+                System.Windows.Media.SolidColorBrush brush = new System.Windows.Media.SolidColorBrush(color);
+                brush.Freeze();
+                return brush;
+            }
+        }
+
+        private void button_Click(object sender, RoutedEventArgs e)
+        {
+            if (Editor.IsEnabled && !string.IsNullOrEmpty(Editor.Text))
+            {
+                previewWindow.CurrentPreview = 0;
+                previewWindow.Show();
+            }
         }
     }
 }

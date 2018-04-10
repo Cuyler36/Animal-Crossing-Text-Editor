@@ -8,7 +8,7 @@
         xmlns:syntaxDef="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008"
         xmlns:local="clr-namespace:Animal_Crossing_Text_Editor"
         mc:Ignorable="d"
-        Title="Animal Crossing Text Editor" Height="500" Width="750">
+        Title="Animal Crossing Text Editor" Height="500" Width="920">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -29,8 +29,7 @@
                     <MenuItem Header="_Rebuild BMG File" Click="Rebuild_Click"/>
                 </MenuItem>
                 <MenuItem Header="_Cursor">
-                    <MenuItem Header="_Goto Entry" Click="MenuItem_Click"/>
-                    <MenuItem Header="_Print Raw Text" Click="MenuItem_Click_2"/>
+                    <MenuItem Header="_Copy Text to Clipboard" Click="MenuItem_Click_2"/>
                 </MenuItem>
             </Menu>
         </DockPanel>
@@ -45,6 +44,7 @@
             </ListBox.ItemContainerStyle>
         </ListView>
         <Button x:Name="UpdateTextButton" Content="Save Text" HorizontalAlignment="Right" Margin="0,0,19,10" VerticalAlignment="Bottom" Width="75" Click="UpdateTextButton_Click"/>
+        <Button x:Name="previewButton" Content="Preview" HorizontalAlignment="Right" Margin="0,0,214,10" VerticalAlignment="Bottom" Width="75" Click="button_Click"/>
         <Label x:Name="EntryLabel" Content="Entry:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,21,0,0"/>
         <TextBox x:Name="EntryBox" Text="0" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50, 26, 0, 0" Width="40" MaxLength="4" TextChanged="EntryBox_TextChanged"/>
         <Label x:Name="OffsetLabel" Content="Offset:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100,21,0,0"/>

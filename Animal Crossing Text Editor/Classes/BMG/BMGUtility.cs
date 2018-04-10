@@ -115,7 +115,7 @@ namespace Animal_Crossing_Text_Editor
             }
         }
 
-        public static async Task<BMG> Decode(string Path, Delegate ReportProgressFunc = null)
+        public static async Task<BMG> Decode(string Path, List<System.Drawing.Color> Colors, Delegate ReportProgressFunc = null)
         {
             using (BinaryReader Reader = new BinaryReader(new FileStream(Path, FileMode.Open)))
             {
@@ -205,7 +205,7 @@ namespace Animal_Crossing_Text_Editor
 
                         long Starting_Offset = Reader.BaseStream.Position;
                         bmg.INF_Section.Items[i].Data = Reader.ReadBytes((int)(Ending_Offset - Reader.BaseStream.Position));
-                        bmg.INF_Section.Items[i].Text = TextUtility.Decode(bmg.INF_Section.Items[i].Data);
+                        bmg.INF_Section.Items[i].Text = TextUtility.Decode(bmg.INF_Section.Items[i].Data, Colors);
                         bmg.INF_Section.Items[i].Length = (uint)(Ending_Offset - Starting_Offset);
 
                         if (ReportProgressFunc != null)
