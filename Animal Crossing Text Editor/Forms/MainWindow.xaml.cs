@@ -91,24 +91,8 @@ namespace Animal_Crossing_Text_Editor
             Editor.TextArea.TextEntering += Editor_TextEntering;
 
             // Text Renderer Initialization
-            ACRenderer = new TextRenderer(Convert(Properties.Resources.AC_Text), 12, 16, 12, 16);
-            AFeRenderer = new TextRenderer(Convert(Properties.Resources.AFe__English_Text), 24, 32, 14, 32);
-        }
-
-        private BitmapSource Convert(System.Drawing.Bitmap bitmap)
-        {
-            var bitmapData = bitmap.LockBits(
-                new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height),
-                System.Drawing.Imaging.ImageLockMode.ReadOnly, bitmap.PixelFormat);
-
-            var bitmapSource = BitmapSource.Create(
-                bitmapData.Width, bitmapData.Height,
-                bitmap.HorizontalResolution, bitmap.VerticalResolution,
-                PixelFormats.Bgra32, null,
-                bitmapData.Scan0, bitmapData.Stride * bitmapData.Height, bitmapData.Stride);
-
-            bitmap.UnlockBits(bitmapData);
-            return bitmapSource;
+            ACRenderer = new TextRenderer(TextRenderUtility.Convert(Properties.Resources.AC_Text), 12, 16, 12, 16);
+            AFeRenderer = new TextRenderer(TextRenderUtility.Convert(Properties.Resources.AFe__English_Text), 24, 32, 14, 32);
         }
 
         private void LoadXSHDStyleSheet()
@@ -126,20 +110,57 @@ namespace Animal_Crossing_Text_Editor
             }
             catch (Exception e) { MessageBox.Show(e.Message + "\r\n" + e.StackTrace); }
         }
-        
+
+        private bool UseBlackBackground(System.Drawing.Color Input) => Input.GetBrightness() >= 0.4;
+
         private void AddBMCColorHighlightRules()
         {
-            // Stubbed for now
+            var MainRuleSet = Editor.SyntaxHighlighting.MainRuleSet;
+            var CommandRuleset = MainRuleSet.Spans[0];
+            var ArgumentRuleset = CommandRuleset.RuleSet.Spans[0];
+
+            if (BMC_Colors != null)
+            {
+                var ArgumentRules = ArgumentRuleset.RuleSet.Rules;
+                var BlackBrush = new CustomizedBrush(System.Drawing.Color.FromArgb(0xFF, 0x33, 0x33, 0x33));
+                var WhiteBrush = new CustomizedBrush(System.Drawing.Color.White);
+                for (int i = 0; i < BMC_Colors.Count; i++)
+                {
+                    var Color = BMC_Colors[i];
+
+                    var HighlightBrush = new CustomizedBrush(Color);
+                    var HighlightColor = new HighlightingColor
+                    {
+                        Foreground = HighlightBrush,
+                        Background = UseBlackBackground(Color) ? BlackBrush : WhiteBrush
+                    };
+
+                    var ColorRule = new HighlightingRule
+                    {
+                        Color = HighlightColor,
+                        Regex = new Regex(@"\b(?>" + i.ToString() + @")\b")
+                    };
+
+                    ArgumentRules.Add(ColorRule);
+                }
+            }
         }
 
         private void Scroll_to_Index(int Index)
         {
-            VirtualizingStackPanel vsp =
+            /*VirtualizingStackPanel vsp =
                 (VirtualizingStackPanel)typeof(ItemsControl).InvokeMember("_itemsHost",
                 BindingFlags.Instance | BindingFlags.GetField | BindingFlags.NonPublic, null,
                 TextListView, null);
 
-            vsp.SetVerticalOffset(vsp.ScrollOwner.ScrollableHeight * Index / TextListView.Items.Count);
+            vsp.SetVerticalOffset(vsp.ScrollOwner.ScrollableHeight * Index / TextListView.Items.Count);*/
+            if (TextListView.SelectedItem != TextListView.Items[Index])
+            {
+                TextListView.SelectedItem = TextListView.Items[Index];
+                (TextListView.SelectedItem as ListViewItem).Focus();
+            }
+
+            TextListView.ScrollIntoView(TextListView.Items[Index]);
         }
 
         public void Goto(int Index)
@@ -554,6 +575,7 @@ namespace Animal_Crossing_Text_Editor
                     if (File.Exists(BMC_Location))
                     {
                         BMC_Colors = GetBMCColors(new BMC(File.ReadAllBytes(BMC_Location)));
+                        //AddBMCColorHighlightRules();
                         Debug.WriteLine($"BMC File found! Loaded {BMC_Colors.Count} colors.");
                     }
 
@@ -946,6 +968,7 @@ namespace Animal_Crossing_Text_Editor
                     OffsetBox.Text = Entries[SelectedIndex].Offset.ToString("X");
                     Changing_Selected_Entry = false;
                 }
+                TextListView.ScrollIntoView(TextListView.Items[SelectedIndex]);
             }
         }
 
@@ -994,6 +1017,7 @@ namespace Animal_Crossing_Text_Editor
                 }
 
                 Changing_Selected_Entry = false;
+                TextListView.ScrollIntoView(TextListView.Items[SelectedIndex]);
             }
         }
 
@@ -1020,18 +1044,19 @@ namespace Animal_Crossing_Text_Editor
         {
             if (IsBMG)
             {
+                AFeRenderer.Reset(BMC_Colors);
                 List<BitmapSource> PagesList = new List<BitmapSource>();
                 foreach (string Page in Editor.Text.Split(new string[] { "<New Page>" }, StringSplitOptions.None))
                 {
                     var Image = AFeRenderer.RenderText(Page, TextUtility.Doubutsu_no_Mori_Plus_Character_Map,
-                        TextUtility.DnMe_Plus_Kanji_Bank_0, TextUtility.DnMe_Plus_Kanji_Bank_1);
+                        TextUtility.DnMe_Plus_Kanji_Bank_0, TextUtility.DnMe_Plus_Kanji_Bank_1, BMC_Colors);
                     if (Image != null)
                     {
                         PagesList.Add(Image);
                     }
                 }
 
-                previewWindow.windowBackground.Source = Convert(Properties.Resources.Dialog_Window);
+                previewWindow.windowBackground.Source = TextRenderUtility.Convert(Properties.Resources.Dialog_Window);
                 previewWindow.TextPreviews = PagesList.ToArray();
             }
             else
@@ -1047,7 +1072,7 @@ namespace Animal_Crossing_Text_Editor
                     }
                 }
 
-                previewWindow.windowBackground.Source = Convert(Properties.Resources.Dialog_Window);
+                previewWindow.windowBackground.Source = TextRenderUtility.Convert(Properties.Resources.Dialog_Window);
                 previewWindow.TextPreviews = PagesList.ToArray();
             }
 

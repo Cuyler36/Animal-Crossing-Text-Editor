@@ -4,23 +4,49 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Media.Imaging;
+using System.Drawing;
 
 namespace Animal_Crossing_Text_Editor.Classes.TextPreview
 {
     public class TextRenderer
     {
         public readonly Spritesheet CharacterSheet;
+        internal Color Color = Color.Black;
+        internal float Scale = 1;
+        internal float Offset = 0;
 
         public TextRenderer(BitmapSource SpriteSheet, int CharacterWidth, int CharacterHeight, int CharacterSizeX, int CharacterSizeY)
         {
             CharacterSheet = new Spritesheet(SpriteSheet, CharacterWidth, CharacterHeight, CharacterSizeX, CharacterSizeY);
         }
 
-        public BitmapSource RenderText(string Text, Dictionary<byte, string> CharacterMap, string[] KanjiMap0 = null, string[] KanjiMap1 = null, int Scale = 1)
+        public void Reset(List<Color> Colors = null)
         {
-            // TODO: e+ Kanji SpriteSheets need to be added
-            // TODO: Handle Color Commands properly (color text as it should be)
+            if (Colors != null)
+            {
+                Color = Colors[0];
+            }
+            else
+            {
+                Color = Color.Black;
+            }
+
+            Scale = 1;
+            Offset = 0;
+        }
+
+        public BitmapSource RenderText(string Text, Dictionary<byte, string> CharacterMap, string[] KanjiMap0 = null, string[] KanjiMap1 = null,
+            List<Color> Colors = null, int CharacterScale = 1)
+        {
             // TODO: Line Size & Offset Parsing
+            Spritesheet KanjiSheet0 = null;
+            Spritesheet KanjiSheet1 = null;
+
+            if (KanjiMap0 != null && KanjiMap1 != null)
+            {
+                KanjiSheet0 = new Spritesheet(TextRenderUtility.Convert(Properties.Resources.AFe__Kanji_Bank_0), 24, 32, 14, 32);
+                KanjiSheet1 = new Spritesheet(TextRenderUtility.Convert(Properties.Resources.AFe__Kanji_Bank_1), 24, 32, 14, 32);
+            }
 
             // Replace "<String XX>" with "Dummy XX"
             for (int i = 0; i < 20; i++)
@@ -63,8 +89,9 @@ namespace Animal_Crossing_Text_Editor.Classes.TextPreview
 
             // Remove all command data (except for Color)
             Text = Text.Replace("\r", "");
-            Regex CommandRegex = new Regex(@"<[^>]+>");
-            string CommandStrippedText = CommandRegex.Replace(Text, "").TrimEnd();
+            /*Regex CommandRegex = new Regex(@"<[^>]+>");
+            string CommandStrippedText = CommandRegex.Replace(Text, "").TrimEnd();*/
+            string CommandStrippedText = Text.TrimEnd();
 
             // Begin generating the entire window BitmapSource
             BitmapSource DialogWindow = null;
@@ -72,8 +99,32 @@ namespace Animal_Crossing_Text_Editor.Classes.TextPreview
 
             // Calculate BitmapSource Dimensions
             int CurrentWidth = 0;
-            foreach (char Character in CommandStrippedText)
+            for (int ParseIndex = 0; ParseIndex < CommandStrippedText.Length; ParseIndex++)
             {
+                char Character = CommandStrippedText[ParseIndex];
+
+                // Check for command
+                if (Character == '<')
+                {
+                    int CommandEndingOffset = CommandStrippedText.IndexOf('>', ParseIndex);
+                    if (CommandEndingOffset > -1)
+                    {
+                        string Command = CommandStrippedText.Substring(ParseIndex, CommandEndingOffset - ParseIndex + 1);
+                        /*if (Command.Contains("<Line Color Index"))
+                        {
+                            var Match = Regex.Match(Command, @"\d+");
+                            if (Match.Success && byte.TryParse(Match.Value, out byte ColorIndex) && Colors.Count > ColorIndex)
+                            {
+                                Color = Colors[ColorIndex];
+                            }
+                        }*/
+
+                        // Set ParseIndex to the end of the command so we skip the rest of it.
+                        ParseIndex = CommandEndingOffset;
+                        continue;
+                    }
+                }
+
                 if (Character == '\n')
                 {
                     if (CurrentWidth > WindowWidth)
@@ -100,8 +151,8 @@ namespace Animal_Crossing_Text_Editor.Classes.TextPreview
                 WindowHeight = CharacterSheet.SpriteHeight;
             }
 
-            WindowWidth *= Scale;
-            WindowHeight *= Scale;
+            WindowWidth *= CharacterScale;
+            WindowHeight *= CharacterScale;
 
             // If no characters are to be rendered, return null
             if (WindowWidth <= 0)
@@ -117,8 +168,32 @@ namespace Animal_Crossing_Text_Editor.Classes.TextPreview
             // Copy sprites into TextPixelData buffer
             int CurrentHeight = 0;
             CurrentWidth = 0;
-            foreach (char Character in CommandStrippedText)
+            for (int ParseIndex = 0; ParseIndex < CommandStrippedText.Length; ParseIndex++)
             {
+                char Character = CommandStrippedText[ParseIndex];
+
+                // Check for command
+                if (Character == '<')
+                {
+                    int CommandEndingOffset = CommandStrippedText.IndexOf('>', ParseIndex);
+                    if (CommandEndingOffset > -1)
+                    {
+                        string Command = CommandStrippedText.Substring(ParseIndex, CommandEndingOffset - ParseIndex + 1);
+                        if (Colors != null && Command.Contains("<Line Color Index"))
+                        {
+                            var Match = Regex.Match(Command, @"\d+");
+                            if (Match.Success && byte.TryParse(Match.Value, out byte ColorIndex) && Colors.Count > ColorIndex)
+                            {
+                                Color = Colors[ColorIndex];
+                            }
+                        }
+
+                        // Set ParseIndex to the end of the command so we skip the rest of it.
+                        ParseIndex = CommandEndingOffset;
+                        continue;
+                    }
+                }
+
                 // Get character sprite
                 if (!Character.Equals('\n'))
                 {
@@ -129,16 +204,16 @@ namespace Animal_Crossing_Text_Editor.Classes.TextPreview
                         // TODO: Implement Kanji SpriteSheets
                         if (KanjiMap0 != null && KanjiMap0.Contains(Character.ToString()))
                         {
-                            CharacterSprite = CharacterSheet.GetSprite(Array.IndexOf(KanjiMap0, Character.ToString()));
+                            CharacterSprite = KanjiSheet0.GetSprite(Array.IndexOf(KanjiMap0, Character.ToString()), Color);
                         }
                         else if (KanjiMap1 != null && KanjiMap1.Contains(Character.ToString()))
                         {
-                            CharacterSprite = CharacterSheet.GetSprite(Array.IndexOf(KanjiMap1, Character.ToString()));
+                            CharacterSprite = KanjiSheet1.GetSprite(Array.IndexOf(KanjiMap1, Character.ToString()), Color);
                         }
                     }
                     else
                     {
-                        CharacterSprite = CharacterSheet.GetSprite(KeyValPair.Key);
+                        CharacterSprite = CharacterSheet.GetSprite(KeyValPair.Key, Color);
                     }
 
                     // Copy character sprite into correct place in buffer
@@ -154,14 +229,6 @@ namespace Animal_Crossing_Text_Editor.Classes.TextPreview
                     CurrentWidth = 0;
                     CurrentHeight += CharacterSheet.SpriteSizeY;
                 }
-            }
-
-            // Set color to black (TODO: REMOVE THIS AFTER CORRECT COLOR IMPLEMENTATION EARLIER IN THE PROCESS)
-            for (int i = 0; i < TextPixelData.Length; i += BytesPerPixel)
-            {
-                TextPixelData[i] = (byte)(255 - TextPixelData[i]);
-                TextPixelData[i + 1] = (byte)(255 - TextPixelData[i + 1]);
-                TextPixelData[i + 2] = (byte)(255 - TextPixelData[i + 2]);
             }
 
             // Create Dialog Window BitmapSource

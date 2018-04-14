@@ -1,4 +1,5 @@
-﻿using System.Windows.Media.Imaging;
+﻿using System.Drawing;
+using System.Windows.Media.Imaging;
 using System.Windows;
 
 namespace Animal_Crossing_Text_Editor.Classes.TextPreview
@@ -20,7 +21,7 @@ namespace Animal_Crossing_Text_Editor.Classes.TextPreview
             SpriteSizeY = spriteSizeY;
         }
 
-        public BitmapSource GetSprite(int SpriteIndex, int Scale = 1)
+        public BitmapSource GetSprite(int SpriteIndex, Color FontColor, int Scale = 1)
         {
             int HorizontalSpriteCount = SpriteSheet.PixelWidth / SpriteWidth;
             int VerticalSpriteCount = SpriteSheet.PixelHeight / SpriteHeight;
@@ -35,6 +36,17 @@ namespace Animal_Crossing_Text_Editor.Classes.TextPreview
             byte[] SpriteData = new byte[SpriteWidth * SpriteHeight * BytesPerPixel];
             Int32Rect CopyRectangle = new Int32Rect(SpriteStartXCoordinate, SpriteStartYCoordinate, SpriteWidth, SpriteHeight);
             SpriteSheet.CopyPixels(CopyRectangle, SpriteData, SpriteWidth * BytesPerPixel, 0);
+
+            // Set Colors
+            if (FontColor != null)
+            {
+                for (int i = 0; i < SpriteData.Length; i += BytesPerPixel)
+                {
+                    SpriteData[i + 0] = (byte)(((float)SpriteData[i + 0] / 255) * FontColor.R);
+                    SpriteData[i + 1] = (byte)(((float)SpriteData[i + 1] / 255) * FontColor.G);
+                    SpriteData[i + 2] = (byte)(((float)SpriteData[i + 2] / 255) * FontColor.B);
+                }
+            }
 
             BitmapSource Sprite = BitmapSource.Create(SpriteWidth, SpriteHeight, 96, 96, SpriteSheet.Format, SpriteSheet.Palette,
                 SpriteData, BytesPerPixel * SpriteWidth);

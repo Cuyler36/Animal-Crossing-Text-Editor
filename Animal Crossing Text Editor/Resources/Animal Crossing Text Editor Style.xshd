@@ -3,6 +3,8 @@
 <SyntaxDefinition name = "ACScript" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
   <Color name="DarkOrange" foreground="#FFFF8C00" />
   <Color name="Lichen" foreground="#FFC0D9AF" />
+  <Color name="LightBlue" foreground="#FF9ED0FF" />
+  <Color name="White" foreground="#FFFFFFFF" />
   
   <RuleSet ignoreCase="false">
     <Span color="DarkOrange" multiline="false">
@@ -13,6 +15,16 @@
         <Span color="Lichen">
           <Begin>\[</Begin>
           <End>\]</End>
+          <RuleSet>
+            <!--<Rule color="LightBlue">
+              \b0[xX][0-9a-fA-F]+  # hex number
+              |
+              (	\b\d+(\.[0-9]+)?   #number with optional floating point
+              |	\.[0-9]+           #or just starting with floating point
+              )
+            </Rule>-->
+            
+          </RuleSet>
         </Span>
         <Span begin="\\" end="." />
       </RuleSet>

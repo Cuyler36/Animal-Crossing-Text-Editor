@@ -170,6 +170,12 @@
   <ItemGroup>
     <None Include="Resources\AC_Text.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AFe+ Kanji Bank 0.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AFe+ Kanji Bank 1.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Fody.3.0.3\build\Fody.targets" Condition="Exists('..\packages\Fody.3.0.3\build\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
