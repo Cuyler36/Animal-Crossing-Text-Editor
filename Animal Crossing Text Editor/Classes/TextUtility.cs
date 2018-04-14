@@ -540,10 +540,10 @@ namespace Animal_Crossing_Text_Editor
             { 0x06, "<Instant Text Skip>" }, // Persists for the entire dialog duration
             { 0x07, "<Unskippable>" }, // Unsure about this one
             { 0x08, "<Player Emotion [{0}] [{1}]>" }, // (mMsg_Main_Cursol_SetDemoOrderPlayer_ControlCursol) (Affects Player_actor_RecieveDemoOrder_EffectOrder) (Player_actor_ChangeAnimation_FromDemoOrder_Talk)
-            { 0x09, "<Expression [{0}]>" }, // NPC Expressions (mMsg_Main_Cursol_SetDemoOrderNPC0_ControlCursol) (aNPC_check_manpu_demoCode)
-            { 0x0A, "<Set Demo Order NPC 0 [{0}] [{1}] [{2}]>" }, // Three extra bytes
-            { 0x0B, "<Set Demo Order NPC 1 [{0}] [{1}] [{2}]>" }, // Three extra bytes
-            { 0x0C, "<Set Demo Order NPC 2 [{0}] [{1}] [{2}]>" }, // "Quest" Code (See mMsg_Main_Cursol_SetDemoOrderQuest_ControlCursol)
+            { 0x09, "<Expression [{0}]>" }, // NPC Expressions (mMsg_Main_Cursol_SetDemoOrderNpc0_ControlCursol) (aNPC_check_manpu_demoCode)
+            { 0x0A, "<Set Demo Order NPC 1 [{0}] [{1}] [{2}]>" }, // (mMsg_Main_Cursol_SetDemoOrderNpc1_ControlCursol)
+            { 0x0B, "<Set Demo Order NPC 2 [{0}] [{1}] [{2}]>" }, // (mMsg_Main_Cursol_SetDemoOrderNpc2_ControlCursol)
+            { 0x0C, "<Set Demo Order NPC Quest [{0}] [{1}] [{2}]>" }, // "Quest" Code (See mMsg_Main_Cursol_SetDemoOrderQuest_ControlCursol)
             { 0x0D, "<Open Choice Selection Menu>" },
             { 0x0E, "<Set Jump Entry [{0}]>" },
             { 0x0F, "<Choice #1 MessageId [{0}]>" }, // Choice #1? (+ two bytes / one ushort) might point to the choice index to use (hex)
@@ -656,7 +656,7 @@ namespace Animal_Crossing_Text_Editor
             { 0x7C, "<Display Symbol [{0}]>" } // Pulls a symbol from Kanji_Bank_0 | mMsg_Main_Cursol_FontKigou_ControlCursol (Kigou = Symbol or Code)
         };
 
-        public static Dictionary<int, string> Expression_List = new Dictionary<int, string> // Might actually have "banks" but we're just gonna use shorts for now
+        public static Dictionary<ushort, string> Expression_List = new Dictionary<ushort, string>
         {
             { 0x00, "None?" },
             { 0x01, "Glare" },
@@ -755,7 +755,63 @@ namespace Animal_Crossing_Text_Editor
             { 0x07, "None" } // Doesn't produce a sound effect and anything greater than 07 is clamped to 07
         };
 
+        public static Dictionary<ushort, string> NPC_Animation_List = new Dictionary<ushort, string>
+        {
+            { 0x0001, "Changing Shirt" },
+            { 0x0002, "Give Item to Player" },
+            { 0x0003, "Villager & Wendell Eating" },
+            { 0x0004, "Nook Walk and Give Chore Item" },
+            { 0x000A, "Give Back Item" },
+            { 0x000B, "Chip Measuring Fish" },
+            { 0x000C, "Chip Eating" },
+            // 0x000D, Seems to be something with the post office?
+            { 0x000E, "Place Item in Pockets" },
+        };
+
+        public static Dictionary<ushort, string> Player_Animation_List = new Dictionary<ushort, string>
+        {
+            { 0x0001, "Player Give Item to NPC" },
+        };
+
         public static string[] LineTypes = new string[3] { "Top", "Center", "Bottom" };
+
+        private static string DecodeDemoOrderInstruction(byte Category, ushort Index)
+        {
+            switch (Category)
+            {
+                // "NPC Emotion" Demo Order, index sets the emotion type
+                case 0x00:
+                    if (Expression_List.ContainsKey(Index))
+                    {
+                        return Expression_List[Index];
+                    }
+                    else
+                    {
+                        return "Unknown Expression 0x" + Index.ToString("X2");
+                    }
+                // "NPC Animation" Demo Order, index sets animation
+                case 0x01:
+                    if (NPC_Animation_List.ContainsKey(Index))
+                    {
+                        return NPC_Animation_List[Index];
+                    }
+                    else
+                    {
+                        return "Unknown NPC Animation 0x" + Index.ToString("X2");
+                    }
+                // "Player Animation"? Demo Order, index sets animation
+                case 0x09:
+                    if (Player_Animation_List.ContainsKey(Index))
+                    {
+                        return Player_Animation_List[Index];
+                    }
+                    else
+                    {
+                        return "Unknown Player Animation 0x" + Index.ToString("X2");
+                    }
+            }
+            return "";
+        }
 
         /*
          * Doubutsu no Mori e+ Tag Map
@@ -949,7 +1005,7 @@ namespace Animal_Crossing_Text_Editor
             { 0x07, new Dictionary<ushort, string> // Internal Name = "Tm" (Trademark)? (Probably not)
             {
                 { 0x0000, "<Unknown TM Tag 0x0000>" }, // Plays the villager shirt equip animation
-                { 0x0001, "<Unknown TM Tag 0x0001>" },
+                { 0x0001, "<Unknown TM Tag 0x0001>" }, // Give Player Item Animation
                 { 0x0002, "<Unknown TM Tag 0x0002>" },
                 { 0x0003, "<Unknown TM Tag 0x0003>" },
                 { 0x0004, "<Unknown TM Tag 0x0004>" },
@@ -1376,8 +1432,9 @@ namespace Animal_Crossing_Text_Editor
                                         Debug.WriteLine("Unable to determine expression, as the byte array was not long enough to contain expression data!");
                                         break;
                                     }
-                                    int Expression = (Data[i + 1] << 16) | (Data[i + 2] << 8) | Data[i + 3];
-                                    if (Expression_List.ContainsKey(Expression))
+                                    byte ExpressionCategory = Data[i + 1];
+                                    ushort Expression = (ushort)((Data[i + 2] << 8) | Data[i + 3]);
+                                    if (ExpressionCategory == 0x00 && Expression_List.ContainsKey(Expression))
                                         Text += string.Format(ContId_Map[0x09], Expression_List[Expression]);
                                     else
                                         Text += string.Format(ContId_Map[0x09], "Unknown 0x" + Expression.ToString("X6"));

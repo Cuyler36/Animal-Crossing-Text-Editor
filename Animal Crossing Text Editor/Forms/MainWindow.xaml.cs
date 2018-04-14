@@ -113,10 +113,9 @@ namespace Animal_Crossing_Text_Editor
 
         private void LoadXSHDStyleSheet()
         {
-            Assembly assembly = Assembly.GetExecutingAssembly();
             try
             {
-                using (Stream s = new FileStream(Path.GetDirectoryName(assembly.Location) + "\\Resources\\Animal Crossing Text Editor Style.xshd", FileMode.Open))
+                using (Stream s = new MemoryStream(Properties.Resources.Animal_Crossing_Text_Editor_Style))
                 {
                     using (XmlTextReader reader = new XmlTextReader(s))
                     {
