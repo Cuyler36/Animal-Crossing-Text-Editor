@@ -58,7 +58,7 @@ namespace Animal_Crossing_Text_Editor
         private bool AutoSaveEnabled = true;
         private TextRenderer ACRenderer;
         private TextRenderer AFeRenderer;
-        private Forms.TextPreviewWindow previewWindow = new Forms.TextPreviewWindow();
+        private Forms.TextPreviewWindow previewWindow;
 
         public static File_Type Character_Set_Type = File_Type.Animal_Crossing;
 
@@ -945,7 +945,7 @@ namespace Animal_Crossing_Text_Editor
             }
         }
 
-        private void EntryBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        private void EntryBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (!string.IsNullOrEmpty(File_Path) && !Changing_Selected_Entry && ushort.TryParse(EntryBox.Text, NumberStyles.AllowHexSpecifier, null, out ushort Entry_Index))
             {
@@ -963,6 +963,7 @@ namespace Animal_Crossing_Text_Editor
                 }
                 else
                 {
+                    Editor.IsEnabled = true;
                     Changing_Selected_Entry = true;
                     Editor.Text = Entries[SelectedIndex].Text;
                     OffsetBox.Text = Entries[SelectedIndex].Offset.ToString("X");
@@ -972,7 +973,7 @@ namespace Animal_Crossing_Text_Editor
             }
         }
 
-        private void OffsetBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        private void OffsetBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (!string.IsNullOrEmpty(File_Path) && !Changing_Selected_Entry && uint.TryParse(OffsetBox.Text, NumberStyles.AllowHexSpecifier, null, out uint Offset))
             {
@@ -1040,40 +1041,51 @@ namespace Animal_Crossing_Text_Editor
             }
         }
 
+        private void UpdateTextPreview()
+        {
+            AFeRenderer.Reset(BMC_Colors);
+            List<BitmapSource> PagesList = new List<BitmapSource>();
+            foreach (string Page in Editor.Text.Split(new string[] { "<New Page>" }, StringSplitOptions.None))
+            {
+                var Image = AFeRenderer.RenderText(Page, TextUtility.Doubutsu_no_Mori_Plus_Character_Map,
+                    TextUtility.DnMe_Plus_Kanji_Bank_0, TextUtility.DnMe_Plus_Kanji_Bank_1, BMC_Colors);
+                if (Image != null)
+                {
+                    PagesList.Add(Image);
+                }
+            }
+
+            previewWindow.windowBackground.Source = TextRenderUtility.Convert(Properties.Resources.Dialog_Window);
+            previewWindow.TextPreviews = PagesList.ToArray();
+        }
+
         private void Editor_TextChanged(object sender, EventArgs e)
         {
             if (IsBMG)
             {
-                AFeRenderer.Reset(BMC_Colors);
-                List<BitmapSource> PagesList = new List<BitmapSource>();
-                foreach (string Page in Editor.Text.Split(new string[] { "<New Page>" }, StringSplitOptions.None))
+                if (previewWindow != null)
                 {
-                    var Image = AFeRenderer.RenderText(Page, TextUtility.Doubutsu_no_Mori_Plus_Character_Map,
-                        TextUtility.DnMe_Plus_Kanji_Bank_0, TextUtility.DnMe_Plus_Kanji_Bank_1, BMC_Colors);
-                    if (Image != null)
-                    {
-                        PagesList.Add(Image);
-                    }
+                    UpdateTextPreview();
                 }
-
-                previewWindow.windowBackground.Source = TextRenderUtility.Convert(Properties.Resources.Dialog_Window);
-                previewWindow.TextPreviews = PagesList.ToArray();
             }
             else
             {
                 // TODO: Check here for AF/AF+/AC
-                List<BitmapSource> PagesList = new List<BitmapSource>();
-                foreach (string Page in Editor.Text.Split(new string[] { "<New Page>" }, StringSplitOptions.None))
+                if (previewWindow != null)
                 {
-                    var Image = ACRenderer.RenderText(Page, TextUtility.Animal_Crossing_Character_Map);
-                    if (Image != null)
+                    List<BitmapSource> PagesList = new List<BitmapSource>();
+                    foreach (string Page in Editor.Text.Split(new string[] { "<New Page>" }, StringSplitOptions.None))
                     {
-                        PagesList.Add(Image);
+                        var Image = ACRenderer.RenderText(Page, TextUtility.Animal_Crossing_Character_Map);
+                        if (Image != null)
+                        {
+                            PagesList.Add(Image);
+                        }
                     }
-                }
 
-                previewWindow.windowBackground.Source = TextRenderUtility.Convert(Properties.Resources.Dialog_Window);
-                previewWindow.TextPreviews = PagesList.ToArray();
+                    previewWindow.windowBackground.Source = TextRenderUtility.Convert(Properties.Resources.Dialog_Window);
+                    previewWindow.TextPreviews = PagesList.ToArray();
+                }
             }
 
             /*if (Editor.CaretOffset > 0 && Editor.CaretOffset < Editor.Text.Length &&
@@ -1165,7 +1177,28 @@ namespace Animal_Crossing_Text_Editor
         {
             if (Editor.IsEnabled && !string.IsNullOrEmpty(Editor.Text))
             {
+                if (previewWindow != null)
+                {
+                    try
+                    {
+                        previewWindow.Close();
+                    }
+                    catch { }
+                    previewWindow = null;
+                }
+
+                if (previewWindow == null)
+                {
+                    previewWindow = new Forms.TextPreviewWindow();
+
+                    previewWindow.Closed += (object s, EventArgs ea) =>
+                    {
+                        previewWindow = null;
+                    };
+                }
+
                 previewWindow.CurrentPreview = 0;
+                UpdateTextPreview();
                 previewWindow.Show();
             }
         }

@@ -92,11 +92,11 @@ namespace Animal_Crossing_Text_Editor.Forms
             InitializeComponent();
             CurrentPreview = 0;
 
-            Closing += (sender, e) =>
+            /*Closing += (sender, e) =>
             {
                 e.Cancel = true;
                 Hide();
-            };
+            };*/
         }
 
         private void nextButton_Click(object sender, RoutedEventArgs e)

@@ -1224,7 +1224,7 @@ namespace Animal_Crossing_Text_Editor
             { 0xFF, new Dictionary<ushort, string> // Internal Name = "Sys" (System)
             {
                 { 0x0000, "<Line Color Index [{0}]>" }, // Might not be only "next character"
-                { 0x0001, "<Line Size [{0}]>" }, // Ends at the next Line Size or end of line?
+                { 0x0001, "<Line Size [{0}]>" }, // Ends at the next Line Size
                 { 0x0002, "<Ruby for [{0}] Kana [{1}]>" }, // Only if the player's Kanji Level is greater than or equal to the previously set one
                 { 0x0003, "<Set Font {Unused}>" } // mMsgTag_Sys_Font (a dummy method, calls mMsgTag_dummy_proc | was likely intended for use with kanji but was integreated with Kanji Level)
             }
