@@ -48,13 +48,13 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
@@ -87,6 +87,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Classes\CompletionData.cs" />
+    <Compile Include="Classes\CustomLinkGenerator.cs" />
+    <Compile Include="Classes\CustomLinkVisualLineText.cs" />
+    <Compile Include="Classes\DialogEntry.cs" />
     <Compile Include="Classes\Extensions\BinaryExtensions.cs" />
     <Compile Include="Classes\BMG\BMC.cs" />
     <Compile Include="Classes\GCNParser.cs" />
@@ -123,10 +126,17 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Forms\TranslateWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Forms\TextPreviewWindow.xaml.cs">
       <DependentUpon>TextPreviewWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\TranslateWindow.xaml.cs">
+      <DependentUpon>TranslateWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -150,6 +160,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <Resource Include="Resources\AC_Text.png" />
     <None Include="Resources\Animal Crossing Text Editor Style.xshd" />
   </ItemGroup>
   <ItemGroup>
@@ -159,22 +170,19 @@
     <Resource Include="Animal Crossing Text Editor Icon 1.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\AFe+ English Text.bmp" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\Dialog Window.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\NPCNamePlate.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\AC_Text.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\AFe+ Kanji Bank 0.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AFe+ Kanji Bank 1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AFe+ English Text.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Fody.3.0.3\build\Fody.targets" Condition="Exists('..\packages\Fody.3.0.3\build\Fody.targets')" />

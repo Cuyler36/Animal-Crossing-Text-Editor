@@ -5,7 +5,6 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace Animal_Crossing_Text_Editor
@@ -227,7 +226,7 @@ namespace Animal_Crossing_Text_Editor
             { 0xD4, "⚷" },
         };
 
-        public static Dictionary<byte, string> Doubutsu_no_Mori_Plus_Character_Map = new Dictionary<byte, string>
+        public static readonly Dictionary<byte, string> Doubutsu_no_Mori_Plus_Character_Map = new Dictionary<byte, string>
         {
             { 0x00, "あ" },
             { 0x01, "い" },
@@ -487,7 +486,7 @@ namespace Animal_Crossing_Text_Editor
             { 0xFF, "ぽ" },
         };
 
-        public static string[] DnMe_Plus_Kanji_Bank_0 = new string[256]
+        public static readonly string[] DnMe_Plus_Kanji_Bank_0 = new string[256]
         {
 //           00    01    02   03    04    05    06    07    08    09   0A    0B    0C    0D    0E    0F   
             "😮", "😄", "😠", "😣", "🐾", "⚷", "✉", "💰", "★", "☀", "☁", "☂", "☃", "🌬", "×", "÷", // 0
@@ -508,7 +507,7 @@ namespace Animal_Crossing_Text_Editor
             "越", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " " // F
         };
 
-        public static string[] DnMe_Plus_Kanji_Bank_1 = new string[256]
+        public static readonly string[] DnMe_Plus_Kanji_Bank_1 = new string[256]
         {
 //           00    01    02   03    04    05    06    07    08    09   0A    0B    0C    0D    0E    0F   
             "右", "雨", "音", "下", "火", "花", "一", "気", "休", "金", "空", "月", "見", "口", "左", "山", // 0
@@ -529,45 +528,45 @@ namespace Animal_Crossing_Text_Editor
             "誕", "段", "値", "取", "認", "宝", "忘", "郵", "欲", "冗", "録", "博", "仲", "利", "似", "応"  // F
         };
 
-        public static Dictionary<byte, string> ContId_Map = new Dictionary<byte, string> // Cont stands for Control
+        public static readonly Dictionary<byte, string> ContId_Map = new Dictionary<byte, string> // Cont stands for Control
         {
-            { 0x00, "<End Conversation>" }, // "Last" Code
-            { 0x01, "<Switch to Selected Dialog>" }, // "Continue" Code
-            { 0x02, "<New Page>" },
-            { 0x03, "<Pause [{0}]>" }, // "SetTime" Code
-            { 0x04, "<Press A>" }, // Might be "bring up next arrow"
-            { 0x05, "<Color Line [{0}]>" }, // "Color" Code
-            { 0x06, "<Instant Text Skip>" }, // Persists for the entire dialog duration
-            { 0x07, "<Unskippable>" }, // Unsure about this one
+            { 0x00, "<End Conversation>" }, // "Last" Code (Last_ControlCursol)
+            { 0x01, "<Switch to Selected Dialog>" }, // "Continue" Code (Continue_ControlCursol)
+            { 0x02, "<New Page>" }, // Clear_ControlCusrol
+            { 0x03, "<Pause [{0}]>" }, // "SetTime" Code (CursolSetTime_ControlCursol
+            { 0x04, "<Press A>" }, // Button_ControlCursol
+            { 0x05, "<Color Line [{0}]>" }, // "Color" Code (Color_ControlCursol)
+            { 0x06, "<Instant Text Skip>" }, // Persists for the entire dialog duration (AbleCancel_ControlCursol)
+            { 0x07, "<Unskippable>" }, // UnableCancel_ControlCursol
             { 0x08, "<Player Emotion [{0}] [{1}]>" }, // (mMsg_Main_Cursol_SetDemoOrderPlayer_ControlCursol) (Affects Player_actor_RecieveDemoOrder_EffectOrder) (Player_actor_ChangeAnimation_FromDemoOrder_Talk)
             { 0x09, "<Expression [{0}]>" }, // NPC Expressions (mMsg_Main_Cursol_SetDemoOrderNpc0_ControlCursol) (aNPC_check_manpu_demoCode)
             { 0x0A, "<Set Demo Order NPC 1 [{0}] [{1}] [{2}]>" }, // (mMsg_Main_Cursol_SetDemoOrderNpc1_ControlCursol)
             { 0x0B, "<Set Demo Order NPC 2 [{0}] [{1}] [{2}]>" }, // (mMsg_Main_Cursol_SetDemoOrderNpc2_ControlCursol)
             { 0x0C, "<Set Demo Order NPC Quest [{0}] [{1}] [{2}]>" }, // "Quest" Code (See mMsg_Main_Cursol_SetDemoOrderQuest_ControlCursol)
-            { 0x0D, "<Open Choice Selection Menu>" },
-            { 0x0E, "<Set Jump Entry [{0}]>" },
-            { 0x0F, "<Choice #1 MessageId [{0}]>" }, // Choice #1? (+ two bytes / one ushort) might point to the choice index to use (hex)
-            { 0x10, "<Choice #2 MessageId [{0}]>" }, // Choice #2?
-            { 0x11, "<Choice #3 MessageId [{0}]>" }, // Choice #3?
-            { 0x12, "<Choice #4 MessageId [{0}]>" }, // Same as above
+            { 0x0D, "<Open Choice Selection Menu>" }, // SetSelectWindow_ControlCursol
+            { 0x0E, "<Set Jump Entry [{0}]>" }, // SetNextMessageF_ControlCursol (Forced)
+            { 0x0F, "<Choice #1 MessageId [{0}]>" }, // SetNextMessage0_ControlCursol
+            { 0x10, "<Choice #2 MessageId [{0}]>" }, // SetNextMessage1_ControlCursol
+            { 0x11, "<Choice #3 MessageId [{0}]>" }, // SetNextMessage2_ControlCursol
+            { 0x12, "<Choice #4 MessageId [{0}]>" }, // SetNextMessage3_ControlCursol
             { 0x13, "<Set 2 Random Jump Entries [{0}] [{1}]>" }, // Selects one of the entries to jump to (mMsg_Main_Cursol_SetNextMessageRandom2)
             { 0x14, "<Set 3 Random Jump Entries [{0}] [{1}] [{2}]>" }, // (mMsg_Main_Cursol_SetNextMessageRandom3)
             { 0x15, "<Set 4 Random Jump Entries [{0}] [{1}] [{2}] [{3}]>" }, // (mMsg_Main_Cursol_SetNextMessageRandom4)
-            { 0x16, "<Set 2 Choices [{0}] [{1}]>" }, // Extra 4 bytes
-            { 0x17, "<Set 3 Choices [{0}] [{1}] [{2}]>" }, // Extra 6 bytes
-            { 0x18, "<Set 4 Choices [{0}] [{1}] [{2}] [{3}]>" }, // Extra 8 bytes
-            { 0x19, "<Force Dialog Switch>" },
-            { 0x1A, "<Player Name>" },
-            { 0x1B, "<NPC Name>" },
-            { 0x1C, "<Catchphrase>" },
-            { 0x1D, "<Year>" },
-            { 0x1E, "<Month>" },
-            { 0x1F, "<Day of Week>" },
-            { 0x20, "<Day>" },
-            { 0x21, "<Hour>" },
-            { 0x22, "<Minute>" },
-            { 0x23, "<Second>" },
-            { 0x24, "<String 0>" }, // Strings are placed on the stack by the code that runs the current text sequence
+            { 0x16, "<Set 2 Choices [{0}] [{1}]>" }, // SetSelectString2_ControlCursol
+            { 0x17, "<Set 3 Choices [{0}] [{1}] [{2}]>" }, // SetSelectString3_ControlCursol
+            { 0x18, "<Set 4 Choices [{0}] [{1}] [{2}] [{3}]>" }, // SetSelectString4_ControlCursol
+            { 0x19, "<Force Dialog Switch>" }, // SetForceNext_ControlCursol
+            { 0x1A, "<Player Name>" }, // PutString_PlayerName_ControlCursol
+            { 0x1B, "<NPC Name>" }, // PutString_TalkName_ControlCursol
+            { 0x1C, "<Catchphrase>" }, // PutString_Tail_ControlCursol
+            { 0x1D, "<Year>" }, // PutString_Year_ControlCursol
+            { 0x1E, "<Month>" }, // PutString_Month_ControlCursol
+            { 0x1F, "<Day of Week>" }, // PutString_Week_ControlCursol
+            { 0x20, "<Day>" }, // PutString_Day_ControlCursol
+            { 0x21, "<Hour>" }, // PutString_Hour_ControlCursol
+            { 0x22, "<Minute>" }, // PutString_Min_ControlCursol
+            { 0x23, "<Second>" }, // PutString_Sec_ControlCursol
+            { 0x24, "<String 0>" }, // Strings are placed on the stack by the code that runs the current text sequence (PutString_Free0_ControlCursol) (All String X Are Same)
             { 0x25, "<String 1>" },
             { 0x26, "<String 2>" },
             { 0x27, "<String 3>" },
@@ -577,10 +576,10 @@ namespace Animal_Crossing_Text_Editor
             { 0x2B, "<String 7>" },
             { 0x2C, "<String 8>" },
             { 0x2D, "<String 9>" },
-            { 0x2E, "<Last Choice Selected>" },
-            { 0x2F, "<Town Name>" },
-            { 0x30, "<Random Number>" }, // 0 - 99
-            { 0x31, "<Item String 0>" },
+            { 0x2E, "<Last Choice Selected>" }, // PutString_Determination_ControlCursol
+            { 0x2F, "<Town Name>" }, // PutString_CountryName_ControlCursol
+            { 0x30, "<Random Number>" }, // 0 - 99 (PutString_RamdomNumber2_ControlCursol)
+            { 0x31, "<Item String 0>" }, // PutString_Item0_ControlCursol
             { 0x32, "<Item String 1>" },
             { 0x33, "<Item String 2>" },
             { 0x34, "<Item String 3>" },
@@ -595,19 +594,23 @@ namespace Animal_Crossing_Text_Editor
             { 0x3D, "<String 17>" },
             { 0x3E, "<String 18>" },
             { 0x3F, "<String 19>" },
-            { 0x40, "<Show Gyroid Message>" },
-            { 0x41, "<Neutral Luck>" },
+            { 0x40, "<Show Gyroid Message>" }, // PutString_Mail
+            { 0x41, "<Neutral Luck>" }, // SetPlayerDestinyX_ControlCursol
             { 0x42, "<Relationship Luck>" },
             { 0x43, "<Unpopular Luck>" },
             { 0x44, "<Bad Luck>" },
             { 0x45, "<Bell Luck>" },
             { 0x46, "<Item Luck>" },
-            { 0x4B, "<Villager Normal State>" },
-            { 0x4C, "<Villager Angry State>" },
-            { 0x4D, "<Villager Sad State>" },
-            { 0x4E, "<Villager Happy State>" },
-            { 0x4F, "<Villager Sleepy State>" },
-            { 0x50, "<Color [{0}] Characters [{1}]>" }, // RGB in hex follows, then the character count
+            { 0x47, "<PlayerDestiny 6>" },
+            { 0x48, "<PlayerDestiny 7>" },
+            { 0x49, "<PlayerDestiny 8>" },
+            { 0x4A, "<PlayerDestiny 9>" },
+            { 0x4B, "<Villager Normal State>" }, // SetMessageContentsNormal_ControlCursol
+            { 0x4C, "<Villager Angry State>" }, // SetMessageContentsAngry_ControlCursol
+            { 0x4D, "<Villager Sad State>" }, // SetMessageContentsSad_ControlCursol
+            { 0x4E, "<Villager Happy State>" }, // SetMessageContentsFun_ControlCursol
+            { 0x4F, "<Villager Sleepy State>" }, // SetMessageContentsSleepy_ControlCursol
+            { 0x50, "<Color [{0}] Characters [{1}]>" }, // RGB in hex follows, then the character count (SetColorChar_ControlCursol)
             { 0x51, "<Actor Speech Type [{0}]>" },
             { 0x52, "<Line Offset [{0}]>" }, // Sets how far down the reset of the line is
             { 0x53, "<Line Type [{0}]>" }, // "LineType" Code (mMsg_Main_Cursol_SetLineType_ControlCursol)
@@ -647,16 +650,16 @@ namespace Animal_Crossing_Text_Editor
             // START OF Animal Crossing ONLY Control Codes
             { 0x75, "<Capitalize>" }, // (mMsg_Cursol_CapitalLetter_ControlCursol)
             { 0x76, "<AM/PM>" },
-            { 0x77, "<Choice #5 MessageId [{0}]>" },
-            { 0x78, "<Choice #6 MessageId [{0}]>" },
-            { 0x79, "<Set 5 Choices [{0}] [{1}] [{2}] [{3}] [{4}]>" },
-            { 0x7A, "<Set 6 Choices [{0}] [{1}] [{2}] [{3}] [{4}] [{5}]>" },
+            { 0x77, "<Choice #5 MessageId [{0}]>" }, // SetNextMessage4_ControlCursol
+            { 0x78, "<Choice #6 MessageId [{0}]>" }, // SetNextMessage5_ControlCursol
+            { 0x79, "<Set 5 Choices [{0}] [{1}] [{2}] [{3}] [{4}]>" }, // SetSelectString5_ControlCursol
+            { 0x7A, "<Set 6 Choices [{0}] [{1}] [{2}] [{3}] [{4}] [{5}]>" }, // SetSelectString6_ControlCursol
             // START OF Doubutsu no Mori e+ ONLY Control Codes
             { 0x7B, "<9 Bit>" }, // mMsg_Main_Cursol_9bit_ControlCursol
             { 0x7C, "<Display Symbol [{0}]>" } // Pulls a symbol from Kanji_Bank_0 | mMsg_Main_Cursol_FontKigou_ControlCursol (Kigou = Symbol or Code)
         };
 
-        public static Dictionary<ushort, string> Expression_List = new Dictionary<ushort, string>
+        public static readonly Dictionary<ushort, string> Expression_List = new Dictionary<ushort, string>
         {
             { 0x00, "None?" },
             { 0x01, "Glare" },
@@ -715,7 +718,7 @@ namespace Animal_Crossing_Text_Editor
             // More (can be found here here: https://www.youtube.com/watch?v=PEeyGxR6NWs)
         };
 
-        public static Dictionary<ushort, string> Player_Emotions = new Dictionary<ushort, string>
+        public static readonly Dictionary<ushort, string> Player_Emotions = new Dictionary<ushort, string>
         {
             { 0x02, "Surprised" },
             { 0xFD, "Purple Mist" }, // Sick Emotion?
@@ -723,7 +726,7 @@ namespace Animal_Crossing_Text_Editor
             { 0xFF, "Reset Emotion" }
         };
 
-        public static Dictionary<byte, string> Music_List = new Dictionary<byte, string>
+        public static readonly Dictionary<byte, string> Music_List = new Dictionary<byte, string>
         {
             { 0x00, "Silence" },
             { 0x01, "Arriving in Town" },
@@ -736,14 +739,14 @@ namespace Animal_Crossing_Text_Editor
             { 0x08, "Don Resetti" }
         };
 
-        public static Dictionary<byte, string> Music_Transitions = new Dictionary<byte, string>
+        public static readonly Dictionary<byte, string> Music_Transitions = new Dictionary<byte, string>
         {
             { 0x00, "None" },
             { 0x01, "Undetermined" },
             { 0x02, "Fade" }
         };
 
-        public static Dictionary<byte, string> SoundEffect_List = new Dictionary<byte, string>
+        public static readonly Dictionary<byte, string> SoundEffect_List = new Dictionary<byte, string>
         {
             { 0x00, "Bell Transaction" },
             { 0x01, "Happy" },
@@ -755,7 +758,7 @@ namespace Animal_Crossing_Text_Editor
             { 0x07, "None" } // Doesn't produce a sound effect and anything greater than 07 is clamped to 07
         };
 
-        public static Dictionary<ushort, string> NPC_Animation_List = new Dictionary<ushort, string>
+        public static readonly Dictionary<ushort, string> NPC_Animation_List = new Dictionary<ushort, string>
         {
             { 0x0001, "Changing Shirt" },
             { 0x0002, "Give Item to Player" },
@@ -768,12 +771,12 @@ namespace Animal_Crossing_Text_Editor
             { 0x000E, "Place Item in Pockets" },
         };
 
-        public static Dictionary<ushort, string> Player_Animation_List = new Dictionary<ushort, string>
+        public static readonly Dictionary<ushort, string> Player_Animation_List = new Dictionary<ushort, string>
         {
             { 0x0001, "Player Give Item to NPC" },
         };
 
-        public static string[] LineTypes = new string[3] { "Top", "Center", "Bottom" };
+        public static readonly string[] LineTypes = new string[3] { "Top", "Center", "Bottom" };
 
         private static string DecodeDemoOrderInstruction(byte Category, ushort Index)
         {
@@ -823,7 +826,7 @@ namespace Animal_Crossing_Text_Editor
          *                  => Tag Subroutine
          */
 
-        public static Dictionary<byte, Dictionary<ushort, string>> Tag_Map = new Dictionary<byte, Dictionary<ushort, string>>
+        public static readonly Dictionary<byte, Dictionary<ushort, string>> Tag_Map = new Dictionary<byte, Dictionary<ushort, string>>
         {
             { 0x00, new Dictionary<ushort, string> // Internal Name = "Gaiji" (No subroutines, it's a dummy group)
             {
@@ -921,7 +924,7 @@ namespace Animal_Crossing_Text_Editor
                 { 0x002C, "<NPC Town Name [{0}] [{1}] [{2}]>" }, // Check this (mMsgTag_Str_NpcNameTribe)
                 { 0x002D, "<Opln>" }, // Check this (mMsgTag_Str_Opln) (Original Player Name??)
                 { 0x002E, "<Own Island Name>" }, // Other player island name? (Check this)
-                { 0x002F, "<Cloth Type>" }, // Check this (mMsgTag_Str_PlClothType) (Probably "Player Cloth Type", so maybe: shirt, umbrella, carpet, wallpaper?
+                { 0x002F, "<Cloth Type>" }, // Check this (mMsgTag_Str_PlClothType) (Probably "Player Cloth Type", What "category" of shirt is being worn
                 { 0x0030, "<NPC Past Nickname [{0}] [{1}]>" },
                 { 0x0031, "<NPC Past Town Name [{0}] [{1}]>" },
                 { 0x0032, "<Original Catchphrase>" }, // (Original Catchphrase?) (mMsgTag_Str_TruthTail Check this
@@ -1038,7 +1041,7 @@ namespace Animal_Crossing_Text_Editor
             },
             { 0x09, new Dictionary<ushort, string> // Internal Name = "Spec" (Special)
             {
-                { 0x0000, "<Voice Disabled>" }, // TODO: Verify this, then change "Main Nookling & Secondary Nookling" for AC
+                { 0x0000, "<Voice Disabled>" },
                 { 0x0001, "<Voice Enabled>" },
                 { 0x0002, "<DemoNPC0_1_4>" }, // Calls 0x0C cont id r5 = 4, r6 = 1, r7 = 4
                 { 0x0003, "<DemoNPC0_7_1>" }, // r5 = 4, r6 = 7, r7 = 1
@@ -1131,10 +1134,10 @@ namespace Animal_Crossing_Text_Editor
                 { 0x0012, "<Dialog Condtional Jump Ifmt [{0}] [{1}]>" }, // <byte>@0, <ushort>MessageIdIfMatch | Ifmt (??)
                 { 0x0013, "<Dialog Condtional Jump Ifda [{0}] [{1}]>" }, // <byte>@0, <ushort>MessageIdIfMatch | Ifda (??)
                 { 0x0014, "<Dialog Condtional Jump Iftm [{0}] [{1}]>" }, // <byte>@0, <ushort>MessageIdIfMatch | Iftm (??)
-                { 0x0015, "<Dialog Condtional Jump Ifwj [{0}] [{1}]>" }, // <byte>@0, <ushort>MessageIdIfMatch | Ifwj (??)
+                { 0x0015, "<Dialog Condtional Jump Ifwj [{0}] [{1}]>" }, // <byte>Weather, <ushort>MessageIdIfMatch | Ifwj (Weather) TODO: Change this to Weather Jump
                 { 0x0016, "<Fruit Check in Player Inventory Jump [{0}] [{1}]>" }, // <byte>FruitIndex (Refer to FruitTreeIndex), <ushort>MessageIdIfMatch | Ifhf (Have Fruit)
                 { 0x0017, "<Dialog Condtional Jump Ifmd [{0}] [{1}]>" }, // <byte>@0, <ushort>MessageIdIfMatch | Ifmd (??) (NOTE: Checks room & carpets) (May have something to do with pattern carpets/wallpapers)
-                { 0x0018, "<Dialog Condtional Jump Ifsd [{0}] [{1}] [{2}]>" }, // <ushort>MessageId1, <ushort>MessageId2, <ushort>MessageId3 | Ifsd (Has something to do with shirts (possibly comparing between your shirt and the NPC's shirt too))
+                { 0x0018, "<Dialog Condtional Jump Ifsd [{0}] [{1}] [{2}]>" }, // <ushort>WearingFavoriteShirtType, <ushort>WearingNeutralShirtType, <ushort>WearingHatedShirtType | Ifsd (If Same Design????) (Checks the "Shirt type" of your shirt against the NPC's favorite and hated shirt types)
                 { 0x0019, "<Dialog Condtional Jump Ifpl [{0}] [{1}]>" }, // <ushort>MessageIdIfNotMatch?, <ushort>MessageIdIfMatch | Ifpl (??) (NOTE: Checks player shirt? Might compare against the villager's shirt)
                 { 0x001A, "<Monument In Acre Jump [{0}] [{1}]>" }, // <ushort>HasMonumentId, <ushort>NoMonumentId | Ifmo (Monument)
                 { 0x001B, "<Check B Key Jump [{0}] [{1}]>" }, // <byte>@{0} (Might be what key/key press count), <ushort>MessageId | Sets Message Continue Id if some b key condition is met | ChkBKey
@@ -1232,7 +1235,7 @@ namespace Animal_Crossing_Text_Editor
         };
 
         // Quest_Nnkc subroutines
-        static string[] NnckSubroutines = new string[]
+        static readonly string[] NnckSubroutines = new string[]
         {
             "aQMgr_actor_add_relation"
         };
@@ -1386,6 +1389,51 @@ namespace Animal_Crossing_Text_Editor
             
         }
 
+        public static string ReplaceCommands(string Text)
+        {
+            // Replace "<String XX>" with "Dummy XX"
+            for (int i = 0; i < 20; i++)
+            {
+                Text = Text.Replace("<String " + i.ToString() + ">", "Dummy " + i.ToString("D2"));
+            }
+
+            // Replace "<Item String X>" with "Dummy ItemName X"
+            for (int i = 0; i < 5; i++)
+            {
+                Text = Text.Replace("<Item String " + i.ToString() + ">", "Dummy ItemName " + i.ToString());
+            }
+
+            // Replace Year, Month, Day, Hour, Minute, & Second
+            Text = Text.Replace("<Year>", DateTime.Now.Year.ToString("D4"));
+            Text = Text.Replace("<Month>", DateTime.Now.ToString("MMMM", CultureInfo.InvariantCulture));
+            Text = Text.Replace("<Day>", Classes.TextPreview.TextRenderUtility.GetDayString(DateTime.Now.Day));
+            Text = Text.Replace("<Day of Week>", DateTime.Now.DayOfWeek.ToString());
+            Text = Text.Replace("<Hour>", DateTime.Now.Hour == 0 ? "12" : (DateTime.Now.Hour % 12).ToString());
+            Text = Text.Replace("<Minute>", DateTime.Now.Minute.ToString("D2"));
+            Text = Text.Replace("<Second>", DateTime.Now.Second.ToString("D2"));
+            Text = Text.Replace("<AM/PM>", DateTime.Now.Hour > 11 ? "PM" : "AM");
+
+            // Replace Catchphrase with a default catchphrase
+            Text = Text.Replace("<Catchphrase>", "catchphrase");
+
+            // Replace Random Number with a random number 0-99
+            Text = Text.Replace("<Random Number>", new Random().Next(0, 100).ToString());
+
+            // Replace Player & Town & NPC Names
+            Text = Text.Replace("<Player Name>", "Player");
+            Text = Text.Replace("<Town Name>", "Town Name");
+            Text = Text.Replace("<NPC Name>", "NPC Name");
+
+            // Replace Gryroid Message
+            Text = Text.Replace("<Gyroid Message>", "This is a test gyroid\nmessage.");
+
+            Text = Text.Replace("<Island Name>", "Outset");
+            Text = Text.Replace("<Last Choice Selected>", "Last Choice Selected");
+
+            Text = Text.Replace("\r", "");
+            return Text.TrimEnd();
+        }
+
         public static string Decode(byte[] Data, List<System.Drawing.Color> BMC_Colors = null)
         {
             string Text = "";
@@ -1397,7 +1445,7 @@ namespace Animal_Crossing_Text_Editor
                     if (i + 1 < Data.Length)
                     {
                         byte Cont_Param = Data[i + 1];
-                        if (Cont_Param < 0x7B)
+                        if (Cont_Param < 0x7D)
                         {
                             i++;
                             switch (Cont_Param)
@@ -1843,9 +1891,15 @@ namespace Animal_Crossing_Text_Editor
                 ? Animal_Crossing_Character_Map : Doubutsu_no_Mori_Plus_Character_Map;
 
             // If BMG, replace any ControlCode Color Commands
-            if (MainWindow.IsBMG && Colors != null)
+            if (MainWindow.IsBMG)
             {
-                Text = SwapControlCodeColorForMessageTagColor(Text, Colors);
+                if (Colors != null)
+                {
+                    Text = SwapControlCodeColorForMessageTagColor(Text, Colors);
+                }
+
+                // Replace <Expression [Reset Expressions]> with <Clear Expression>
+                Text = Text.Replace("<Expression [Reset Expressions]>", "<Clear Expression>"); // We do this to prevent as much ControlCode usage as possible when transferring from AC.
             }
 
             for (int i = 0; i < Text.Length; i++)

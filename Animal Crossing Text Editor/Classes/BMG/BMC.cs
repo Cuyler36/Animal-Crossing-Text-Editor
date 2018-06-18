@@ -79,7 +79,7 @@ namespace Animal_Crossing_Text_Editor
                 for (int i = 0; i < Entries; i++)
                 {
                     Items[i] = BitConverter.ToUInt32(Buffer, 0x0C + i * 4).Reverse();
-                    Items[i] = ((Items[i] & 0xFF) << 24) | (Items[i] & 0xFFFFFF00).Reverse(); // Convert from RGBA to ARGB
+                    Items[i] = ((Items[i] & 0xFF) << 24) | (Items[i] >> 8); // Convert from RGBA to ARGB
                 }
             }
         }

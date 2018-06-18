@@ -9,7 +9,6 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Globalization;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml;
 using ICSharpCode.AvalonEdit.Highlighting.Xshd;
@@ -17,12 +16,11 @@ using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.CodeCompletion;
 using System.Threading.Tasks;
 using Microsoft.Win32;
-using System.Drawing;
 using ICSharpCode.AvalonEdit.Rendering;
-using ICSharpCode.AvalonEdit.Document;
 using Animal_Crossing_Text_Editor.Classes.TextPreview;
 using System.Windows.Media.Imaging;
-using System.Windows.Media;
+using System.Net;
+using System.Web;
 
 namespace Animal_Crossing_Text_Editor
 {
@@ -39,13 +37,24 @@ namespace Animal_Crossing_Text_Editor
     public partial class MainWindow : Window
     {
         public static bool IsBMG { get; private set; }
+        public static MainWindow Reference;
+
+        private int m_selectedIndex = -1;
+        private int SelectedIndex {
+            get => m_selectedIndex;
+            set
+            {
+                m_selectedIndex = value;
+                EntryIdStack.Push((ushort)SelectedIndex);
+            }
+        }
+
         private BMG BMG_Struct;
         private int Entry_Count = 0;
         private TextEntry[] Entries;
         private string File_Path;
         private string Table_Path;
         private System.Windows.Forms.OpenFileDialog SelectDialog = new System.Windows.Forms.OpenFileDialog();
-        private int SelectedIndex = -1;
         private byte[] Buffer;
         private byte[] Table_Buffer; // Doesn't exist for BMG type
         private BackgroundWorker Parser_Worker = new BackgroundWorker();
@@ -59,6 +68,13 @@ namespace Animal_Crossing_Text_Editor
         private TextRenderer ACRenderer;
         private TextRenderer AFeRenderer;
         private Forms.TextPreviewWindow previewWindow;
+        private Forms.TranslateWindow translationWindow;
+        private Stack<ushort> EntryIdStack;
+        private Stack<ushort> EntryIdStackRedo; // TODO: Hook this up & rename EntryIdStack to EntryIdStackUndo
+
+        // AutoSave Paths
+        private string AutoSave_Path;
+        private string AutoSaveTable_Path;
 
         public static File_Type Character_Set_Type = File_Type.Animal_Crossing;
 
@@ -92,7 +108,49 @@ namespace Animal_Crossing_Text_Editor
 
             // Text Renderer Initialization
             ACRenderer = new TextRenderer(TextRenderUtility.Convert(Properties.Resources.AC_Text), 12, 16, 12, 16);
-            AFeRenderer = new TextRenderer(TextRenderUtility.Convert(Properties.Resources.AFe__English_Text), 24, 32, 14, 32);
+            AFeRenderer = new TextRenderer(TextRenderUtility.Convert(Properties.Resources.AFe__English_Text), 24, 32, 24, 32);
+
+            // Load Custom Link Highlighter Dependancies
+            Editor.TextArea.TextView.ElementGenerators.Add(new CustomLinkGenerator());
+            Reference = this;
+        }
+
+        private void SetStatusMessage(string Message)
+        {
+            statusBox.Text = Message;
+        }
+
+        private string Translate(string Text)
+        {
+            using (var client = new WebClient())
+            {
+                client.Encoding = System.Text.Encoding.UTF8;
+                client.Headers.Add(HttpRequestHeader.UserAgent, "Mozilla/5.0");
+                client.Headers.Add(HttpRequestHeader.AcceptCharset, "UTF-8");
+
+                string url = string.Format(@"http://translate.google.com/m?hl=en&sl={0}&tl={1}&ie=UTF-8&prev=_m&q={2}",
+                    "ja", "en", Uri.EscapeUriString(Text));
+
+                string page = client.DownloadString(url);
+                page = page.Remove(0, page.IndexOf("<div dir=\"ltr\" class=\"t0\">")).Replace("<div dir=\"ltr\" class=\"t0\">", "");
+                int last = page.IndexOf("</div>");
+                page = page.Remove(last, page.Length - last);
+
+                if (translationWindow == null)
+                {
+                    translationWindow = new Forms.TranslateWindow();
+                    translationWindow.Closed += (object s, EventArgs ea) =>
+                    {
+                        translationWindow = null;
+                    };
+                }
+
+                page = HttpUtility.HtmlDecode(page.Replace("! ", "!\r\n").Replace(". ", ".\r\n").Replace("? ", "?\r\n")).Trim();
+                translationWindow.TranslationText = page;
+                translationWindow.Show();
+
+                return page;
+            }
         }
 
         private void LoadXSHDStyleSheet()
@@ -148,41 +206,44 @@ namespace Animal_Crossing_Text_Editor
 
         private void Scroll_to_Index(int Index)
         {
-            /*VirtualizingStackPanel vsp =
-                (VirtualizingStackPanel)typeof(ItemsControl).InvokeMember("_itemsHost",
-                BindingFlags.Instance | BindingFlags.GetField | BindingFlags.NonPublic, null,
-                TextListView, null);
-
-            vsp.SetVerticalOffset(vsp.ScrollOwner.ScrollableHeight * Index / TextListView.Items.Count);*/
-            if (TextListView.SelectedItem != TextListView.Items[Index])
+            if (TextListView.SelectedItem != TextItems[Index] && TextListView.Items.Contains(TextItems[Index]))
             {
-                TextListView.SelectedItem = TextListView.Items[Index];
-                (TextListView.SelectedItem as ListViewItem).Focus();
+                TextListView.SelectedItem = TextItems[Index];
+                if (TextListView.SelectedItem != null)
+                {
+                    var Item = (TextListView.SelectedItem as ListViewItem);
+                    //Item.Focus();
+                    TextListView.ScrollIntoView(Item);
+                }
             }
-
-            TextListView.ScrollIntoView(TextListView.Items[Index]);
         }
 
         public void Goto(int Index)
         {
             if (Index > -1)
             {
+                Changing_Selected_Entry = true;
+
                 if (Entries != null && Index < Entries.Length)
                 {
                     Editor.IsEnabled = true;
                     Editor.Text = Entries[Index].Text;
                     SelectedIndex = Index;
+                    EntryBox.Text = SelectedIndex.ToString("X");
+                    OffsetBox.Text = Entries[SelectedIndex].Offset.ToString("X");
                     Scroll_to_Index(Index);
-                    TextListView.SelectedIndex = Index;
                 }
                 else if (!string.IsNullOrEmpty(BMG_Struct.FileType) && Index < BMG_Struct.INF_Section.MessageCount)
                 {
                     Editor.IsEnabled = true;
                     Editor.Text = BMG_Struct.INF_Section.Items[Index].Text;
                     SelectedIndex = Index;
+                    EntryBox.Text = SelectedIndex.ToString("X");
+                    OffsetBox.Text = (BMG_Struct.INF_Section.Items[SelectedIndex].Text_Offset).ToString("X");
                     Scroll_to_Index(Index);
-                    TextListView.SelectedIndex = Index;
                 }
+
+                Changing_Selected_Entry = false;
             }
         }
 
@@ -203,12 +264,10 @@ namespace Animal_Crossing_Text_Editor
 
             for (int i = 0; i < Entry_Count; i++)
             {
-                //int This_Offset = BitConverter.ToInt32(Table_Buffer.Skip(i * 4).Take(4).Reverse().ToArray(), 0);
                 try
                 {
                     int This_Offset = TableReader.ReadReversedInt32();
 
-                    //Entries[i] = new TextEntry(This_Offset, Buffer.Skip(Last_Offset).Take(This_Offset - Last_Offset).ToArray()); // NOTE: This is wrong. Should be (Next_Entry - This_Entry)
                     ContentReader.BaseStream.Seek(Last_Offset, SeekOrigin.Begin);
                     Entries[i] = new TextEntry(Last_Offset, ContentReader.ReadBytes(This_Offset - Last_Offset));
                     Last_Offset = This_Offset;
@@ -295,8 +354,7 @@ namespace Animal_Crossing_Text_Editor
         {
             byte[] New_Data = TextUtility.Encode(New_Text, Character_Set_Type);
             string Decoded = TextUtility.Decode(New_Data, BMC_Colors); // TODO: Figure out how to not re-decode the bytes
-            // TEST
-            //MessageBox.Show("Arrays are equal size: " + (New_Data.Length == Entry.Data.Length).ToString());
+            
             for (int i = 0; i < New_Data.Length; i++)
             {
                 if (i < Entry.Data.Length)
@@ -367,7 +425,7 @@ namespace Animal_Crossing_Text_Editor
             Entry_Count = 0;
             for (int i = 0; i < Table_Buffer.Length; i += 4)
             {
-                if (i > 0 && BitConverter.ToUInt32(Table_Buffer.Skip(i).Take(4).Reverse().ToArray(), 0) == 0)
+                if (i > 0 && BitConverter.ToUInt32(Table_Buffer, i) == 0)
                 {
                     break;
                 }
@@ -381,7 +439,7 @@ namespace Animal_Crossing_Text_Editor
 
         private void Generate_BMG_Text_Entries(BMG BMG_Struct)
         {
-            List<ListViewItem> TextItems = (TextListView.ItemsSource as List<ListViewItem>) ?? new List<ListViewItem>();
+            TextItems = (TextListView.ItemsSource as List<ListViewItem>) ?? new List<ListViewItem>();
             TextItems.Clear();
 
             for (int i = 0; i < BMG_Struct.INF_Section.Items.Length; i++)
@@ -418,6 +476,171 @@ namespace Animal_Crossing_Text_Editor
             }
 
             return BMCColors;
+        }
+
+        private void GenerateSingleDialogTree(DialogEntry Entry)
+        {
+            if (IsBMG)
+            {
+                if (Entry.EntryId < 0 || Entry.EntryId >= BMG_Struct.INF_Section.Items.Length)
+                {
+                    return;
+                }
+
+                // Don't get stuck in an infinite loop
+                if (Entry.HasAncestor(Entry.EntryId))
+                {
+                    return;
+                }
+
+                byte[] Data = BMG_Struct.INF_Section.Items[Entry.EntryId].Data;
+
+                for (int i = 0; i < Data.Length; i++)
+                {
+                    byte CurrentByte = Data[i];
+                    if (CurrentByte != 0x80)
+                    {
+                        continue;
+                    }
+
+                    if (Data[i + 2] == 0x02 && Data[i + 4] > 0x04 && Data[i + 4] < 0x0B) // Choice Jumps
+                    {
+                        DialogEntry Child = new DialogEntry
+                        {
+                            Parent = Entry,
+                            EntryId = (ushort)((Data[i + 5] << 8) | Data[i + 6])
+                        };
+
+                        GenerateSingleDialogTree(Child);
+                        Entry.Children.Add(Child);
+                        i += Data[i + 1] - 1; // i += Size - 1;
+                    }
+                    else if (Data[i + 2] == 0x0C) // Jumps
+                    {
+                        if (Data[i + 4] == 0x00)
+                        {
+                            DialogEntry Child = new DialogEntry
+                            {
+                                Parent = Entry,
+                                EntryId = (ushort)((Data[i + 5] << 8) | Data[i + 6])
+                            };
+
+                            GenerateSingleDialogTree(Child);
+                            Entry.Children.Add(Child);
+                        }
+                        // TODO: Other jumps that have more than one entry
+                    }
+                }
+            }
+            else
+            {
+                if (Entry.EntryId < 0 || Entry.EntryId >= Entries.Length)
+                {
+                    return;
+                }
+
+                // Don't get stuck in an infinite loop
+                if (Entry.HasAncestor(Entry.EntryId))
+                {
+                    return;
+                }
+
+                byte[] Data = Entries[Entry.EntryId].Data;
+
+                for (int i = 0; i < Data.Length; i++)
+                {
+                    byte CurrentByte = Data[i];
+                    if (CurrentByte != 0x7F)
+                    {
+                        continue;
+                    }
+
+                    if ((Data[i + 1] > 0x0D && Data[i + 1] < 0x13) || Data[i + 1] == 0x77 || Data[i + 1] == 0x78)
+                    {
+                        DialogEntry Child = new DialogEntry
+                        {
+                            Parent = Entry,
+                            EntryId = (ushort)((Data[i + 2] << 8) | Data[i + 3])
+                        };
+
+                        GenerateSingleDialogTree(Child);
+                        Entry.Children.Add(Child);
+                        i += 3;
+                    }
+                    /*else if (Data[i + 1] == 0x0C) // Jumps
+                    {
+                        // TODO: Other jumps that have more than one entry
+                    }*/
+                }
+            }
+        }
+
+        private void GenerateTreeViewItems(DialogEntry Entry, TreeViewItem ParentItem)
+        {
+            TreeViewItem ThisItem = new TreeViewItem
+            {
+                Header = Entry.EntryId.ToString("X4"),
+                Tag = Entry.EntryId
+            };
+
+            foreach (DialogEntry SubEntry in Entry.Children)
+            {
+                GenerateTreeViewItems(SubEntry, ThisItem);
+            }
+
+            if (ParentItem != null)
+            {
+                ParentItem.Items.Add(ThisItem);
+            }
+            else
+            {
+                connectionTreeView.Items.Add(ThisItem);
+            }
+        }
+
+        private List<DialogEntry> GenerateDialogTree()
+        {
+            connectionTreeView.Items.Clear();
+            List<DialogEntry> DialogEntries = new List<DialogEntry>();
+            if (File_Path != null)
+            {
+                if (IsBMG)
+                {
+                    Console.WriteLine("Entry count " + BMG_Struct.INF_Section.Items.Length.ToString("X4"));
+                    for (ushort i = 0; i < BMG_Struct.INF_Section.Items.Length; i++)
+                    {
+                        var Entry = new DialogEntry()
+                        {
+                            EntryId = i
+                        };
+
+                        GenerateSingleDialogTree(Entry);
+                        DialogEntries.Add(Entry);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Entry count " + Entries.Length.ToString("X4"));
+                    for (ushort i = 0; i < Entries.Length; i++)
+                    {
+                        var Entry = new DialogEntry()
+                        {
+                            EntryId = i
+                        };
+
+                        GenerateSingleDialogTree(Entry);
+                        DialogEntries.Add(Entry);
+                    }
+                }
+            }
+
+            // Generate TreeView Items
+            foreach (var Entry in DialogEntries)
+            {
+                GenerateTreeViewItems(Entry, null);
+            }
+
+            return DialogEntries;
         }
 
         private void ReportRebuildProgress(int Index, int Count)
@@ -538,6 +761,7 @@ namespace Animal_Crossing_Text_Editor
                     }
 
                     IsBMG = WasBMG;
+                    SetStatusMessage(string.Format("Finshed rebuilding BMG file at: {0}", SaveBMGFileDialog.FileName));
                 }
             }
         }
@@ -554,8 +778,16 @@ namespace Animal_Crossing_Text_Editor
             SelectDialog.Filter = "Binary Files|*.bin";
             SelectDialog.FileName = "";
 
+            // Clear Connection TreeView Items & Hide Tab
+            connectionTreeView.Items.Clear();
+            connectionTab.Visibility = Visibility.Collapsed;
+            tabControl.TabIndex = 0;
+
             if (SelectDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
+                EntryIdStack = new Stack<ushort>();
+                AutoSave_Path = null;
+                AutoSaveTable_Path = null;
                 IsBMG = false;
                 BMC_Colors = null;
                 File_Path = SelectDialog.FileName;
@@ -581,6 +813,7 @@ namespace Animal_Crossing_Text_Editor
 
                     BMG_Struct = await BMGUtility.Decode(File_Path, BMC_Colors, new ReportBMGLoadProgressHandle(ReportBMGLoadProgress)); // Should probably change to a byte array at some point
                     Generate_BMG_Text_Entries(BMG_Struct);
+                    SetStatusMessage(string.Format("{0} was successfully loaded!", Path.GetFileName(File_Path)));
                 }
                 else
                 {
@@ -604,6 +837,7 @@ namespace Animal_Crossing_Text_Editor
                         Table_Buffer = File.ReadAllBytes(Table_Path);
 
                         Generate_Text_Entries();
+                        SetStatusMessage(string.Format("{0} was successfully loaded!", Path.GetFileName(File_Path)));
                     }
                 }
             }
@@ -644,14 +878,76 @@ namespace Animal_Crossing_Text_Editor
             if (AutoSaveEnabled && File_Path != null)
             {
                 string DirectoryPath = Path.GetDirectoryName(File_Path);
+                AutoSave_Path = DirectoryPath + "\\" + Path.GetFileNameWithoutExtension(File_Path) + "_AutoSave.bin";
                 if (!IsBMG)
                 {
-                    // Handle non BMG entries here
+                    AutoSaveTable_Path = DirectoryPath + "\\" + Path.GetFileNameWithoutExtension(Table_Path) + "_AutoSave.bin";
+                    if (SaveMessageTable(AutoSave_Path, AutoSaveTable_Path))
+                    {
+                        SetStatusMessage(string.Format("Auto Save {0} was saved at {1}", Path.GetFileName(AutoSave_Path), DateTime.Now.ToString("h:mm:ss tt")));
+                    }
                 }
                 else
                 {
-                    BMGUtility.Write(BMG_Struct, DirectoryPath + "\\" + Path.GetFileNameWithoutExtension(File_Path) + "_AutoSave.bin");
+                    if (BMGUtility.Write(BMG_Struct, AutoSave_Path))
+                    {
+                        SetStatusMessage(string.Format("Auto Save {0} was saved at {1}", Path.GetFileName(AutoSave_Path), DateTime.Now.ToString("h:mm:ss tt")));
+                    }
                 }
+            }
+        }
+
+        private void DeleteAutoSave()
+        {
+            if (File.Exists(AutoSave_Path))
+            {
+                File.Delete(AutoSave_Path);
+            }
+
+            if (File.Exists(AutoSaveTable_Path))
+            {
+                File.Delete(AutoSaveTable_Path);
+            }
+        }
+
+        private bool SaveMessageTable(string SavePath, string SaveTablePath)
+        {
+            // Write Table File first
+            try
+            {
+                using (FileStream Table_Stream = new FileStream(SaveTablePath, FileMode.OpenOrCreate))
+                {
+                    for (int i = 0; i < Entries.Length; i++)
+                    {
+                        byte[] Data = BitConverter.GetBytes(i + 1 < Entries.Length ? Entries[i + 1].Offset : Entries[i].Offset + Entries[i].Length).Reverse().ToArray();
+                        Table_Stream.Write(Data, 0, Data.Length);
+                    }
+                    Table_Stream.Flush();
+                }
+
+                // Write String File next
+                if (File.Exists(File_Path))
+                {
+                    File.Delete(File_Path);
+                }
+
+                using (FileStream File_Stream = new FileStream(SavePath, FileMode.OpenOrCreate))
+                {
+                    for (int i = 0; i < Entries.Length; i++)
+                    {
+                        File_Stream.Write(Entries[i].Data, 0, Entries[i].Data.Length);
+                    }
+                    File_Stream.Flush();
+                }
+
+                // Delete AutoSave on successful write
+                DeleteAutoSave();
+
+                return true;
+            }
+            catch
+            {
+                return false;
             }
         }
 
@@ -661,46 +957,57 @@ namespace Animal_Crossing_Text_Editor
             {
                 if (!IsBMG)
                 {
-                    // Write Table File first
                     if (File.Exists(Table_Path))
-                        File.Delete(Table_Path);
-
-                    using (FileStream Table_Stream = new FileStream(Table_Path, FileMode.OpenOrCreate))
                     {
-                        for (int i = 0; i < Entries.Length; i++)
-                        {
-                            byte[] Data = BitConverter.GetBytes(i + 1 < Entries.Length ? Entries[i + 1].Offset : Entries[i].Offset + Entries[i].Length).Reverse().ToArray();
-                            Table_Stream.Write(Data, 0, Data.Length);
-                        }
-                        Table_Stream.Flush();
+                        File.Delete(Table_Path);
                     }
 
-                    // Write String File next
-                    if (File.Exists(File_Path))
-                        File.Delete(File_Path);
-
-                    using (FileStream File_Stream = new FileStream(File_Path, FileMode.OpenOrCreate))
+                    if (SaveMessageTable(File_Path, Table_Path))
                     {
-                        for (int i = 0; i < Entries.Length; i++)
-                        {
-                            File_Stream.Write(Entries[i].Data, 0, Entries[i].Data.Length);
-                        }
-                        File_Stream.Flush();
+                        SetStatusMessage(string.Format("{0} was saved at {1}", Path.GetFileName(File_Path), DateTime.Now.ToString("h:mm:ss tt")));
+                    }
+                    else
+                    {
+                        SetStatusMessage(string.Format("Failed to save file: {0}", Path.GetFileName(File_Path)));
                     }
                 }
                 else
                 {
                     if (File.Exists(File_Path))
+                    {
                         File.Delete(File_Path);
+                    }
 
-                    BMGUtility.Write(BMG_Struct, File_Path);
+                    if (BMGUtility.Write(BMG_Struct, File_Path))
+                    {
+                        // Delete AutoSave on successful save
+                        DeleteAutoSave();
+                        SetStatusMessage(string.Format("{0} was saved at {1}", Path.GetFileName(File_Path), DateTime.Now.ToString("h:mm:ss tt")));
+                    }
+                    else
+                    {
+                        SetStatusMessage(string.Format("Failed to save file: {0}", Path.GetFileName(File_Path)));
+                    }
                 }
             }
         }
 
         private void SaveAs_Click(object sender, RoutedEventArgs e)
         {
+            if (File_Path != null)
+            {
+                var saveFileDialog = new SaveFileDialog
+                {
+                    FileName = Path.GetFileName(File_Path),
+                    Filter = "Binary File|*.bin|All Files|*.*"
+                };
 
+                if (saveFileDialog.ShowDialog().Value)
+                {
+                    File_Path = saveFileDialog.FileName;
+                    Save_Click(null, null);
+                }
+            }
         }
 
         private void ReportDumpProgress(int Index)
@@ -738,6 +1045,7 @@ namespace Animal_Crossing_Text_Editor
                                 Index++;
                                 Dispatcher.Invoke(new Action(() => ReportDumpProgress(Index)));
                             }
+                            SetStatusMessage(string.Format("Finshed dumping contents to: {0}", openFolderDialog.SelectedPath));
                         });
                     }
                     else
@@ -753,6 +1061,7 @@ namespace Animal_Crossing_Text_Editor
                                 Index++;
                                 Dispatcher.Invoke(new Action(() => ReportDumpProgress(Index)));
                             }
+                            SetStatusMessage(string.Format("Finshed dumping contents to: {0}", openFolderDialog.SelectedPath));
                         });
                     }
                 }
@@ -840,12 +1149,12 @@ namespace Animal_Crossing_Text_Editor
             }
         }
 
-        private void CopyTextToClipboard(string Text)
+        private string CopyTextToClipboard(string Text)
         {
             var replaceRegex = new Regex(@"<([^>]+)>");
             var strippedText = replaceRegex.Replace(Text, "").Trim();
             Clipboard.SetText(strippedText);
-            Debug.WriteLine(strippedText);
+            return strippedText;
         }
 
         private bool IsHex(string Text)
@@ -880,20 +1189,11 @@ namespace Animal_Crossing_Text_Editor
         {
             if (SelectedIndex > -1 && Entries != null)
             {
-                var Text = TextUtility.GetRawText(Entries[SelectedIndex].Data);
-                Clipboard.SetText(Text);
-                Debug.WriteLine(Text);
+                CopyTextToClipboard(Entries[SelectedIndex].Text.Replace("\n", "\r\n"));
             }
             else if (SelectedIndex > -1 && IsBMG)
             {
-                /*
-                string s = "";
-                for (int i = 0; i < BMG_Struct.INF_Section.Items[SelectedIndex].Data.Length; i++)
-                {
-                    s += BMG_Struct.INF_Section.Items[SelectedIndex].Data[i].ToString("X2") + " ";
-                }
-                Debug.WriteLine(s);*/
-                CopyTextToClipboard(BMG_Struct.INF_Section.Items[SelectedIndex].Text);
+                CopyTextToClipboard(BMG_Struct.INF_Section.Items[SelectedIndex].Text.Replace("\n", "\r\n"));
             }
         }
 
@@ -949,11 +1249,11 @@ namespace Animal_Crossing_Text_Editor
         {
             if (!string.IsNullOrEmpty(File_Path) && !Changing_Selected_Entry && ushort.TryParse(EntryBox.Text, NumberStyles.AllowHexSpecifier, null, out ushort Entry_Index))
             {
-                SelectedIndex = Entry_Index;
                 if (IsBMG)
                 {
                     if (Entry_Index < BMG_Struct.INF_Section.MessageCount)
                     {
+                        SelectedIndex = Entry_Index;
                         Editor.IsEnabled = true;
                         Changing_Selected_Entry = true;
                         Editor.Text = BMG_Struct.INF_Section.Items[Entry_Index].Text;
@@ -963,13 +1263,17 @@ namespace Animal_Crossing_Text_Editor
                 }
                 else
                 {
-                    Editor.IsEnabled = true;
-                    Changing_Selected_Entry = true;
-                    Editor.Text = Entries[SelectedIndex].Text;
-                    OffsetBox.Text = Entries[SelectedIndex].Offset.ToString("X");
-                    Changing_Selected_Entry = false;
+                    if (Entry_Index < Entries.Length)
+                    {
+                        SelectedIndex = Entry_Index;
+                        Editor.IsEnabled = true;
+                        Changing_Selected_Entry = true;
+                        Editor.Text = Entries[SelectedIndex].Text;
+                        OffsetBox.Text = Entries[SelectedIndex].Offset.ToString("X");
+                        Changing_Selected_Entry = false;
+                    }
                 }
-                TextListView.ScrollIntoView(TextListView.Items[SelectedIndex]);
+                Scroll_to_Index(SelectedIndex);
             }
         }
 
@@ -1018,7 +1322,7 @@ namespace Animal_Crossing_Text_Editor
                 }
 
                 Changing_Selected_Entry = false;
-                TextListView.ScrollIntoView(TextListView.Items[SelectedIndex]);
+                Scroll_to_Index(SelectedIndex);
             }
         }
 
@@ -1201,6 +1505,100 @@ namespace Animal_Crossing_Text_Editor
                 UpdateTextPreview();
                 previewWindow.Show();
             }
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (IsBMG && BMG_Struct.INF_Section.Items.Length > 0)
+            {
+                SelectedIndex = 0;
+                Editor.IsEnabled = true;
+                Changing_Selected_Entry = true;
+                Editor.Text = BMG_Struct.INF_Section.Items[SelectedIndex].Text;
+                OffsetBox.Text = BMG_Struct.INF_Section.Items[SelectedIndex].Text_Offset.ToString("X");
+                EntryBox.Text = SelectedIndex.ToString("X4");
+                Changing_Selected_Entry = false;
+                Scroll_to_Index(SelectedIndex);
+            }
+            else if (Entries != null)
+            {
+                SelectedIndex = 0;
+                Editor.IsEnabled = true;
+                Changing_Selected_Entry = true;
+                Editor.Text = Entries[SelectedIndex].Text;
+                OffsetBox.Text = Entries[SelectedIndex].Offset.ToString("X");
+                EntryBox.Text = SelectedIndex.ToString("X4");
+                Changing_Selected_Entry = false;
+                Scroll_to_Index(SelectedIndex);
+            }
+        }
+
+        private void MenuItem_Click_3(object sender, RoutedEventArgs e)
+        {
+            if (IsBMG && BMG_Struct.INF_Section.Items.Length > 0)
+            {
+                SelectedIndex = BMG_Struct.INF_Section.Items.Length - 1;
+                Editor.IsEnabled = true;
+                Changing_Selected_Entry = true;
+                Editor.Text = BMG_Struct.INF_Section.Items[SelectedIndex].Text;
+                OffsetBox.Text = BMG_Struct.INF_Section.Items[SelectedIndex].Text_Offset.ToString("X");
+                EntryBox.Text = SelectedIndex.ToString("X4");
+                Changing_Selected_Entry = false;
+                Scroll_to_Index(SelectedIndex);
+            }
+            else if (Entries != null)
+            {
+                SelectedIndex = Entries.Length - 1;
+                Editor.IsEnabled = true;
+                Changing_Selected_Entry = true;
+                Editor.Text = Entries[SelectedIndex].Text;
+                OffsetBox.Text = Entries[SelectedIndex].Offset.ToString("X");
+                EntryBox.Text = SelectedIndex.ToString("X4");
+                Changing_Selected_Entry = false;
+                Scroll_to_Index(SelectedIndex);
+            }
+        }
+
+        private void translateButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (SelectedIndex > -1 && Entries != null)
+            {
+                Translate(CopyTextToClipboard(TextUtility.ReplaceCommands(Entries[SelectedIndex].Text)));
+            }
+            else if (SelectedIndex > -1 && IsBMG)
+            {
+                Translate(CopyTextToClipboard(TextUtility.ReplaceCommands(BMG_Struct.INF_Section.Items[SelectedIndex].Text)));
+            }
+        }
+
+        private void connectionTreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            Editor.IsEnabled = true;
+            ushort Index = (ushort)(e.NewValue as TreeViewItem).Tag;
+            Changing_Selected_Entry = true;
+
+            if (IsBMG && Index < BMG_Struct.INF_Section.Items.Length)
+            {
+                SelectedIndex = Index;
+                Editor.Text = BMG_Struct.INF_Section.Items[SelectedIndex].Text;
+                OffsetBox.Text = (BMG_Struct.INF_Section.Items[SelectedIndex].Text_Offset).ToString("X");
+            }
+            else if (Entries != null && Index < Entries.Length)
+            {
+                SelectedIndex = Index;
+                Editor.Text = Entries[SelectedIndex].Text;
+                OffsetBox.Text = Entries[SelectedIndex].Offset.ToString("X");
+            }
+
+            EntryBox.Text = SelectedIndex.ToString("X");
+            Changing_Selected_Entry = false;
+        }
+
+        private void MenuItem_Click_4(object sender, RoutedEventArgs e)
+        {
+            GenerateDialogTree();
+            connectionTab.Visibility = Visibility.Visible;
+            SetStatusMessage("Dialog Connection Tree was successfully generated!");
         }
     }
 }

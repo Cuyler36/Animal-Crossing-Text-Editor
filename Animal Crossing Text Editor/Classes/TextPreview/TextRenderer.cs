@@ -55,47 +55,7 @@ namespace Animal_Crossing_Text_Editor.Classes.TextPreview
                 KanjiSheet1 = new Spritesheet(TextRenderUtility.Convert(Properties.Resources.AFe__Kanji_Bank_1), 24, 32, 14, 32);
             }
 
-            // Replace "<String XX>" with "Dummy XX"
-            for (int i = 0; i < 20; i++)
-            {
-                Text = Text.Replace("<String " + i.ToString() + ">", "Dummy " + i.ToString("D2"));
-            }
-
-            // Replace "<Item String X>" with "Dummy ItemName X"
-            for (int i = 0; i < 5; i++)
-            {
-                Text = Text.Replace("<Item String " + i.ToString() + ">", "Dummy ItemName " + i.ToString());
-            }
-
-            // Replace Year, Month, Day, Hour, Minute, & Second
-            Text = Text.Replace("<Year>", DateTime.Now.Year.ToString("D4"));
-            Text = Text.Replace("<Month>", DateTime.Now.ToString("MMMM", CultureInfo.InvariantCulture));
-            Text = Text.Replace("<Day>", TextRenderUtility.GetDayString(DateTime.Now.Day));
-            Text = Text.Replace("<Day of Week>", DateTime.Now.DayOfWeek.ToString());
-            Text = Text.Replace("<Hour>", DateTime.Now.Hour == 0 ? "12" : (DateTime.Now.Hour % 12).ToString());
-            Text = Text.Replace("<Minute>", DateTime.Now.Minute.ToString("D2"));
-            Text = Text.Replace("<Second>", DateTime.Now.Second.ToString("D2"));
-            Text = Text.Replace("<AM/PM>", DateTime.Now.Hour > 11 ? "PM" : "AM");
-
-            // Replace Catchphrase with a default catchphrase
-            Text = Text.Replace("<Catchphrase>", "meow");
-
-            // Replace Random Number with a random number 0-99
-            Text = Text.Replace("<Random Number>", new Random().Next(0, 100).ToString());
-
-            // Replace Player & Town & NPC Names
-            Text = Text.Replace("<Player Name>", "Player");
-            Text = Text.Replace("<Town Name>", "T-Town");
-            Text = Text.Replace("<NPC Name>", "NPC");
-
-            // Replace Gryroid Message
-            Text = Text.Replace("<Gyroid Message>", "This is a test gyroid\nmessage.");
-
-            Text = Text.Replace("<Island Name>", "Outset");
-            Text = Text.Replace("<Last Choice Selected>", "Last Choice Selected");
-
-            Text = Text.Replace("\r", "");
-            string CommandStrippedText = Text.TrimEnd();
+            string CommandStrippedText = TextUtility.ReplaceCommands(Text);
 
             // Begin generating the entire window BitmapSource
             BitmapSource DialogWindow = null;
@@ -241,21 +201,23 @@ namespace Animal_Crossing_Text_Editor.Classes.TextPreview
                 if (!Character.Equals('\n'))
                 {
                     BitmapSource CharacterSprite = null;
+                    int SizeX = CharacterSheet.SpriteSizeX;
                     var KeyValPair = CharacterMap.FirstOrDefault(o => o.Value.Equals(Character.ToString()));
                     if (KeyValPair.Equals(default(KeyValuePair<byte, string>)))
                     {
                         if (KanjiMap0 != null && KanjiMap0.Contains(Character.ToString()))
                         {
-                            CharacterSprite = KanjiSheet0.GetSprite(Array.IndexOf(KanjiMap0, Character.ToString()), Color);
+                            CharacterSprite = KanjiSheet0.GetSprite(Array.IndexOf(KanjiMap0, Character.ToString()), Color, out SizeX);
                         }
                         else if (KanjiMap1 != null && KanjiMap1.Contains(Character.ToString()))
                         {
-                            CharacterSprite = KanjiSheet1.GetSprite(Array.IndexOf(KanjiMap1, Character.ToString()), Color);
+                            CharacterSprite = KanjiSheet1.GetSprite(Array.IndexOf(KanjiMap1, Character.ToString()), Color, out SizeX);
                         }
                     }
                     else
                     {
-                        CharacterSprite = CharacterSheet.GetSprite(KeyValPair.Key, Color);
+                        CharacterSprite = CharacterSheet.GetSprite(KeyValPair.Key, Color, out SizeX,
+                            TextRenderUtility.AFeCharacterWidthAdjustments[KeyValPair.Key]);
                     }
 
                     // Copy character sprite into correct place in buffer
@@ -296,7 +258,7 @@ namespace Animal_Crossing_Text_Editor.Classes.TextPreview
                                 ((CurrentWidth * BytesPerPixel) + (CurrentHeight * (WindowWidth * BytesPerPixel))).ToString("X")));*/
                         }
                     }
-                    CurrentWidth += (int)(CharacterSheet.SpriteSizeX * Scale);
+                    CurrentWidth += (int)(SizeX * Scale);
                 }
                 else
                 {

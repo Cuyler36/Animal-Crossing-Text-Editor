@@ -60,58 +60,63 @@ namespace Animal_Crossing_Text_Editor
     {
         public static bool IsBuffBMG(byte[] Buffer)
         {
-            return Encoding.ASCII.GetString(Buffer.Take(8).ToArray()) == "MESGbmg1";
+            return Encoding.ASCII.GetString(Buffer, 0, 8) == "MESGbmg1";
         }
 
-        public static void Write(BMG File, string Path)
+        public static bool Write(BMG File, string Path)
         {
-            if (System.IO.File.Exists(Path))
+            try
             {
-                System.IO.File.Delete(Path);
+                if (System.IO.File.Exists(Path))
+                {
+                    System.IO.File.Delete(Path);
+                }
+
+                using (BinaryWriter Writer = new BinaryWriter(new FileStream(Path, FileMode.OpenOrCreate)))
+                {
+                    // Write BMG Header
+                    Writer.Write(Encoding.ASCII.GetBytes("MESGbmg1")); // File Identifier
+                    Writer.Write(BitConverter.GetBytes(File.Size).Reverse().ToArray());
+                    Writer.Write(BitConverter.GetBytes(File.SectionCount).Reverse().ToArray());
+                    Writer.Write(BitConverter.GetBytes(File.Encoding).Reverse().ToArray());
+                    Writer.Write(new byte[0xC]); // Padding
+
+                    // Write INF Header
+                    Writer.Write(Encoding.ASCII.GetBytes("INF1"));
+                    Writer.Write(BitConverter.GetBytes(File.INF_Section.Size).Reverse().ToArray());
+                    Writer.Write(BitConverter.GetBytes(File.INF_Section.MessageCount).Reverse().ToArray());
+                    Writer.Write(BitConverter.GetBytes(File.INF_Section.INF_Size).Reverse().ToArray());
+                    Writer.Write(BitConverter.GetBytes(File.INF_Section.Unknown).Reverse().ToArray());
+
+                    // Write INF data
+                    for (int i = 0; i < File.INF_Section.Items.Length; i++)
+                    {
+                        Writer.Write(BitConverter.GetBytes(File.INF_Section.Items[i].Text_Offset).Reverse().ToArray());
+                    }
+
+                    // Add padding as needed
+                    Writer.Write(new byte[File.DAT_Section.Offset - Writer.BaseStream.Position]);
+
+                    // Write DAT Header
+                    Writer.Write(Encoding.ASCII.GetBytes("DAT1"));
+                    Writer.Write(BitConverter.GetBytes(File.DAT_Section.Size).Reverse().ToArray());
+
+                    // Write padding to data
+                    Writer.Write(new byte[File.INF_Section.Items[0].Text_Offset]);
+
+                    // Write DAT data
+                    for (int i = 0; i < File.INF_Section.Items.Length; i++)
+                    {
+                        Writer.Write(File.INF_Section.Items[i].Data);
+                    }
+
+                    Writer.Flush();
+                }
+                return true;
             }
-
-            using (BinaryWriter Writer = new BinaryWriter(new FileStream(Path, FileMode.OpenOrCreate)))
+            catch
             {
-                // Write BMG Header
-                Writer.Write(Encoding.ASCII.GetBytes("MESGbmg1")); // File Identifier
-                Writer.Write(BitConverter.GetBytes(File.Size).Reverse().ToArray());
-                Writer.Write(BitConverter.GetBytes(File.SectionCount).Reverse().ToArray());
-                Writer.Write(BitConverter.GetBytes(File.Encoding).Reverse().ToArray());
-                Writer.Write(new byte[0xC]); // Padding
-
-                // Write INF Header
-                Writer.Write(Encoding.ASCII.GetBytes("INF1"));
-                Writer.Write(BitConverter.GetBytes(File.INF_Section.Size).Reverse().ToArray());
-                Writer.Write(BitConverter.GetBytes(File.INF_Section.MessageCount).Reverse().ToArray());
-                Writer.Write(BitConverter.GetBytes(File.INF_Section.INF_Size).Reverse().ToArray());
-                Writer.Write(BitConverter.GetBytes(File.INF_Section.Unknown).Reverse().ToArray());
-
-                // Write INF data
-                for (int i = 0; i < File.INF_Section.Items.Length; i++)
-                {
-                    Writer.Write(BitConverter.GetBytes(File.INF_Section.Items[i].Text_Offset).Reverse().ToArray());
-                }
-
-                // Add padding as needed
-                Writer.Write(new byte[File.DAT_Section.Offset - Writer.BaseStream.Position]);
-
-                // Write DAT Header
-                Writer.Write(Encoding.ASCII.GetBytes("DAT1"));
-                Writer.Write(BitConverter.GetBytes(File.DAT_Section.Size).Reverse().ToArray());
-
-                // Write padding to data
-                Writer.Write(new byte[File.INF_Section.Items[0].Text_Offset]);
-
-                Dictionary<byte, string> Character_Map = MainWindow.Character_Set_Type == File_Type.Animal_Crossing ? TextUtility.Animal_Crossing_Character_Map
-                    : TextUtility.Doubutsu_no_Mori_Plus_Character_Map;
-
-                // Write DAT data
-                for (int i = 0; i < File.INF_Section.Items.Length; i++)
-                {
-                    Writer.Write(File.INF_Section.Items[i].Data);
-                }
-
-                Writer.Flush();
+                return false;
             }
         }
 

@@ -39,7 +39,6 @@ namespace Animal_Crossing_Text_Editor.Forms
             }
         }
 
-        // TODO: Fix buttons showing/not showing on textPreviews set.
         public int CurrentPreview
         {
             get => currentPreview;
