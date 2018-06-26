@@ -71,6 +71,7 @@ namespace Animal_Crossing_Text_Editor
         private Forms.TranslateWindow translationWindow;
         private Stack<ushort> EntryIdStack;
         private Stack<ushort> EntryIdStackRedo; // TODO: Hook this up & rename EntryIdStack to EntryIdStackUndo
+        private Forms.SearchWindow listWindow = new Forms.SearchWindow();
 
         // AutoSave Paths
         private string AutoSave_Path;
@@ -113,6 +114,12 @@ namespace Animal_Crossing_Text_Editor
             // Load Custom Link Highlighter Dependancies
             Editor.TextArea.TextView.ElementGenerators.Add(new CustomLinkGenerator());
             Reference = this;
+
+            MainDockPanel.Children.Remove(tabControl);
+            tabControl.Width = double.NaN;
+            tabControl.HorizontalAlignment = HorizontalAlignment.Stretch;
+            listWindow.ListWindowDockPanel.Children.Add(tabControl);
+            listWindow.Show();
         }
 
         private void SetStatusMessage(string Message)
@@ -868,6 +875,12 @@ namespace Animal_Crossing_Text_Editor
                     {
                         OffsetBox.Text = Entries[SelectedIndex].Offset.ToString("X");
                     }
+
+                    if (translationWindow != null)
+                    {
+                        Translate(CopyTextToClipboard(TextUtility.ReplaceCommands(Editor.Text)));
+                    }
+
                     Changing_Selected_Entry = false;
                 }
             }
@@ -1597,6 +1610,7 @@ namespace Animal_Crossing_Text_Editor
         private void MenuItem_Click_4(object sender, RoutedEventArgs e)
         {
             GenerateDialogTree();
+            textTab.Visibility = Visibility.Visible;
             connectionTab.Visibility = Visibility.Visible;
             SetStatusMessage("Dialog Connection Tree was successfully generated!");
         }

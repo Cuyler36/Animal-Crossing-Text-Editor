@@ -1,0 +1,12 @@
+﻿<Window x:Class="Animal_Crossing_Text_Editor.Forms.SearchWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Animal_Crossing_Text_Editor.Forms"
+        mc:Ignorable="d"
+        Title="List Window" Height="450" Width="210">
+    <Grid>
+        <DockPanel x:Name="ListWindowDockPanel" LastChildFill="True"/>
+    </Grid>
+</Window>

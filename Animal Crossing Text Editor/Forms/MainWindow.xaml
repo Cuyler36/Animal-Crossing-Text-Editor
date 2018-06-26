@@ -10,16 +10,11 @@
         mc:Ignorable="d"
         Title="Animal Crossing Text Editor" Height="520" Width="920" MinHeight="520" MinWidth="920">
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="190"/>
-        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="20"/>
         </Grid.RowDefinitions>
-        <GridSplitter Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Stretch" Background="LightGray" ShowsPreview="True" Width="1" Margin="-6, 30, 0, 20"/>
-        <DockPanel Height="20" VerticalAlignment="Top" Grid.ColumnSpan="1">
+        <DockPanel Height="20" VerticalAlignment="Top" Grid.ColumnSpan="2">
             <Menu DockPanel.Dock="Top">
                 <MenuItem Header="_File">
                     <MenuItem Header="_Open" Click="Open_Click"/>
@@ -39,25 +34,6 @@
                 </MenuItem>
             </Menu>
         </DockPanel>
-        <TabControl x:Name="tabControl" Grid.Column="1" BorderThickness="0">
-            <TabItem Header="Text">
-                <Grid>
-                    <Label x:Name="SearchLabel" Content="Search" Grid.Column="1" HorizontalAlignment="Stretch" Margin="0,-1,0,0" VerticalAlignment="Top" Height="26" Foreground="#FF666666"/>
-                    <TextBox x:Name="SearchBox" Grid.Column="1" IsEnabled="False" Height="20" TextWrapping="Wrap" Text="" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,2,10,0" TextChanged="SearchBox_TextChanged" GotFocus="SearchBox_GotFocus" LostFocus="SearchBox_LostFocus" Background="{x:Null}"/>
-                    <ListView x:Name="TextListView" Grid.Column="1" Margin="0,30,10,8" PreviewMouseLeftButtonUp="TextEntry_Clicked" HorizontalAlignment="Stretch">
-                        <ListBox.ItemContainerStyle>
-                            <Style TargetType="{x:Type ListBoxItem}">
-                                <Setter Property="HorizontalContentAlignment" Value="Left"/>
-                                <Setter Property="VerticalContentAlignment" Value="Center"/>
-                            </Style>
-                        </ListBox.ItemContainerStyle>
-                    </ListView>
-                </Grid>
-            </TabItem>
-            <TabItem x:Name="connectionTab"  Header="Connections">
-                <TreeView x:Name="connectionTreeView" VirtualizingStackPanel.IsVirtualizing="True" SelectedItemChanged="connectionTreeView_SelectedItemChanged"/>
-            </TabItem>
-        </TabControl>
         <Button x:Name="UpdateTextButton" Content="Save Text" HorizontalAlignment="Right" Margin="0,0,19,10" VerticalAlignment="Bottom" Width="75" Click="UpdateTextButton_Click"/>
         <Button x:Name="previewButton" Content="Preview" HorizontalAlignment="Right" Margin="0,0,214,10" VerticalAlignment="Bottom" Width="75" Click="button_Click"/>
         <Button x:Name="translateButton" Content="Translate" HorizontalAlignment="Right" Margin="0,0,294,10" VerticalAlignment="Bottom" Width="75" Click="translateButton_Click"/>
@@ -71,10 +47,30 @@
             <RadioButton x:Name="AC_CharSet" Content="Animal Crossing" VerticalAlignment="Center" IsChecked="True" Margin="10, 0, 0, 0" Checked="AC_CharSet_Checked"/>
         </StackPanel>
         <ProgressBar x:Name="ProgressBar" Height="20" Width="110" Margin="0,0,99,10" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
-        <Button x:Name="nextButton" Content="Next" HorizontalAlignment="Right" Grid.Column="0" Margin="0,25,10,0" VerticalAlignment="Top" Width="75" Click="nextButton_Click"/>
-        <Button x:Name="prevButton" Content="Previous" HorizontalAlignment="Right" Grid.Column="0" Margin="0,25,90,0" VerticalAlignment="Top" Width="75" Click="prevButton_Click"/>
-
-        <avalonEdit:TextEditor Name="Editor" Background="#FF333333" IsEnabled="False" ShowLineNumbers="True" LineNumbersForeground="#FF96BBE0" Foreground="White" HorizontalAlignment="Stretch" Grid.Column="0" Grid.Row="0" Margin="10,50,10,46" FontFamily="Consolas" FontSize="14" TextChanged="Editor_TextChanged"/>
+        <Button x:Name="nextButton" Content="Next" HorizontalAlignment="Right" Grid.Column="0" Margin="0,0,374,10" VerticalAlignment="Bottom" Width="75" Click="nextButton_Click"/>
+        <Button x:Name="prevButton" Content="Previous" HorizontalAlignment="Right" Grid.Column="0" Margin="0,0,454,10" VerticalAlignment="Bottom" Width="75" Click="prevButton_Click"/>
+        <DockPanel x:Name="MainDockPanel" Grid.ColumnSpan="2" LastChildFill="True">
+            <TabControl x:Name="tabControl" DockPanel.Dock="Right" BorderThickness="0" Width="190" HorizontalAlignment="Right" Margin="10,23,0,30">
+                <TabItem x:Name="textTab" Header="Text" Visibility="Collapsed">
+                    <Grid>
+                        <Label x:Name="SearchLabel" Content="Search" Grid.Column="1" HorizontalAlignment="Stretch" Margin="0,-1,0,0" VerticalAlignment="Top" Height="26" Foreground="#FF666666"/>
+                        <TextBox x:Name="SearchBox" Grid.Column="1" IsEnabled="False" Height="20" TextWrapping="Wrap" Text="" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,2,10,0" TextChanged="SearchBox_TextChanged" GotFocus="SearchBox_GotFocus" LostFocus="SearchBox_LostFocus" Background="{x:Null}"/>
+                        <ListView x:Name="TextListView" Grid.Column="1" Margin="0,30,10,8" PreviewMouseLeftButtonUp="TextEntry_Clicked" HorizontalAlignment="Stretch">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="{x:Type ListBoxItem}">
+                                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                        </ListView>
+                    </Grid>
+                </TabItem>
+                <TabItem x:Name="connectionTab" Visibility="Collapsed" Header="Connections">
+                    <TreeView x:Name="connectionTreeView" VirtualizingStackPanel.IsVirtualizing="True" SelectedItemChanged="connectionTreeView_SelectedItemChanged"/>
+                </TabItem>
+            </TabControl>
+            <avalonEdit:TextEditor Name="Editor" Background="#FF333333" IsEnabled="False" ShowLineNumbers="True" LineNumbersForeground="#FF96BBE0" Foreground="White" Grid.Column="0" Grid.Row="0" Margin="10,50,10,46" FontFamily="Consolas" FontSize="14" TextChanged="Editor_TextChanged"/>
+        </DockPanel>
         <TextBlock x:Name="statusBox" Grid.Row="1" Grid.ColumnSpan="2" Margin="10, 0, 10, 0"/>
     </Grid>
 </Window>

@@ -958,51 +958,52 @@ namespace Animal_Crossing_Text_Editor
             },
             { 0x06, new Dictionary<ushort, string> // Internal Name = Manpu (Emotion)
             {
-                { 0x0000, "<Clear Expression>" },
-                { 0x0001, "<Expression [Glare]>" },
-                { 0x0002, "<Expression [Shocked]>" },
-                { 0x0003, "<Expression [Laugh]>" },
-                { 0x0004, "<Expression [Surprised]>" },
-                { 0x0005, "<Expression [Angry]>" },
-                { 0x0006, "<Expression [Excited]>" },
-                { 0x0007, "<Expression [Worried]>" },
-                { 0x0008, "<Expression [Scared]>" },
-                { 0x0009, "<Expression [Cry]>" },
-                { 0x000A, "<Expression [Happy]>" },
-                { 0x000B, "<Expression [Wondering]>" },
-                { 0x000C, "<Expression [Idea]>" },
-                { 0x000D, "<Expression [Sad]>" },
-                { 0x000E, "<Expression [Happy Dance]>" },
-                { 0x000F, "<Expression [Thinking]>" },
-                { 0x0010, "<Expression [Depressed]>" },
-                { 0x0011, "<Expression [Heartbroken]>" },
-                { 0x0012, "<Expression [Sinister]>" },
-                { 0x0013, "<Expression [Tired]>" },
-                { 0x0014, "<Expression [Love]>" },
-                { 0x0015, "<Expression [Smile]>" },
-                { 0x0016, "<Expression [Scowl]>" },
-                { 0x0017, "<Expression [Frown]>" },
-                { 0x0018, "<Clear Expression (K.K.)>" },
-                { 0x0019, "<Clear Expression (Sitting)>" },
-                { 0x001A, "<Expression [Laugh] (Sitting)>" },
-                { 0x001B, "<Expression [Shocked] (Sitting)>" },
-                { 0x001C, "<Expression [Idea] (Sitting)>" },
-                { 0x001D, "<Expression [Surprised] (Sitting)>" },
-                { 0x001E, "<Expression [Angry] (Sitting)>" },
-                { 0x001F, "<Expression [Smile] (Sitting)>" },
-                { 0x0020, "<Expression [Frown] (Sitting)>" },
-                { 0x0021, "<Expression [Wondering] (Sitting)>" },
-                { 0x0022, "<Expression [Salute]>" },
-                { 0x0023, "<Expression [Angry] (Resetti)>" },
-                { 0x0024, "<Clear Expression (Resetti)>" },
-                { 0x0025, "<Expression [Sad] (Resetti)>" },
-                { 0x0026, "<Expression [Smile] (Resetti)>" },
-                { 0x0027, "<Expression [Jaw Drop] (Resetti)>" },
-                { 0x0028, "<Expression [Annoyed] (Resetti)>" },
-                { 0x0029, "<Expression [Furious] (Resetti)>" },
-                { 0x002A, "<Expression [Surprised] (K.K.)>" },
-                { 0x002B, "<Expression [Fortune]>" }, // Katrina
-                { 0x002C, "<Expression [None]>" }
+                { 0x0000, "<Clear Expression>" }, // FF
+                { 0x0001, "<Expression [Glare]>" }, // 01
+                { 0x0002, "<Expression [Shocked]>" }, // 02
+                { 0x0003, "<Expression [Laugh]>" }, // 03
+                { 0x0004, "<Expression [Surprised]>" }, // 04
+                { 0x0005, "<Expression [Angry]>" }, // 05
+                { 0x0006, "<Expression [Excited]>" }, // 06
+                { 0x0007, "<Expression [Worried]>" }, // 07
+                { 0x0008, "<Expression [Scared]>" }, // 08
+                { 0x0009, "<Expression [Cry]>" }, // 09
+                { 0x000A, "<Expression [Happy]>" }, // 0A
+                { 0x000B, "<Expression [Wondering]>" }, // 0B
+                { 0x000C, "<Expression [Idea]>" }, // 0C
+                { 0x000D, "<Expression [Sad]>" }, // 0D
+                { 0x000E, "<Expression [Happy Dance]>" }, // 0E
+                { 0x000F, "<Expression [Thinking]>" }, // 0F
+                { 0x0010, "<Expression [Depressed]>" }, // 10
+                { 0x0011, "<Expression [Heartbroken]>" }, // 11
+                { 0x0012, "<Expression [Sinister]>" }, // 12
+                { 0x0013, "<Expression [Tired]>" }, // 13
+                { 0x0014, "<Expression [Love]>" }, // 14
+                { 0x0015, "<Expression [Smile]>" }, // 15
+                { 0x0016, "<Expression [Scowl]>" }, // 16
+                { 0x0017, "<Expression [Frown]>" }, // 17
+                { 0x0018, "<Clear Expression (K.K.)>" }, // FD
+                { 0x0019, "<Clear Expression (Sitting)>" }, // FE
+                { 0x001A, "<Expression [Laugh] (Sitting)>" }, // 18
+                { 0x001B, "<Expression [Shocked] (Sitting)>" }, // 19
+                { 0x001C, "<Expression [Idea] (Sitting)>" }, // 1A
+                { 0x001D, "<Expression [Surprised] (Sitting)>" }, // 1B
+                { 0x001E, "<Expression [Angry] (Sitting)>" }, // 1C
+                { 0x001F, "<Expression [Smile] (Sitting)>" }, // 1D
+                { 0x0020, "<Expression [Frown] (Sitting)>" }, // 1E
+                { 0x0021, "<Expression [Wondering] (Sitting)>" }, // 1F
+                { 0x0022, "<Expression [Salute]>" }, // 20
+                { 0x0023, "<Expression [Angry] (Resetti)>" }, // 21
+                { 0x0024, "<Clear Expression (Resetti)>" }, // 22
+                { 0x0025, "<Expression [Sad] (Resetti)>" }, // 23
+                { 0x0026, "<Expression [Excited] (Resetti)>" }, // 24
+                { 0x0027, "<Expression [Smile] (Resetti)>" }, // 2A
+                { 0x0028, "<Expression [Jaw Drop] (Resetti)>" }, // 25
+                { 0x0029, "<Expression [Annoyed] (Resetti)>" }, // 26
+                { 0x002A, "<Expression [Furious] (Resetti)>" }, // 27
+                { 0x002B, "<Expression [Surprised] (K.K.)>" }, // 28
+                { 0x002C, "<Expression [Fortune]>" }, // 29
+                { 0x002D, "<Expression [None]>" } // 00
             }
             },
             { 0x07, new Dictionary<ushort, string> // Internal Name = "Tm" (Trademark)? (Probably not)
