@@ -1,5 +1,5 @@
 # Animal-Crossing-Text-Editor
-Currently in development. Saving is not completed, so I would recommend you just play around with it.
+Currently in development.
 It can currently edit text from the following games:
 * Doubutsu no Mori (N64)
 * Doubutsu no Mori+ (GCN)
