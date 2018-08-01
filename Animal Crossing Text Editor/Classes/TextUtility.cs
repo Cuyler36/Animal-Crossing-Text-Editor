@@ -920,14 +920,14 @@ namespace Animal_Crossing_Text_Editor
                 { 0x0028, "<Item String 2>" },
                 { 0x0029, "<Item String 3>" },
                 { 0x002A, "<Item String 4>" },
-                { 0x002B, "<NPC Nickname [{0}] [{1}] [{2}]>" }, // <byte>@{0}, <ushort>MessageId1, <ushort>MessageId2 | Check what this is. (NpcNamePersonal)
-                { 0x002C, "<NPC Town Name [{0}] [{1}] [{2}]>" }, // Check this (mMsgTag_Str_NpcNameTribe)
-                { 0x002D, "<Opln>" }, // Check this (mMsgTag_Str_Opln) (Original Player Name??)
-                { 0x002E, "<Own Island Name>" }, // Other player island name? (Check this)
+                { 0x002B, "<Get NPC with Personality Type or Default [{0}] [{1}] [{2}]>" }, // <byte>@PersonalityType, <ushort>FoundNPC, <ushort>NoMatchingNPC | (NpcNamePersonal)
+                { 0x002C, "<Get NPC of Species or Default [{0}] [{1}] [{2}]>" }, // <byte>SpeciesId, <ushort>MessageId1, <ushort>MessageId2 | Invokes actor_race2name (mMsgTag_Str_NpcNameTribe)
+                { 0x002D, "<Get Other Player Name>" }, // Check this (mMsgTag_Str_Opln) Gets another player's name at random if they exist in the town. Can't be the current player. Set in <String 1>.
+                { 0x002E, "<Get Other Player's Island Name>" }, // Other player island name? (Check this)
                 { 0x002F, "<Cloth Type>" }, // Check this (mMsgTag_Str_PlClothType) (Probably "Player Cloth Type", What "category" of shirt is being worn
-                { 0x0030, "<NPC Past Nickname [{0}] [{1}]>" },
-                { 0x0031, "<NPC Past Town Name [{0}] [{1}]>" },
-                { 0x0032, "<Original Catchphrase>" }, // (Original Catchphrase?) (mMsgTag_Str_TruthTail Check this
+                { 0x0030, "<Get NPC with Personality Type [{0}] [{1}]>" },
+                { 0x0031, "<Get NPC of Species [{0}] [{1}]>" }, // <byte>SpeciesId, <ushort>MessageId (mMsgTag_Str_NpcNameTribePass)
+                { 0x0032, "<New Catchphrase>" }, // Used after a villager asks the player to set their nickname, as it isn't saved yet. Npc Quest_1_1 triggers a new catchprase (mMsgTag_Str_TruthTail)
                 { 0x0033, "<Town Name in Kana>" }
             }
             },
@@ -950,8 +950,8 @@ namespace Animal_Crossing_Text_Editor
                 { 0x000E, "<Clear Cursor Justification>" },
                 { 0x000F, "<Set NPC Quest 3_01>" }, // Research these (They're the 0x0C cont ids) [mMsgTag_Com_DemoNpc0_3_1] (this probably sets the quest)
                 { 0x0010, "<Set NPC Quest 3_FF>" }, // This probably clears the quest (quest id being 3 and the clear being 0xFF)
-                { 0x0011, "<Set NPC Quest 4_01>" },
-                { 0x0012, "<Set NPC Quest 4_FF>" },
+                { 0x0011, "<Face Resetti>" }, // Resetti "Focus on face" Camera
+                { 0x0012, "<Reset Camera after Resetti>" }, // Resetti "Reset Camera"
                 { 0x0013, "<Start Key Check>" },
                 { 0x0014, "<Stop Key Check>" }
             }
@@ -1040,20 +1040,20 @@ namespace Animal_Crossing_Text_Editor
                 { 0x0009, "<Clear Player Emotion>" }, // r5 = 0, r6 = 0, r7 = 0xFF
             }
             },
-            { 0x09, new Dictionary<ushort, string> // Internal Name = "Spec" (Special)
+            { 0x09, new Dictionary<ushort, string> // Internal Name = "Spec" (Special) These orders do different things based on the current code. They're sort of like flags.
             {
                 { 0x0000, "<Voice Disabled>" },
                 { 0x0001, "<Voice Enabled>" },
                 { 0x0002, "<DemoNPC0_1_4>" }, // Calls 0x0C cont id r5 = 4, r6 = 1, r7 = 4
                 { 0x0003, "<DemoNPC0_7_1>" }, // r5 = 4, r6 = 7, r7 = 1
-                { 0x0004, "<DemoNPC0_9_0>" }, // r5 = 4, r6 = 9, r7 = 0
-                { 0x0005, "<DemoNPC0_9_1>" }, // r5 = 4, r6 = 9, r7 = 1
-                { 0x0006, "<DemoNPC0_9_2>" }, // r5 = 4, r6 = 9, r7 = 2
-                { 0x0007, "<DemoNPC0_9_3>" }, // r5 = 4, r6 = 9, r7 = 3
-                { 0x0008, "<DemoNPC0_9_4>" }, // r5 = 4, r6 = 9, r7 = 4
-                { 0x0009, "<DemoNPC0_9_5>" }, // r5 = 4, r6 = 9, r7 = 5
-                { 0x000A, "<DemoNPC0_9_6>" }, // r5 = 4, r6 = 9, r7 = 6
-                { 0x000B, "<DemoNPC0_9_7>" }, // r5 = 4, r6 = 9, r7 = 7
+                { 0x0004, "<Clear Special Order 9>" }, // r5 = 4, r6 = 9, r7 = 0
+                { 0x0005, "<Special Order 9-1>" }, // r5 = 4, r6 = 9, r7 = 1
+                { 0x0006, "<Special Order 9-2>" }, // r5 = 4, r6 = 9, r7 = 2
+                { 0x0007, "<Special Order 9-3>" }, // r5 = 4, r6 = 9, r7 = 3
+                { 0x0008, "<Special Order 9-4>" }, // r5 = 4, r6 = 9, r7 = 4
+                { 0x0009, "<Special Order 9-5>" }, // r5 = 4, r6 = 9, r7 = 5
+                { 0x000A, "<Special Order 9-6>" }, // r5 = 4, r6 = 9, r7 = 6
+                { 0x000B, "<Special Order 9-7>" }, // r5 = 4, r6 = 9, r7 = 7
             }
             },
             { 0x0A, new Dictionary<ushort, string> // Internal Name = "Sound"
