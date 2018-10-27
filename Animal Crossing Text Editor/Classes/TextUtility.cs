@@ -486,6 +486,221 @@ namespace Animal_Crossing_Text_Editor
             { 0xFF, "ぽ" },
         };
 
+        public static readonly Dictionary<byte, string> WildWorldCharacterMap = new Dictionary<byte, string>
+        {
+            { 0x00, "" }, // Endline character. TODO: Implement a different parser (or parser settings) for Wild World.
+            { 0x01, "¿" },
+            { 0x02, "Ä" },
+            { 0x03, "À" },
+            { 0x04, "Á" },
+            { 0x05, "Â" },
+            { 0x06, "Ã" },
+            { 0x07, "Å" },
+            { 0x08, "Ç" },
+            { 0x09, "È" },
+            { 0x0A, "\n" },
+            { 0x0B, "Ê" },
+            { 0x0C, "Ë" },
+            { 0x0D, "Ì" },
+            { 0x0E, "Í" },
+            { 0x0F, "Î" },
+            { 0x10, "Ï" },
+            { 0x11, "Ð" },
+            { 0x12, "Ñ" },
+            { 0x13, "Ò" },
+            { 0x14, "Ó" },
+            { 0x15, "Ô" },
+            { 0x16, "Õ" },
+            { 0x17, "Ö" },
+            { 0x18, "Ø" },
+            { 0x19, "Ù" },
+            { 0x1A, "Ú" },
+            { 0x1B, "Û" },
+            { 0x1C, "Ü" },
+            { 0x1D, "ß" },
+            { 0x1E, "\u00DE" }, // Latin Capital Thorn
+            { 0x1F, "à" },
+            { 0x20, " " },
+            { 0x21, "!" },
+            { 0x22, "\"" },
+            { 0x23, "á" },
+            { 0x24, "â" },
+            { 0x25, "%" },
+            { 0x26, "&" },
+            { 0x27, "'" },
+            { 0x28, "(" },
+            { 0x29, ")" },
+            { 0x2A, "~" },
+            { 0x2B, "♥" },
+            { 0x2C, "," },
+            { 0x2D, "-" },
+            { 0x2E, "." },
+            { 0x2F, "♪" },
+            { 0x30, "0" },
+            { 0x31, "1" },
+            { 0x32, "2" },
+            { 0x33, "3" },
+            { 0x34, "4" },
+            { 0x35, "5" },
+            { 0x36, "6" },
+            { 0x37, "7" },
+            { 0x38, "8" },
+            { 0x39, "9" },
+            { 0x3A, ":" },
+            { 0x3B, "🌢" }, // Multichar byte
+            { 0x3C, "<" },
+            { 0x3D, "=" },
+            { 0x3E, ">" },
+            { 0x3F, "?" },
+            { 0x40, "@" },
+            { 0x41, "A" },
+            { 0x42, "B" },
+            { 0x43, "C" },
+            { 0x44, "D" },
+            { 0x45, "E" },
+            { 0x46, "F" },
+            { 0x47, "G" },
+            { 0x48, "H" },
+            { 0x49, "I" },
+            { 0x4A, "J" },
+            { 0x4B, "K" },
+            { 0x4C, "L" },
+            { 0x4D, "M" },
+            { 0x4E, "N" },
+            { 0x4F, "O" },
+            { 0x50, "P" },
+            { 0x51, "Q" },
+            { 0x52, "R" },
+            { 0x53, "S" },
+            { 0x54, "T" },
+            { 0x55, "U" },
+            { 0x56, "V" },
+            { 0x57, "W" },
+            { 0x58, "X" },
+            { 0x59, "Y" },
+            { 0x5A, "Z" },
+            { 0x5B, "ã" },
+            { 0x5C, "💢" }, //
+            { 0x5D, "ä" },
+            { 0x5E, "å" },
+            { 0x5F, "_" },
+            { 0x60, "ç" },
+            { 0x61, "a" },
+            { 0x62, "b" },
+            { 0x63, "c" },
+            { 0x64, "d" },
+            { 0x65, "e" },
+            { 0x66, "f" },
+            { 0x67, "g" },
+            { 0x68, "h" },
+            { 0x69, "i" },
+            { 0x6A, "j" },
+            { 0x6B, "k" },
+            { 0x6C, "l" },
+            { 0x6D, "m" },
+            { 0x6E, "n" },
+            { 0x6F, "o" },
+            { 0x70, "p" },
+            { 0x71, "q" },
+            { 0x72, "r" },
+            { 0x73, "s" },
+            { 0x74, "t" },
+            { 0x75, "u" },
+            { 0x76, "v" },
+            { 0x77, "w" },
+            { 0x78, "x" },
+            { 0x79, "y" },
+            { 0x7A, "z" },
+            { 0x7B, "è" },
+            { 0x7C, "é" },
+            { 0x7D, "ê" },
+            { 0x7E, "ë" },
+            { 0x7F, "□" }, // Control Character
+            { 0x80, "�" }, // Not used?
+            { 0x81, "ì" },
+            { 0x82, "í" },
+            { 0x83, "î" },
+            { 0x84, "ï" },
+            { 0x85, "•" },
+            { 0x86, "ð" },
+            { 0x87, "ñ" },
+            { 0x88, "ò" },
+            { 0x89, "ó" },
+            { 0x8A, "ô" },
+            { 0x8B, "õ" },
+            { 0x8C, "ö" },
+            { 0x8D, "⁰" },
+            { 0x8E, "ù" },
+            { 0x8F, "ú" },
+            { 0x90, "ー" }, // –
+            { 0x91, "û" },
+            { 0x92, "ü" },
+            { 0x93, "ý" },
+            { 0x94, "ÿ" },
+            { 0x95, "\u00FE" }, // Latin lowercase thorn
+            { 0x96, "Ý" },
+            { 0x97, "¦" },
+            { 0x98, "§" },
+            { 0x99, "a̱" },
+            { 0x9A, "o̱" },
+            { 0x9B, "‖" },
+            { 0x9C, "µ" },
+            { 0x9D, "³" },
+            { 0x9E, "²" },
+            { 0x9F, "¹" },
+            { 0xA0, "¯" },
+            { 0xA1, "¬" },
+            { 0xA2, "Æ" },
+            { 0xA3, "æ" },
+            { 0xA4, "„" },
+            { 0xA5, "»" },
+            { 0xA6, "«" },
+            { 0xA7, "☀" },
+            { 0xA8, "☁" },
+            { 0xA9, "☂" },
+            { 0xAA, "🌬" }, //Wind...
+            { 0xAB, "☃" },
+            { 0xAC, "∋" },
+            { 0xAD, "∈" },
+            { 0xAE, "/" },
+            { 0xAF, "∞" },
+            { 0xB0, "○" },
+            { 0xB1, "🗙" },
+            { 0xB2, "□" },
+            { 0xB3, "△" },
+            { 0xB4, "+" },
+            { 0xB5, "⚡" },
+            { 0xB6, "♂" },
+            { 0xB7, "♀" },
+            { 0xB8, "🍀"},
+            { 0xB9, "★" },
+            { 0xBA, "💀" },
+            { 0xBB, "😮" },
+            { 0xBC, "😄" },
+            { 0xBD, "😣" },
+            { 0xBE, "😠" },
+            { 0xBF, "😃" },
+            { 0xC0, "×" },
+            { 0xC1, "÷" },
+            { 0xC2, "🔨" }, //Hammer??
+            { 0xC3, "🎀" }, //Not sure wtf this is (put it as ribbon)
+            { 0xC4, "✉" },
+            { 0xC5, "💰" },
+            { 0xC6, "🐾" },
+            { 0xC7, "🐶" },
+            { 0xC8, "🐱" },
+            { 0xC9, "🐰" },
+            { 0xCA, "🐦" },
+            { 0xCB, "🐮" },
+            { 0xCC, "🐷" },
+            { 0xCD, "\n" },
+            { 0xCE, "🐟" },
+            { 0xCF, "🐞" },
+            { 0xD0, ";" },
+            { 0xD1, "#" },
+            { 0xD4, "⚷" },
+        };
+
         public static readonly string[] DnMe_Plus_Kanji_Bank_0 = new string[256]
         {
 //           00    01    02   03    04    05    06    07    08    09   0A    0B    0C    0D    0E    0F   
@@ -531,8 +746,8 @@ namespace Animal_Crossing_Text_Editor
         public static readonly Dictionary<byte, string> ContId_Map = new Dictionary<byte, string> // Cont stands for Control
         {
             { 0x00, "<End Conversation>" }, // "Last" Code (Last_ControlCursol)
-            { 0x01, "<Switch to Selected Dialog>" }, // "Continue" Code (Continue_ControlCursol)
-            { 0x02, "<New Page>" }, // Clear_ControlCusrol
+            { 0x01, "<Continue to Next Dialog>" }, // "Continue" Code (Continue_ControlCursol)
+            { 0x02, "<Clear Text>" }, // Clear_ControlCusrol
             { 0x03, "<Pause [{0}]>" }, // "SetTime" Code (CursolSetTime_ControlCursol
             { 0x04, "<Press A>" }, // Button_ControlCursol
             { 0x05, "<Color Line [{0}]>" }, // "Color" Code (Color_ControlCursol)
@@ -655,8 +870,8 @@ namespace Animal_Crossing_Text_Editor
             { 0x79, "<Set 5 Choices [{0}] [{1}] [{2}] [{3}] [{4}]>" }, // SetSelectString5_ControlCursol
             { 0x7A, "<Set 6 Choices [{0}] [{1}] [{2}] [{3}] [{4}] [{5}]>" }, // SetSelectString6_ControlCursol
             // START OF Doubutsu no Mori e+ ONLY Control Codes
-            { 0x7B, "<9 Bit>" }, // mMsg_Main_Cursol_9bit_ControlCursol
-            { 0x7C, "<Display Symbol [{0}]>" } // Pulls a symbol from Kanji_Bank_0 | mMsg_Main_Cursol_FontKigou_ControlCursol (Kigou = Symbol or Code)
+            { 0x7B, "<9 Bit>" }, // The byte immediately following is a bitmap of the next 8 bytes. If the bit is set for a corresponding byte, 0x100 is OR'd on it. (mMsg_Main_Cursol_9bit_ControlCursol)
+            { 0x7C, "<Display Symbol [{0}]>" } // Pulls a symbol from Kanji_Bank_0 (or 1?) | mMsg_Main_Cursol_FontKigou_ControlCursol (Kigou = Symbol or Code)
         };
 
         public static readonly Dictionary<ushort, string> Expression_List = new Dictionary<ushort, string>
@@ -837,8 +1052,8 @@ namespace Animal_Crossing_Text_Editor
             {
                 { 0x0000, "<Start Conversation>" }, // Not used (just a dummy method)
                 { 0x0001, "<End Conversation>" },
-                { 0x0002, "<Switch to Selected Dialog>" },
-                { 0x0003, "<New Page>" },
+                { 0x0002, "<Continue to Next Dialog>" },
+                { 0x0003, "<Clear Text>" },
                 { 0x0004, "<Pause [{0}]>" },
                 { 0x0005, "<Kanji Level [{0}] Bank [{1}]>" },
                 { 0x0006, "<Set Player Kanji Level [{0}]>" },
@@ -1008,7 +1223,7 @@ namespace Animal_Crossing_Text_Editor
             },
             { 0x07, new Dictionary<ushort, string> // Internal Name = "Tm" (Trademark)? (Probably not)
             {
-                { 0x0000, "<Unknown TM Tag 0x0000>" }, // Plays the villager shirt equip animation
+                { 0x0000, "<Change Shirt Animation>" }, // Plays the villager shirt equip animation
                 { 0x0001, "<Unknown TM Tag 0x0001>" }, // Give Player Item Animation
                 { 0x0002, "<Unknown TM Tag 0x0002>" },
                 { 0x0003, "<Unknown TM Tag 0x0003>" },
@@ -1019,7 +1234,7 @@ namespace Animal_Crossing_Text_Editor
                 { 0x0008, "<Unknown TM Tag 0x0008>" },
                 { 0x0009, "<Unknown TM Tag 0x0009>" },
                 { 0x000A, "<Unknown TM Tag 0x000A>" },
-                { 0x000B, "<Unknown TM Tag 0x000B>" }, // Item being put in pockets animation
+                { 0x000B, "<Pocket Item Animation>" }, // Item being put in pockets animation
                 { 0x000C, "<Unknown TM Tag 0x000C>" },
                 { 0x000D, "<Unknown TM Tag 0x000D>" },
                 { 0x000E, "<Unknown TM Tag 0x000E>" },
@@ -1132,19 +1347,18 @@ namespace Animal_Crossing_Text_Editor
                 { 0x000F, "<NPC Race Jump [{0}] [{1}]>" }, // <byte>NPC_Race, <ushort>MessageId | Sets the message continuation id if the NPC's race is equal to NPC_Race. | Ifdj (??)
                 { 0x0010, "<Fruit Tree Check Jump [{0}] [{1}]>" }, // <byte> FruitTreeIndex (1 = Apple, 2 = Orange, 3 = Cherry, 4 = Pear, 5 = Peach, 6 = Coconut), <ushort>HaveOneMessageId | Checks to see if your village has at least one of the specified tree types in it. | lfkj (??)
                 { 0x0011, "<Check NPC Feeling State [{0}] [{1}]>" }, // <byte>NPC Feeling State, <ushort>MessageIdIfMatch | Ifgk (??)
-                { 0x0012, "<Dialog Condtional Jump Ifmt [{0}] [{1}]>" }, // <byte>@0, <ushort>MessageIdIfMatch | Ifmt (??)
-                { 0x0013, "<Dialog Condtional Jump Ifda [{0}] [{1}]>" }, // <byte>@0, <ushort>MessageIdIfMatch | Ifda (??)
-                { 0x0014, "<Dialog Condtional Jump Iftm [{0}] [{1}]>" }, // <byte>@0, <ushort>MessageIdIfMatch | Iftm (??)
-                { 0x0015, "<Dialog Condtional Jump Ifwj [{0}] [{1}]>" }, // <byte>Weather, <ushort>MessageIdIfMatch | Ifwj (Weather) TODO: Change this to Weather Jump
+                { 0x0012, "<If Month Equals [{0}] [{1}]>" }, // <byte>Month, <ushort>MessageIdIfMatch | Ifmt (If month)
+                { 0x0013, "<If Day Equals [{0}] [{1}]>" }, // <byte>Day (not day of week), <ushort>MessageIdIfMatch | Ifda (If day)
+                { 0x0014, "<If Hour Equals [{0}] [{1}]>" }, // <byte>Hour (in 24 hour format), <ushort>MessageIdIfMatch | Iftm (If time, checks if the hour is the same)
+                { 0x0015, "<If Weather Is [{0}] [{1}]>" }, // <byte>Weather, <ushort>MessageIdIfMatch | Ifwj (Weather)
                 { 0x0016, "<Fruit Check in Player Inventory Jump [{0}] [{1}]>" }, // <byte>FruitIndex (Refer to FruitTreeIndex), <ushort>MessageIdIfMatch | Ifhf (Have Fruit)
-                { 0x0017, "<Dialog Condtional Jump Ifmd [{0}] [{1}]>" }, // <byte>@0, <ushort>MessageIdIfMatch | Ifmd (??) (NOTE: Checks room & carpets) (May have something to do with pattern carpets/wallpapers)
-                { 0x0018, "<Dialog Condtional Jump Ifsd [{0}] [{1}] [{2}]>" }, // <ushort>WearingFavoriteShirtType, <ushort>WearingNeutralShirtType, <ushort>WearingHatedShirtType | Ifsd (If Same Design????) (Checks the "Shirt type" of your shirt against the NPC's favorite and hated shirt types)
-                { 0x0019, "<Dialog Condtional Jump Ifpl [{0}] [{1}]>" }, // <ushort>MessageIdIfNotMatch?, <ushort>MessageIdIfMatch | Ifpl (??) (NOTE: Checks player shirt? Might compare against the villager's shirt)
+                { 0x0017, "<If Using Custom Design [{0}] [{1}]>" }, // <byte>@0, <ushort>MessageIdIfMatch | Ifmd (If my design) (Checks if the specified type of object is using a custom pattern. 1 = Shirt, 2 = Held Item (Umbrellas only), 3 = Door Design, 4 = Carpet, 5 = Wallpaper)
+                { 0x0018, "<Check Shirt Cloth Type [{0}] [{1}] [{2}]>" }, // <ushort>WearingFavoriteShirtType, <ushort>WearingNeutralShirtType, <ushort>WearingHatedShirtType | Ifsd (If Same Design????) (Checks the "Shirt type" of your shirt against the NPC's favorite and hated shirt types)
+                { 0x0019, "<Check Shirt Same As Villager [{0}] [{1}]>" }, // <ushort>MessageIdIfNotMatch?, <ushort>MessageIdIfMatch | Ifpl (??) (Checks if the players shirt is the same as the villagers shirt)
                 { 0x001A, "<Monument In Acre Jump [{0}] [{1}]>" }, // <ushort>HasMonumentId, <ushort>NoMonumentId | Ifmo (Monument)
                 { 0x001B, "<Check B Key Jump [{0}] [{1}]>" }, // <byte>@{0} (Might be what key/key press count), <ushort>MessageId | Sets Message Continue Id if some b key condition is met | ChkBKey
                 { 0x001C, "<Check All Key Jump [{0}] [{1}]>" }, // <byte>@{0} (Might be what key/key press count), <ushort>MessageId | Sets Message Continue Id if some key condition is met | ChkAllKey
                 { 0x001D, "<Dialog Conditional Jump Happy [{0}] [{1}]>" } // <ushort>IfHappyId, <ushort>NotHappyId | Happy
-                // TODO: Rest of the unique jumps (figure them out) (also add decode/encode logic for them)
             }
             },
             { 0x0D, new Dictionary<ushort, string> // Internal Name = "Talk3" (NPC Talk Routines? Maybe for listening in on them?)
@@ -1241,8 +1455,8 @@ namespace Animal_Crossing_Text_Editor
             "aQMgr_actor_add_relation"
         };
 
-        public static Dictionary<byte, string> Character_Map = Animal_Crossing_Character_Map; // Current Character Map
-        public static Dictionary<byte, int> Cont_Id_Appearance = new Dictionary<byte, int>();
+        public static Dictionary<byte, string> CharacterMap = Animal_Crossing_Character_Map; // Current Character Map
+        public static Dictionary<byte, int> ContIdAppearance = new Dictionary<byte, int>();
 
         public static string GetRawText(byte[] Data)
         {
@@ -1265,30 +1479,30 @@ namespace Animal_Crossing_Text_Editor
          *      KanjiBank = 2;
          */
 
-        private static string[] KanjiBank = DnMe_Plus_Kanji_Bank_0;
-        private static string GetRuby(byte[] Data, int DataStart, int TagSize, ref int Count)
+        private static string[] _kanjiBank = DnMe_Plus_Kanji_Bank_0;
+        private static string GetRuby(IReadOnlyList<byte> data, int dataStart, int tagSize, ref int count)
         {
-            byte KanaCount = Data[DataStart + 5];
-            int RubyStart = 6;
-            int RubyCount = TagSize - 6;
-            int KanaStart = RubyStart + RubyCount;
-            string BaseString = Tag_Map[0xFF][0x0002];
-            string Ruby = "";
-            for (int i = DataStart + RubyStart; i < DataStart + RubyStart + RubyCount; i++)
+            var kanaCount = data[dataStart + 5];
+            const int rubyStart = 6;
+            var rubyCount = tagSize - 6;
+            var kanaStart = rubyStart + rubyCount;
+            var baseString = Tag_Map[0xFF][0x0002];
+            var ruby = "";
+            for (var i = dataStart + rubyStart; i < dataStart + rubyStart + rubyCount; i++)
             {
-                Ruby += Doubutsu_no_Mori_Plus_Character_Map[Data[i]];
+                ruby += Doubutsu_no_Mori_Plus_Character_Map[data[i]];
             }
 
-            var FormattedString = string.Format(BaseString, KanaCount, Ruby);
+            var formattedString = string.Format(baseString, kanaCount, ruby);
 
-            for (int i = 0; i < KanaCount; i++)
+            for (var i = 0; i < kanaCount; i++)
             {
-                FormattedString += KanjiBank[Data[DataStart + KanaStart + i]];
+                formattedString += _kanjiBank[data[dataStart + kanaStart + i]];
             }
 
-            Count += KanaCount;
+            count += kanaCount;
 
-            return FormattedString;
+            return formattedString;
         }
 
         // Convert <Color Line [{0}]> and <Color [{1}] Characters [{0}]> Control Codes to Message Tags
@@ -1573,11 +1787,11 @@ namespace Animal_Crossing_Text_Editor
                                     }
                                     else
                                     {
-                                        Text += string.Format("<Unknown ContId 0x{0}>", Cont_Param.ToString("X2"));
-                                        if (Cont_Id_Appearance.ContainsKey(Cont_Param))
-                                            Cont_Id_Appearance[Cont_Param] += 1;
+                                        Text += $"<Unknown ContId 0x{Cont_Param:X2}>";
+                                        if (ContIdAppearance.ContainsKey(Cont_Param))
+                                            ContIdAppearance[Cont_Param] += 1;
                                         else
-                                            Cont_Id_Appearance[Cont_Param] = 1;
+                                            ContIdAppearance[Cont_Param] = 1;
                                     }
                                     break;
                             }
@@ -1622,9 +1836,9 @@ namespace Animal_Crossing_Text_Editor
                                         case 0x0005:
                                             Text += string.Format(Description, (Data[i + 5] > 0x09 ? Data[i + 5] - 0x0A : Data[i + 5]), (Data[i + 5] > 0x09 ? 0 : 1));
                                             if (Data[i + 5] > 0x09)
-                                                KanjiBank = DnMe_Plus_Kanji_Bank_0;
+                                                _kanjiBank = DnMe_Plus_Kanji_Bank_0;
                                             else
-                                                KanjiBank = DnMe_Plus_Kanji_Bank_1;
+                                                _kanjiBank = DnMe_Plus_Kanji_Bank_1;
 
                                             break;
                                         default:
@@ -1863,8 +2077,8 @@ namespace Animal_Crossing_Text_Editor
                         }
                         else
                         {
-                            Text += string.Format("<Tag Size={0} Group={1} Index={2} Params={3}>", Size.ToString("X2"), Data[i + 2].ToString("X2"), ((Data[i + 3] << 8) | Data[i + 4]).ToString("X4"),
-                                BitConverter.ToString(Data.Skip(i + 5).Take(Size - 5).ToArray()).Replace("-", ""));
+                            Text +=
+                                $"<Tag Size={Size:X2} Group={Data[i + 2]:X2} Index={((Data[i + 3] << 8) | Data[i + 4]):X4} Params={BitConverter.ToString(Data.Skip(i + 5).Take(Size - 5).ToArray()).Replace("-", "")}>";
                         }
                         i += Size - 1;
                     }
@@ -1873,22 +2087,23 @@ namespace Animal_Crossing_Text_Editor
                         Debug.WriteLine("0x80 Param Size was less than 3! Size: " + Size);
                     }
                 }
-                else if (Character_Map.ContainsKey(Current_Byte))
+                else if (CharacterMap.ContainsKey(Current_Byte))
                 {
-                    Text += Character_Map[Current_Byte];
+                    Text += CharacterMap[Current_Byte];
                 }
                 else
                 {
                     Text += Encoding.ASCII.GetString(new byte[1] { Current_Byte });
                 }
             }
+
             return Text;
         }
 
-        public static byte[] Encode(string Text, File_Type Character_Set_Type, List<System.Drawing.Color> Colors = null)
+        public static byte[] Encode(string Text, CharacterSet Character_Set_Type, List<System.Drawing.Color> Colors = null)
         {
             List<byte> Data = new List<byte>();
-            Dictionary<byte, string> Character_Map = Character_Set_Type == File_Type.Animal_Crossing
+            Dictionary<byte, string> Character_Map = Character_Set_Type == CharacterSet.AnimalCrossing
                 ? Animal_Crossing_Character_Map : Doubutsu_no_Mori_Plus_Character_Map;
 
             // If BMG, replace any ControlCode Color Commands

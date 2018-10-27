@@ -12,9 +12,9 @@
         Finished
     }
 
-    public interface IParserInterface
+    public interface IParser
     {
-        string Decode(byte[] Input);
-        byte[] Encode(string Input);
+        string Decode(in byte[] input);
+        byte[] Encode(string input);
     }
 }

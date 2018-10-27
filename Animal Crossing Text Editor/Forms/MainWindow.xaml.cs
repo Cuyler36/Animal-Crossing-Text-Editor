@@ -21,14 +21,20 @@ using Animal_Crossing_Text_Editor.Classes.TextPreview;
 using System.Windows.Media.Imaging;
 using System.Net;
 using System.Web;
+using Gem;
 
 namespace Animal_Crossing_Text_Editor
 {
-    public enum File_Type
+    public enum CharacterSet
     {
-        Doubutsu_no_Mori_Plus = 0,
-        Animal_Crossing = 1,
-        Doubutsu_no_Mor_e_Plus = 2
+        DoubutsuNoMori = 0,
+        DoubutsuNoMoriPlus = 1,
+        AnimalCrossing = 2,
+        DoubutsuNoMoriEPlus = 3,
+        DongwuSenlin = 4, // iQue Animal Forest
+        WildWorld = 5,
+        CityFolk = 6,
+        NewLeaf = 7
     }
 
     /// <summary>
@@ -62,7 +68,6 @@ namespace Animal_Crossing_Text_Editor
         private BMCEditorWindow BMCEditor = new BMCEditorWindow();
         private List<ListViewItem> TextItems;
         private CompletionWindow completionWindow;
-        private List<System.Drawing.Color> BMC_Colors;
         private bool Changing_Selected_Entry = false;
         private bool AutoSaveEnabled = true;
         private TextRenderer ACRenderer;
@@ -72,16 +77,24 @@ namespace Animal_Crossing_Text_Editor
         private Stack<ushort> EntryIdStack;
         private Stack<ushort> EntryIdStackRedo; // TODO: Hook this up & rename EntryIdStack to EntryIdStackUndo
         private Forms.SearchWindow listWindow = new Forms.SearchWindow();
+        private MenuItem[] _characterSetItems;
 
         // AutoSave Paths
         private string AutoSave_Path;
         private string AutoSaveTable_Path;
 
-        public static File_Type Character_Set_Type = File_Type.Animal_Crossing;
+        public static CharacterSet SelectedCharacterSet = CharacterSet.AnimalCrossing;
+        public static List<System.Drawing.Color> BMC_Colors;
 
         public MainWindow()
         {
             InitializeComponent();
+
+            _characterSetItems = new[]
+            {
+                PopulationGrowingItem, DoubutsuNoMoriItem, WildWorldItem
+            };
+
             Parser_Worker.WorkerReportsProgress = true;
             Parser_Worker.DoWork += Parser_Worker_DoWork;
             Parser_Worker.ProgressChanged += Parser_Worker_Progress_Changed;
@@ -333,7 +346,7 @@ namespace Animal_Crossing_Text_Editor
                 MessageBox.Show("Ex2: " + ex2.Message + "\n\n" + ex2.StackTrace);
             }
 
-            foreach (KeyValuePair<byte, int> Cont_Param_Rates in TextUtility.Cont_Id_Appearance)
+            foreach (KeyValuePair<byte, int> Cont_Param_Rates in TextUtility.ContIdAppearance)
                 Debug.WriteLine(string.Format("Cont Param 0x{0} appeared {1} times!", Cont_Param_Rates.Key.ToString("X2"), Cont_Param_Rates.Value));
         }
 
@@ -359,7 +372,7 @@ namespace Animal_Crossing_Text_Editor
 
         private void Resize(TextEntry Entry, int Entry_Index, string New_Text)
         {
-            byte[] New_Data = TextUtility.Encode(New_Text, Character_Set_Type);
+            byte[] New_Data = TextUtility.Encode(New_Text, SelectedCharacterSet);
             string Decoded = TextUtility.Decode(New_Data, BMC_Colors); // TODO: Figure out how to not re-decode the bytes
             
             for (int i = 0; i < New_Data.Length; i++)
@@ -388,7 +401,7 @@ namespace Animal_Crossing_Text_Editor
 
         private void ResizeBMG(BMG_INF_Item Entry, int Entry_Index, string New_Text)
         {
-            byte[] New_Data = TextUtility.Encode(New_Text, Character_Set_Type, BMC_Colors);
+            byte[] New_Data = TextUtility.Encode(New_Text, SelectedCharacterSet, BMC_Colors);
             string Decoded = TextUtility.Decode(New_Data, BMC_Colors); // TODO: Figure out how to not re-decode the bytes
 
             for (int i = 0; i < New_Data.Length; i++)
@@ -420,6 +433,20 @@ namespace Animal_Crossing_Text_Editor
             BMG_Struct.INF_Section.Items[SelectedIndex] = Entry;
             var SelectedListViewItem = ((List<ListViewItem>)TextListView.ItemsSource)[SelectedIndex];
             SelectedListViewItem.Content = BMG_Struct.INF_Section.Items[SelectedIndex].Text;
+        }
+
+        private bool TransferEntry(ushort entryId, string dialog)
+        {
+            if (IsBMG)
+            {
+                var data = TextUtility.Encode(dialog, SelectedCharacterSet, BMC_Colors);
+                var text = TextUtility.Decode(data, BMC_Colors);
+
+                return entryId < BMG_Struct.INF_Section.Items.Length &&
+                       BMGUtility.UpdateEntry(BMG_Struct, entryId, data, text);
+            }
+
+            return false;
         }
 
         private void Generate_Text_Entries()
@@ -744,7 +771,7 @@ namespace Animal_Crossing_Text_Editor
                         {
                             ConstructedBMG.INF_Section.Items[i] = new BMG_INF_Item
                             {
-                                Data = TextUtility.Encode(SortedMessages[i], File_Type.Doubutsu_no_Mor_e_Plus, BMC_Colors),
+                                Data = TextUtility.Encode(SortedMessages[i], CharacterSet.DoubutsuNoMoriEPlus, BMC_Colors),
                                 Text = SortedMessages[i],
                                 Text_Offset = (uint)CurrentDATOffset
                             };
@@ -782,7 +809,7 @@ namespace Animal_Crossing_Text_Editor
 
         private async void Open_Click(object sender, RoutedEventArgs e)
         {
-            SelectDialog.Filter = "Binary Files|*.bin";
+            SelectDialog.Filter = "All Supported Files|*.bmg;*.bin|Binary Message Group Files|*.bmg|Binary Files|*.bin|All Files|*.*";
             SelectDialog.FileName = "";
 
             // Clear Connection TreeView Items & Hide Tab
@@ -818,9 +845,19 @@ namespace Animal_Crossing_Text_Editor
                         Debug.WriteLine($"BMC File found! Loaded {BMC_Colors.Count} colors.");
                     }
 
-                    BMG_Struct = await BMGUtility.Decode(File_Path, BMC_Colors, new ReportBMGLoadProgressHandle(ReportBMGLoadProgress)); // Should probably change to a byte array at some point
-                    Generate_BMG_Text_Entries(BMG_Struct);
-                    SetStatusMessage(string.Format("{0} was successfully loaded!", Path.GetFileName(File_Path)));
+                    try
+                    {
+                        BMG_Struct = await BMGUtility.Decode(File_Path, BMC_Colors,
+                            new ReportBMGLoadProgressHandle(
+                                ReportBMGLoadProgress)); // Should probably change to a byte array at some point
+                        Generate_BMG_Text_Entries(BMG_Struct);
+                        SetStatusMessage($"{Path.GetFileName(File_Path)} was successfully loaded!");
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex.Message);
+                        Debug.WriteLine(ex.StackTrace);
+                    }
                 }
                 else
                 {
@@ -1098,7 +1135,7 @@ namespace Animal_Crossing_Text_Editor
             {
                 if (!string.IsNullOrEmpty(Editor.Text))
                 {
-                    string Text = Editor.Text.Replace("\r", String.Empty);
+                    string Text = Editor.Text.Replace("\r", string.Empty);
 
                     if (!IsBMG)
                     {
@@ -1108,6 +1145,11 @@ namespace Animal_Crossing_Text_Editor
                     else
                     {
                         ResizeBMG(BMG_Struct.INF_Section.Items[SelectedIndex], SelectedIndex, Text);
+                    }
+
+                    if (IncrementEntryMenuItem.IsChecked)
+                    {
+                        nextButton_Click(null, null);
                     }
 
                     // AutoSave
@@ -1127,53 +1169,18 @@ namespace Animal_Crossing_Text_Editor
                 SearchLabel.Visibility = Visibility.Visible;
         }
 
-        private async void AC_CharSet_Checked(object sender, RoutedEventArgs e)
+        private static readonly Regex ReplaceRegex = new Regex(@"<([^>]+)>");
+        private static string CopyTextToClipboard(string text)
         {
-            if (AC_CharSet.IsChecked == true)
-            {
-                Character_Set_Type = File_Type.Animal_Crossing;
-                TextUtility.Character_Map = Character_Set_Type == File_Type.Doubutsu_no_Mori_Plus
-                    ? TextUtility.Doubutsu_no_Mori_Plus_Character_Map : TextUtility.Animal_Crossing_Character_Map;
-
-                if (IsBMG && !string.IsNullOrEmpty(File_Path))
-                {
-                    BMG_Struct = await BMGUtility.Decode(File_Path, BMC_Colors);
-                    Generate_BMG_Text_Entries(BMG_Struct);
-                }
-                else
-                    Generate_Text_Entries();
-            }
-        }
-
-        private async void DnM_CharSet_Checked(object sender, RoutedEventArgs e)
-        {
-            if (DnM_CharSet.IsChecked == true)
-            {
-                Character_Set_Type = File_Type.Doubutsu_no_Mori_Plus;
-                TextUtility.Character_Map = Character_Set_Type == File_Type.Doubutsu_no_Mori_Plus
-                    ? TextUtility.Doubutsu_no_Mori_Plus_Character_Map : TextUtility.Animal_Crossing_Character_Map;
-                if (IsBMG && !string.IsNullOrEmpty(File_Path))
-                {
-                    BMG_Struct = await BMGUtility.Decode(File_Path, BMC_Colors);
-                    Generate_BMG_Text_Entries(BMG_Struct);
-                }
-                else
-                    Generate_Text_Entries();
-            }
-        }
-
-        private string CopyTextToClipboard(string Text)
-        {
-            var replaceRegex = new Regex(@"<([^>]+)>");
-            var strippedText = replaceRegex.Replace(Text, "").Trim();
+            //var matches = ReplaceRegex.Matches(Text);
+            // Get Furigana
+            //Console.WriteLine(new Furigana("誰[だれ]").Reading);
+            var strippedText = ReplaceRegex.Replace(text, "").Trim();
             Clipboard.SetText(strippedText);
             return strippedText;
         }
 
-        private bool IsHex(string Text)
-        {
-            return Regex.IsMatch(Text, @"\A\b[0-9a-fA-F]+\b\Z");
-        }
+        private static bool IsHex(string text) => Regex.IsMatch(text, @"\A\b[0-9a-fA-F]+\b\Z");
 
         private void MenuItem_Click_1(object sender, RoutedEventArgs e)
         {
@@ -1202,11 +1209,11 @@ namespace Animal_Crossing_Text_Editor
         {
             if (SelectedIndex > -1 && Entries != null)
             {
-                CopyTextToClipboard(Entries[SelectedIndex].Text.Replace("\n", "\r\n"));
+                CopyTextToClipboard(TextUtility.ReplaceCommands(Entries[SelectedIndex].Text));
             }
             else if (SelectedIndex > -1 && IsBMG)
             {
-                CopyTextToClipboard(BMG_Struct.INF_Section.Items[SelectedIndex].Text.Replace("\n", "\r\n"));
+                CopyTextToClipboard(TextUtility.ReplaceCommands(BMG_Struct.INF_Section.Items[SelectedIndex].Text));
             }
         }
 
@@ -1361,19 +1368,12 @@ namespace Animal_Crossing_Text_Editor
         private void UpdateTextPreview()
         {
             AFeRenderer.Reset(BMC_Colors);
-            List<BitmapSource> PagesList = new List<BitmapSource>();
-            foreach (string Page in Editor.Text.Split(new string[] { "<New Page>" }, StringSplitOptions.None))
-            {
-                var Image = AFeRenderer.RenderText(Page, TextUtility.Doubutsu_no_Mori_Plus_Character_Map,
-                    TextUtility.DnMe_Plus_Kanji_Bank_0, TextUtility.DnMe_Plus_Kanji_Bank_1, BMC_Colors);
-                if (Image != null)
-                {
-                    PagesList.Add(Image);
-                }
-            }
 
             previewWindow.windowBackground.Source = TextRenderUtility.Convert(Properties.Resources.Dialog_Window);
-            previewWindow.TextPreviews = PagesList.ToArray();
+            previewWindow.TextPreviews = Editor.Text.Split(new[] {"<Clear Text>"}, StringSplitOptions.None)
+                .Select(page => AFeRenderer.RenderText(page, TextUtility.Doubutsu_no_Mori_Plus_Character_Map,
+                    TextUtility.DnMe_Plus_Kanji_Bank_0, TextUtility.DnMe_Plus_Kanji_Bank_1, BMC_Colors))
+                .Where(image => image != null).ToArray();
         }
 
         private void Editor_TextChanged(object sender, EventArgs e)
@@ -1388,21 +1388,12 @@ namespace Animal_Crossing_Text_Editor
             else
             {
                 // TODO: Check here for AF/AF+/AC
-                if (previewWindow != null)
-                {
-                    List<BitmapSource> PagesList = new List<BitmapSource>();
-                    foreach (string Page in Editor.Text.Split(new string[] { "<New Page>" }, StringSplitOptions.None))
-                    {
-                        var Image = ACRenderer.RenderText(Page, TextUtility.Animal_Crossing_Character_Map);
-                        if (Image != null)
-                        {
-                            PagesList.Add(Image);
-                        }
-                    }
+                if (previewWindow == null) return;
 
-                    previewWindow.windowBackground.Source = TextRenderUtility.Convert(Properties.Resources.Dialog_Window);
-                    previewWindow.TextPreviews = PagesList.ToArray();
-                }
+                previewWindow.windowBackground.Source = TextRenderUtility.Convert(Properties.Resources.Dialog_Window);
+                previewWindow.TextPreviews = Editor.Text.Split(new[] {"<Clear Text>"}, StringSplitOptions.None)
+                    .Select(page => ACRenderer.RenderText(page, TextUtility.Animal_Crossing_Character_Map))
+                    .Where(image => image != null).ToArray();
             }
 
             /*if (Editor.CaretOffset > 0 && Editor.CaretOffset < Editor.Text.Length &&
@@ -1613,6 +1604,52 @@ namespace Animal_Crossing_Text_Editor
             textTab.Visibility = Visibility.Visible;
             connectionTab.Visibility = Visibility.Visible;
             SetStatusMessage("Dialog Connection Tree was successfully generated!");
+        }
+
+        private async void SetCharacterSet(object sender, RoutedEventArgs e)
+        {
+            if (!(sender is MenuItem menuItem)) return;
+
+            var lastSelected = SelectedCharacterSet;
+
+            if (menuItem == PopulationGrowingItem)
+            {
+                SelectedCharacterSet = CharacterSet.AnimalCrossing;
+                TextUtility.CharacterMap = TextUtility.Animal_Crossing_Character_Map;
+            }
+            else if (menuItem == DoubutsuNoMoriItem)
+            {
+                SelectedCharacterSet = CharacterSet.DoubutsuNoMoriPlus; // TODO: DnM, DnM+, and DnMe+ all have slightly different character sets.
+                TextUtility.CharacterMap = TextUtility.Doubutsu_no_Mori_Plus_Character_Map;
+            }
+            else if (menuItem == WildWorldItem)
+            {
+                SelectedCharacterSet = CharacterSet.WildWorld;
+                TextUtility.CharacterMap = TextUtility.WildWorldCharacterMap; // TODO: Wild World needs its own map. It's different than user text.
+            }
+            else
+            {
+                throw new ArgumentException("sender was not a character set menu item!");
+            }
+
+            foreach (var item in _characterSetItems)
+            {
+                item.IsChecked = item == menuItem;
+            }
+
+            // Don't bother reevaluating entries if the character set is unchanged.
+            if (lastSelected == SelectedCharacterSet) return;
+
+            // Reevaluate the entries
+            if (IsBMG && !string.IsNullOrEmpty(File_Path))
+            {
+                BMG_Struct = await BMGUtility.Decode(File_Path, BMC_Colors);
+                Generate_BMG_Text_Entries(BMG_Struct);
+            }
+            else
+            {
+                Generate_Text_Entries();
+            }
         }
     }
 }

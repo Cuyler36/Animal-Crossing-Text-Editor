@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Animal_Crossing_Text_Editor
 {
-    class GCNParser : IParserInterface
+    public sealed class GCNParser : IParser
     {
-        static readonly internal byte[] ControlCodeSizeTable = new byte[0x7D]
+        internal static readonly byte[] ControlCodeSizeTable = new byte[0x7D]
         {
             0x02, 0x02, 0x02, 0x03, 0x02, 0x05, 0x02, 0x02, 0x05, 0x05, 0x05, 0x05, 0x05, 0x02, 0x04, 0x04,
             0x04, 0x04, 0x04, 0x06, 0x08, 0x0A, 0x06, 0x08, 0x0A, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
@@ -20,7 +20,7 @@ namespace Animal_Crossing_Text_Editor
             0x03, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x04, 0x04, 0x0C, 0x0E, 0x02, 0x03
         };
 
-        static readonly internal byte[] UnknownControlCodeInfoTable = new byte[0x7D]
+        internal static readonly byte[] UnknownControlCodeInfoTable = new byte[0x7D]
         {
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
@@ -56,7 +56,7 @@ namespace Animal_Crossing_Text_Editor
 
         internal ParserState State = ParserState.None;
 
-        protected internal abstract class MessageParamBase
+        internal abstract class MessageParamBase
         {
             public readonly byte Specifier;
 
@@ -66,7 +66,7 @@ namespace Animal_Crossing_Text_Editor
             }
         }
 
-        protected internal sealed class ControlCode : MessageParamBase
+        internal sealed class ControlCode : MessageParamBase
         {
             public byte Id;
             public byte[] Data;
@@ -118,7 +118,7 @@ namespace Animal_Crossing_Text_Editor
                 => Char == 0x7F;
         }
 
-        protected internal sealed class MessageTag : MessageParamBase
+        internal sealed class MessageTag : MessageParamBase
         {
             public byte Size;
             public byte Group;
@@ -187,7 +187,7 @@ namespace Animal_Crossing_Text_Editor
             }
         }
 
-        protected internal string GetDataString(int Input, DataType Type)
+        internal string GetDataString(int Input, DataType Type)
         {
             switch (Type)
             {
@@ -204,17 +204,17 @@ namespace Animal_Crossing_Text_Editor
             }
         }
 
-        protected internal string GetControlCodeString(byte ControlCode, byte[] ControlCodeData)
+        internal string GetControlCodeString(byte ControlCode, byte[] ControlCodeData)
         {
             throw new NotImplementedException();
         }
 
-        protected internal byte[] EncodeControlCode(string ControlCodeString)
+        internal byte[] EncodeControlCode(string ControlCodeString)
         {
             throw new NotImplementedException();
         }
 
-        protected internal string DecodeMessageTag(byte[] InputData, int Index)
+        internal string DecodeMessageTag(byte[] InputData, int Index)
         {
             var Tag = new MessageTag(InputData, Index);
             KeyValuePair<string, MsgTagParamType> MessageTagInfo = MessageTagDictionary.ElementAt(Tag.Group).ElementAt(Tag.Index);
@@ -234,12 +234,13 @@ namespace Animal_Crossing_Text_Editor
             return string.Format(MessageTagInfo.Key, Argument); // TODO: Argument needs to be an array
         }
 
-        public string Decode(byte[] Input)
+        public string Decode(in byte[] input)
         {
-            throw new NotImplementedException();
+            return TextUtility.Decode(input, MainWindow.BMC_Colors); // TODO: Remove this static reference.
+            //throw new NotImplementedException();
         }
 
-        public byte[] Encode(string Input)
+        public byte[] Encode(string input)
         {
             throw new NotImplementedException();
         }

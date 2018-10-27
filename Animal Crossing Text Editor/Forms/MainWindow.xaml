@@ -27,10 +27,16 @@
                 <MenuItem Header="_Entries">
                     <MenuItem Header="_Copy Text to Clipboard" Click="MenuItem_Click_2"/>
                     <MenuItem Header="_Generate Entry Connections" Click="MenuItem_Click_4"/>
+                    <MenuItem x:Name="IncrementEntryMenuItem" Header="_Increment Entry After Saving Text" IsCheckable="True"/>
                 </MenuItem>
                 <MenuItem Header="_Goto">
                     <MenuItem Header="_First Entry" Click="MenuItem_Click" />
                     <MenuItem Header="_Last Entry" Click="MenuItem_Click_3" />
+                </MenuItem>
+                <MenuItem Header="_Character Set">
+                    <MenuItem x:Name="PopulationGrowingItem" Header="_Population Growing" Click="SetCharacterSet" IsCheckable="True" IsChecked="True"/>
+                    <MenuItem x:Name="DoubutsuNoMoriItem" Header="_Dōbutsu no Mori / + / e+" Click="SetCharacterSet" IsCheckable="True"/>
+                    <MenuItem x:Name="WildWorldItem" Header="_Wild Word" Click="SetCharacterSet" IsCheckable="True"/>
                 </MenuItem>
             </Menu>
         </DockPanel>
@@ -41,11 +47,6 @@
         <TextBox x:Name="EntryBox" Text="0" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50, 26, 0, 0" Width="40" MaxLength="4" TextChanged="EntryBox_TextChanged"/>
         <Label x:Name="OffsetLabel" Content="Offset:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100,21,0,0"/>
         <TextBox x:Name="OffsetBox" Text="0" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="145, 26, 0, 0" Width="60" TextChanged="OffsetBox_TextChanged"/>
-        <StackPanel HorizontalAlignment="Left" Height="20" Margin="10,0,0,10" VerticalAlignment="Bottom" Width="328" Orientation="Horizontal">
-            <Label Content="Character Set:" VerticalAlignment="Top" Margin="0, -5, 0, 0"/>
-            <RadioButton x:Name="DnM_CharSet" Content="Doubutsu no Mori+" VerticalAlignment="Center" Checked="DnM_CharSet_Checked"/>
-            <RadioButton x:Name="AC_CharSet" Content="Animal Crossing" VerticalAlignment="Center" IsChecked="True" Margin="10, 0, 0, 0" Checked="AC_CharSet_Checked"/>
-        </StackPanel>
         <ProgressBar x:Name="ProgressBar" Height="20" Width="110" Margin="0,0,99,10" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
         <Button x:Name="nextButton" Content="Next" HorizontalAlignment="Right" Grid.Column="0" Margin="0,0,374,10" VerticalAlignment="Bottom" Width="75" Click="nextButton_Click"/>
         <Button x:Name="prevButton" Content="Previous" HorizontalAlignment="Right" Grid.Column="0" Margin="0,0,454,10" VerticalAlignment="Bottom" Width="75" Click="prevButton_Click"/>
