@@ -17,6 +17,7 @@ using ICSharpCode.AvalonEdit.CodeCompletion;
 using System.Threading.Tasks;
 using Microsoft.Win32;
 using ICSharpCode.AvalonEdit.Rendering;
+using Xceed.Wpf.AvalonDock.Controls;
 using Animal_Crossing_Text_Editor.Classes.TextPreview;
 using System.Windows.Media.Imaging;
 using System.Net;
@@ -506,7 +507,8 @@ namespace Animal_Crossing_Text_Editor
 
             for (int i = 0; i < bmc.CLT_Section.Items.Length; i++)
             {
-                BMCColors.Add(System.Drawing.Color.FromArgb((int)bmc.CLT_Section.Items[i]));
+                BMCColors.Add(System.Drawing.Color.FromArgb(
+                    (int) ((bmc.CLT_Section.Items[i].Reverse() >> 8) | (bmc.CLT_Section.Items[i] & 0xFF000000))));
             }
 
             return BMCColors;
@@ -1196,6 +1198,9 @@ namespace Animal_Crossing_Text_Editor
                     if (bmcFile.Identifier.Equals("MGCLbmc1"))
                     {
                         BMCEditor.Show(bmcFile);
+
+                        // Load the new BMC's colors
+                        BMC_Colors = GetBMCColors(bmcFile);
                     }
                     else
                     {

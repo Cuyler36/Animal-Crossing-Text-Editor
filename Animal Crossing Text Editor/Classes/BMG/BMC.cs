@@ -65,22 +65,20 @@ namespace Animal_Crossing_Text_Editor
             Unknown = 0;
         }
 
-        public CLTSection(byte[] Buffer)
+        public CLTSection(byte[] buffer)
         {
-            if (Buffer.Length > 0x0C)
+            if (buffer.Length <= 0x0C) return;
+
+            Identifier = Encoding.ASCII.GetString(buffer, 0, 4);
+            Length = BitConverter.ToUInt32(buffer, 4).Reverse();
+            Entries = BitConverter.ToUInt16(buffer, 8).Reverse();
+            Unknown = BitConverter.ToUInt16(buffer, 0xA).Reverse();
+
+            Items = new uint[Entries];
+
+            for (var i = 0; i < Entries; i++)
             {
-                Identifier = Encoding.ASCII.GetString(Buffer, 0, 4);
-                Length = BitConverter.ToUInt32(Buffer, 4).Reverse();
-                Entries = BitConverter.ToUInt16(Buffer, 8).Reverse();
-                Unknown = BitConverter.ToUInt16(Buffer, 0xA).Reverse();
-
-                Items = new uint[Entries];
-
-                for (int i = 0; i < Entries; i++)
-                {
-                    Items[i] = BitConverter.ToUInt32(Buffer, 0x0C + i * 4).Reverse();
-                    Items[i] = ((Items[i] & 0xFF) << 24) | (Items[i] >> 8); // Convert from RGBA to ARGB
-                }
+                Items[i] = BitConverter.ToUInt32(buffer, 0x0C + i * 4); // Format is ARGB
             }
         }
     }

@@ -820,11 +820,11 @@ namespace Animal_Crossing_Text_Editor
             { 0x48, "<PlayerDestiny 7>" },
             { 0x49, "<PlayerDestiny 8>" },
             { 0x4A, "<PlayerDestiny 9>" },
-            { 0x4B, "<Villager Normal State>" }, // SetMessageContentsNormal_ControlCursol
-            { 0x4C, "<Villager Angry State>" }, // SetMessageContentsAngry_ControlCursol
-            { 0x4D, "<Villager Sad State>" }, // SetMessageContentsSad_ControlCursol
-            { 0x4E, "<Villager Happy State>" }, // SetMessageContentsFun_ControlCursol
-            { 0x4F, "<Villager Sleepy State>" }, // SetMessageContentsSleepy_ControlCursol
+            { 0x4B, "<Normal Voice>" }, // SetMessageContentsNormal_ControlCursol 
+            { 0x4C, "<Angry Voice>" }, // SetMessageContentsAngry_ControlCursol
+            { 0x4D, "<Sad Voice>" }, // SetMessageContentsSad_ControlCursol
+            { 0x4E, "<Happy Voice>" }, // SetMessageContentsFun_ControlCursol
+            { 0x4F, "<Sleepy Voice>" }, // SetMessageContentsSleepy_ControlCursol
             { 0x50, "<Color [{0}] Characters [{1}]>" }, // RGB in hex follows, then the character count (SetColorChar_ControlCursol)
             { 0x51, "<Actor Speech Type [{0}]>" },
             { 0x52, "<Line Offset [{0}]>" }, // Sets how far down the reset of the line is
@@ -842,7 +842,7 @@ namespace Animal_Crossing_Text_Editor
             { 0x5E, "<B Button Selects Last Choice>" },
             // 0x5F (GiveOpen) (mMsg_Main_Cursol_GiveOpen_ControlCursol)
             // 0x60 (GiveClothes) (mMsg_Main_Cursol_GiveClose_ControlCursol)
-            { 0x61, "<Set NPC Voice Gloomy>" }, // Changes the tone for the NPC's voice to be "gloomy" until the dialog ends (mMsg_Main_Cursol_SetMessageContentsGloomy_ControlCursol)
+            { 0x61, "<Gloomy Voice>" }, // Changes the tone for the NPC's voice to be "gloomy" until the dialog ends (mMsg_Main_Cursol_SetMessageContentsGloomy_ControlCursol)
             { 0x62, "<B Button Cannot Close Menu>" }, // mMsg_Main_Cursol_SelectNoBClose_Control_Cursol
             { 0x63, "<Set Random Jump Entry Section [{0}] [{1}]>" }, // Sets a random jump entry between the first and second arguments (second argument must be greater than or equal to the first argument's message id!) (mMsg_Main_Cursol_SetNextMessageRamdomSection_ControlCursol)
             // 0x64 (mMsg_Main_Cursol_AgbDummy_ControlCursol) (Probably something to do with the Gameboy Advance connection [Agb = Advance Gameboy])
@@ -1521,7 +1521,8 @@ namespace Animal_Crossing_Text_Editor
                         LineEndIndex = Input.Length - 1; // Set it to the end of the string
                     }
 
-                    System.Drawing.Color ThisColor = System.Drawing.Color.FromArgb((0xFF << 24) | HexColor);
+                    var ThisColor = System.Drawing.Color.FromArgb((0xFF << 24) | HexColor);
+                    var foundMatch = false;
                     for (int i = 0; i < Colors.Count; i++)
                     {
                         if (Colors[i] == ThisColor)
@@ -1535,8 +1536,14 @@ namespace Animal_Crossing_Text_Editor
                             {
                                 Input = Input.Substring(0, Index) + $"<Line Color Index [{i}]>" + Input.Substring(EndIndex + 1);
                             }
+
+                            foundMatch = true;
+                            break;
                         }
                     }
+
+                    // If we didn't find a match we should exit immediately. Otherwise we'll be in an endless loop.
+                    if (!foundMatch) return Input;
                 }
             }
 
@@ -1577,7 +1584,8 @@ namespace Animal_Crossing_Text_Editor
                         LastColorIndex++;
                     }
 
-                    System.Drawing.Color ThisColor = System.Drawing.Color.FromArgb((0xFF << 24) | HexColor);
+                    var ThisColor = System.Drawing.Color.FromArgb((0xFF << 24) | HexColor);
+                    var foundMatch = false;
                     for (int i = 0; i < Colors.Count; i++)
                     {
                         if (Colors[i] == ThisColor)
@@ -1591,8 +1599,13 @@ namespace Animal_Crossing_Text_Editor
                             {
                                 Input = Input.Substring(0, Index) + $"<Line Color Index [{i}]>" + Input.Substring(EndIndex + 1);
                             }
+
+                            foundMatch = true;
+                            break;
                         }
                     }
+
+                    if (!foundMatch) return Input; // Also return immediately if no match is found.
                 }
             }
 
