@@ -21,6 +21,7 @@ using Xceed.Wpf.AvalonDock.Controls;
 using Animal_Crossing_Text_Editor.Classes.TextPreview;
 using System.Windows.Media.Imaging;
 using System.Net;
+using System.Text;
 using System.Web;
 using Gem;
 
@@ -93,7 +94,7 @@ namespace Animal_Crossing_Text_Editor
 
             _characterSetItems = new[]
             {
-                PopulationGrowingItem, DoubutsuNoMoriItem, WildWorldItem
+                PopulationGrowingItem, DoubutsuNoMoriItem, WildWorldItem, CityFolkItem
             };
 
             Parser_Worker.WorkerReportsProgress = true;
@@ -115,7 +116,7 @@ namespace Animal_Crossing_Text_Editor
 
             Closed += delegate (object sender, EventArgs e)
             {
-                App.Current.Shutdown();
+                Application.Current.Shutdown();
             };
 
             Editor.TextArea.TextEntered += Editor_TextEntered;
@@ -1617,20 +1618,25 @@ namespace Animal_Crossing_Text_Editor
 
             var lastSelected = SelectedCharacterSet;
 
-            if (menuItem == PopulationGrowingItem)
+            if (Equals(menuItem, PopulationGrowingItem))
             {
                 SelectedCharacterSet = CharacterSet.AnimalCrossing;
                 TextUtility.CharacterMap = TextUtility.Animal_Crossing_Character_Map;
             }
-            else if (menuItem == DoubutsuNoMoriItem)
+            else if (Equals(menuItem, DoubutsuNoMoriItem))
             {
                 SelectedCharacterSet = CharacterSet.DoubutsuNoMoriPlus; // TODO: DnM, DnM+, and DnMe+ all have slightly different character sets.
                 TextUtility.CharacterMap = TextUtility.Doubutsu_no_Mori_Plus_Character_Map;
             }
-            else if (menuItem == WildWorldItem)
+            else if (Equals(menuItem, WildWorldItem))
             {
                 SelectedCharacterSet = CharacterSet.WildWorld;
                 TextUtility.CharacterMap = TextUtility.WildWorldCharacterMap; // TODO: Wild World needs its own map. It's different than user text.
+            }
+            else if (menuItem.Equals(CityFolkItem))
+            {
+                SelectedCharacterSet = CharacterSet.CityFolk;
+                TextUtility.CharacterMap = null; // Uses Unicode.
             }
             else
             {

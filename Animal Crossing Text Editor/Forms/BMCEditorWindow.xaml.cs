@@ -119,7 +119,9 @@ namespace Animal_Crossing_Text_Editor
                 for (int i = SelectedIndex + 1; i < BMC_File.CLT_Section.Items.Length; i++)
                 {
                     BMC_File.CLT_Section.Items[i - 1] = BMC_File.CLT_Section.Items[i];
-                    ((listBox.Items[i] as DockPanel).Children[0] as Label).Content = i - 1;
+                    var uiElementCollection = (listBox.Items[i] as DockPanel)?.Children;
+                    if (uiElementCollection != null && uiElementCollection.Count > 0)
+                        ((Label) ((DockPanel) listBox.Items[i])?.Children[0]).Content = i - 1;
                 }
 
                 listBox.Items.RemoveAt(SelectedIndex);

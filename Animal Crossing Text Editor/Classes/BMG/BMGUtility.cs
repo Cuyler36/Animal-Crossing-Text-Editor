@@ -141,7 +141,7 @@ namespace Animal_Crossing_Text_Editor
 
                     // Debug Lines
                     Console.WriteLine("BMG Section Count: " + bmg.SectionCount);
-                    Console.WriteLine("UTF16: " + (bmg.Encoding == 2).ToString());
+                    Console.WriteLine("UTF16: " + (bmg.Encoding == 0x02000000));
 
                     // Create our Text Info Section (INF)
                     reader.BaseStream.Position = 0x20;
@@ -231,7 +231,7 @@ namespace Animal_Crossing_Text_Editor
                             long endingOffset;
                             if (i == bmg.INF_Section.MessageCount - 1)
                             {
-                                endingOffset = reader.BaseStream.Length;
+                                endingOffset = bmg.DAT_Section.Size > 0 ? bmg.DAT_Section.Offset + bmg.DAT_Section.Size : reader.BaseStream.Length;
                             }
                             else
                             {

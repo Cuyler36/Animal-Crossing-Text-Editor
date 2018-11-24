@@ -39,6 +39,7 @@
                     <MenuItem x:Name="PopulationGrowingItem" Header="_Population Growing" Click="SetCharacterSet" IsCheckable="True" IsChecked="True"/>
                     <MenuItem x:Name="DoubutsuNoMoriItem" Header="_Dōbutsu no Mori / + / e+" Click="SetCharacterSet" IsCheckable="True"/>
                     <MenuItem x:Name="WildWorldItem" Header="_Wild Word" Click="SetCharacterSet" IsCheckable="True"/>
+                    <MenuItem x:Name="CityFolkItem" Header="_City Folk" Click="SetCharacterSet" IsCheckable="True"/>
                 </MenuItem>
             </Menu>
         </DockPanel>

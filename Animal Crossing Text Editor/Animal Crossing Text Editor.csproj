@@ -107,6 +107,7 @@
     <Compile Include="Classes\Parser\Command\Commands.cs" />
     <Compile Include="Classes\Parser\Command\ICommand.cs" />
     <Compile Include="Classes\Parser\Segment\ITextSegment.cs" />
+    <Compile Include="Classes\Parser\Wii\WiiParser.cs" />
     <Compile Include="Classes\TextPreview\Spritesheet.cs" />
     <Compile Include="Classes\TextPreview\TextRenderer.cs" />
     <Compile Include="Classes\TextPreview\TextRenderUtility.cs" />

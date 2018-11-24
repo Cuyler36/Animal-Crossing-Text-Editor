@@ -1,4 +1,5 @@
 ﻿using System;
+using Animal_Crossing_Text_Editor.Classes.Parser.Wii;
 
 namespace Animal_Crossing_Text_Editor
 {
@@ -19,6 +20,9 @@ namespace Animal_Crossing_Text_Editor
 
                 case CharacterSet.WildWorld:
                     return new NDSParser();
+
+                case CharacterSet.CityFolk:
+                    return new WiiParser();
 
                 default:
                     throw new NotImplementedException();
