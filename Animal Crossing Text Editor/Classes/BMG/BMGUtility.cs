@@ -37,6 +37,15 @@ namespace Animal_Crossing_Text_Editor
                     Writer.Write(BitConverter.GetBytes(File.Encoding).Reverse().ToArray());
                     Writer.Write(new byte[0xC]); // Padding
 
+                    // Calculate INF Section Size
+                    File.INF_Section.Size = 0x10 + File.INF_Section.INF_Size * (uint) File.INF_Section.Items.Length;
+
+                    // Assure that the INF Section is aligned to a 32 byte grid.
+                    if (File.INF_Section.Size % 32 != 0)
+                    {
+                        File.INF_Section.Size += 32 - File.INF_Section.Size % 32;
+                    }
+
                     // Write INF Header
                     Writer.Write(Encoding.ASCII.GetBytes("INF1"));
                     Writer.Write(BitConverter.GetBytes(File.INF_Section.Size).Reverse().ToArray());
@@ -52,6 +61,10 @@ namespace Animal_Crossing_Text_Editor
 
                     // Add padding as needed
                     Writer.Write(new byte[File.DAT_Section.Offset - Writer.BaseStream.Position]);
+
+                    // Set the correct DAT size.
+                    File.DAT_Section.Size = 8 + File.INF_Section.Items[0].Text_Offset +
+                        File.INF_Section.Items.Aggregate((uint) 0, (current, b) => current + (uint) b.Data.Length);
 
                     // Write DAT Header
                     Writer.Write(Encoding.ASCII.GetBytes("DAT1"));
@@ -220,9 +233,8 @@ namespace Animal_Crossing_Text_Editor
 
                     await Task.Run(() =>
                     {
-                        var parser =
-                            Parser.GetParser(MainWindow
-                                .SelectedCharacterSet); // TODO: Move this static reference out of here.
+                        // TODO: Move this static reference out of here.
+                        var parser = Parser.GetParser(MainWindow.SelectedCharacterSet);
 
                         for (var i = 0; i < bmg.INF_Section.MessageCount; i++)
                         {
@@ -231,7 +243,9 @@ namespace Animal_Crossing_Text_Editor
                             long endingOffset;
                             if (i == bmg.INF_Section.MessageCount - 1)
                             {
-                                endingOffset = bmg.DAT_Section.Size > 0 ? bmg.DAT_Section.Offset + bmg.DAT_Section.Size : reader.BaseStream.Length;
+                                endingOffset = bmg.DAT_Section.Size > 0
+                                    ? bmg.DAT_Section.Offset + bmg.DAT_Section.Size
+                                    : reader.BaseStream.Length;
                             }
                             else
                             {
@@ -243,14 +257,16 @@ namespace Animal_Crossing_Text_Editor
                             // TODO: Wild World has a case where if the next INF entry is 0, the message id? or something is set to the next value after that
                             // This means that each entry is 0xC in size max.
 
-                            var readSize = (int) (endingOffset - reader.BaseStream.Position);
+                            var readSize = (int) (endingOffset - startingOffset);
                             if (readSize < 0)
                                 Console.WriteLine($"Read size is less than 0 for entry {i:X4}");
 
                             bmg.INF_Section.Items[i].Data = reader.ReadBytes(readSize);
                             bmg.INF_Section.Items[i].Text =
-                                parser.Decode(bmg.INF_Section.Items[i]
-                                    .Data); //TextUtility.Decode(bmg.INF_Section.Items[i].Data, colors);
+                                MainWindow.SelectedCharacterSet == CharacterSet.DoubutsuNoMoriPlus
+                                    ? TextUtility.Decode(bmg.INF_Section.Items[i].Data, colors)
+                                    : parser.Decode(bmg.INF_Section.Items[i].Data);
+
                             bmg.INF_Section.Items[i].Length = (uint) (endingOffset - startingOffset);
 
                             if (reportProgressFunc != null && i % 50 == 0)

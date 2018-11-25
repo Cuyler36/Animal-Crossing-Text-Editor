@@ -27,9 +27,7 @@ namespace Animal_Crossing_Text_Editor.Classes.Parser.Wii
                     var index = BitConverter.ToUInt16(data, i + 4).Reverse();
                     var arguments = data.Skip(i + 6).Take(size - MinimumMsgTagSize);
 
-                    // Temporarily put command string in.
-                    message +=
-                        $"<Group={group:X2} Index={index:X4} Args={arguments.Aggregate("", (current, b) => current + $"{b:X2}")}>";
+                    message += MessageTags.GetMessageTagString(group, index, arguments);
 
                     i += size - 2;
                 }
